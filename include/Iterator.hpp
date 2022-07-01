@@ -6,15 +6,15 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/06/24 19:35:44 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/01 13:35:33 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ITERATOR_HPP
 #define ITERATOR_HPP
 #include <iterator>
-#include "headers.hpp"
-
+#include <memory>
+#include <limits>
 
 namespace ft
 {
@@ -79,7 +79,7 @@ namespace ft
 	template <class Category, class T>
 	class iterator
 	{
-	public:
+	protected:
 		typedef typename T::value_type			value_type;
 		typedef typename T::pointer				pointer;
 		typedef typename T::reference			reference;
@@ -87,7 +87,76 @@ namespace ft
 		typedef typename T::difference_type 	difference_type;
 
 		pointer	_ptr;
+	};
 
+	template <class V>
+	class RandomAccessIterator : public ft::iterator<ft::random_access_iterator_tag, V>
+	{
+	public:
+		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::value_type		value_type;
+		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::pointer			pointer;
+		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::reference			reference;
+		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::difference_type	difference_type;
+		
+		using ft::iterator<ft::random_access_iterator_tag, V>::iterator_category;
+		using ft::iterator<ft::random_access_iterator_tag, V>::_ptr;
+
+		RandomAccessIterator<V>() {  };
+
+		RandomAccessIterator<V>(pointer ptr) { this->_ptr = ptr; }
+
+		RandomAccessIterator<V>(const RandomAccessIterator<V>& it) { *this = it; };
+		
+		virtual ~RandomAccessIterator<V>() {  };
+
+		virtual RandomAccessIterator<V>& operator=( const RandomAccessIterator<V>& it )
+		{
+			this->_ptr = it._ptr; // WARNING : Might need a change https://cplusplus.com/reference/iterator/
+			return *this;
+		}
+
+		virtual pointer	base() 					{ return _ptr; };
+		virtual value_type operator*() const	{ return *_ptr; };
+
+		virtual RandomAccessIterator<V>& operator++()		{ _ptr++; return *this; }
+		virtual RandomAccessIterator<V>& operator--() 		{ _ptr--; return *this;	}
+
+		virtual RandomAccessIterator<V> operator+(int n)	{ return RandomAccessIterator<V>(this->_ptr + n); }
+		virtual RandomAccessIterator<V> operator-(int n)	{ return RandomAccessIterator<V>(this->_ptr - n); }
+
+		virtual RandomAccessIterator<V>& operator+=(int n)	{ this->_ptr += n; return *this; }
+		virtual RandomAccessIterator<V>& operator-=(int n)	{ this->_ptr -= n; return *this; }
+		
+		virtual const RandomAccessIterator<V>& operator++( int )
+		{
+			RandomAccessIterator<V> ori = *this;
+			++(*this);
+			return ori;
+		}
+		virtual const RandomAccessIterator<V>& operator--( int )
+		{
+			RandomAccessIterator<V> ori = *this;
+			--(*this);
+			return ori;
+		}
+		
+		virtual bool operator==(const RandomAccessIterator<V>& it) const
+		{
+			if (this->_ptr == it._ptr)
+				return true;  
+			return false;
+		}
+		virtual bool operator!=(const RandomAccessIterator<V>& it) const	{ return (!operator==(it)); }
+		virtual bool operator>(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); }
+		virtual bool operator<(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); }
+		virtual bool operator>=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); }
+		virtual bool operator<=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); }
+
+		virtual value_type operator[](int i)
+		{
+			return (*(base() + i));
+		}
+	};
 	// 	iterator<T>(const iterator<T>& it) { *this = it; };
 	// 	~iterator<T>() {  };
 
@@ -264,6 +333,5 @@ namespace ft
 	// 		return (this->_ptr < rhs._ptr ? true : false);
 	// 	}
 	// };
-	};
 }
 #endif

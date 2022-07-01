@@ -6,8 +6,8 @@ C_OBJ	= $(CC) $(CFLAGS) $(INC) -c $< -o $@
 C_MAIN	= $(CC) $(CFLAGS) $(INC) $(OBJ) $(MAIN) -o $(NAME)
 
 # Program
-NAME	= ex02
-DESC	= \"Mutant abomination\"
+NAME	= container
+DESC	= \"ft_container : a STL project\"
 
 # Directories
 D_SRC	= src
@@ -50,9 +50,12 @@ fclean	: clean
 
 re		: fclean all
 
-test	: fclean _test $(NAME)
+exe		: test
+		# $(shell ./$(NAME))
+
+test	: _test $(NAME)
 
 _test	:
 		$(eval CFLAGS= -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++98)
 
-.PHONY	: all clean fclean re test
+.PHONY	: all clean fclean re test exe
