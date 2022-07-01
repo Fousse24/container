@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/01 13:35:33 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/01 18:36:37 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,13 +127,13 @@ namespace ft
 		virtual RandomAccessIterator<V>& operator+=(int n)	{ this->_ptr += n; return *this; }
 		virtual RandomAccessIterator<V>& operator-=(int n)	{ this->_ptr -= n; return *this; }
 		
-		virtual const RandomAccessIterator<V>& operator++( int )
+		virtual RandomAccessIterator<V> operator++( int )
 		{
 			RandomAccessIterator<V> ori = *this;
 			++(*this);
 			return ori;
 		}
-		virtual const RandomAccessIterator<V>& operator--( int )
+		virtual RandomAccessIterator<V> operator--( int )
 		{
 			RandomAccessIterator<V> ori = *this;
 			--(*this);

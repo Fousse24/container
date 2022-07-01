@@ -35,13 +35,13 @@ void print_it(I it)
 
 int main()
 {
-	// ft::vector<int> vect;
+	ft::vector<int> vect;
 	std::vector<int> std_vect;
 	std::vector<TestClass*> std_vect_mem;
 
 	// std_vect.reserve(10);
-	// for (int i = 0; i < 51; i++)
-	// 	vect.push_back(i);
+	for (int i = 0; i < 51; i++)
+		vect.push_back(i);
 
 	// for (int i = 0; i < 51; i++)
 	// 	std_vect.push_back(i + 50);
@@ -69,8 +69,8 @@ int main()
 	// std_vect.erase(std_vect.begin() + 2);
 	// std_vect.assign(5, 2);
 
-	// std::for_each(std::begin(std_vect), std::begin(std_vect), ft_cout_endl<int>);
-	std::for_each(std_vect.begin(), std_vect.end(), ft_cout_endl<int>);
+	std::for_each(std::begin(std_vect), std::begin(std_vect), ft_cout_endl<int>);
+	// std::for_each(std_vect.begin(), std_vect.end(), ft_cout_endl<int>);
 	//std::for_each(std_vect_mem.begin(), std_vect_mem.end(), ft_cout_endl<TestClass>);
 	// cout << std_vect_mem.begin() - std_vect_mem.end() << endl;
 

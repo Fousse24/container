@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/01 18:14:58 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/01 18:41:24 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,21 +38,17 @@ public:
 	typedef Allocator                               	allocator_type;
 	typedef typename allocator_type::reference      	reference;
 	typedef typename allocator_type::const_reference	const_reference;
-	typedef Iterator<vector<T> > 						iterator;
-	typedef const Iterator<vector<T> >					const_iterator;
+	typedef RandomAccessIterator<vector<T> > 			iterator;
+	typedef const RandomAccessIterator<vector<T> >		const_iterator;
 	typedef typename allocator_type::size_type      	size_type;
 	typedef typename allocator_type::difference_type	difference_type;
 	typedef typename allocator_type::pointer        	pointer;
 	typedef typename allocator_type::const_pointer		const_pointer;
 	// typedef ft::reverse_iterator<iterator>				reverse_iterator;
 	// typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
-	using allocator_type::allocate;
-	using allocator_type::deallocate;
-	using allocator_type::construct;
-	using allocator_type::destroy;
 	
 	template <class V>
-	class Iterator : ft::RandomAccessIterator<V>
+	class Iterator : public ft::RandomAccessIterator<V> // You're here
 	{
 		using ft::RandomAccessIterator<V>::_ptr;
 	public:
@@ -111,7 +107,7 @@ public:
 	{
 		if (_vector)
 			_full_clear();
-		_vector = allocate(last - first, 0);
+		_vector = allocator_type::allocate(last - first, 0);
 		_pure_insert(begin(), end(), first, last);
 	};
 
@@ -129,8 +125,8 @@ public:
 	iterator		begin() { return iterator(_vector);};
 	const_iterator	begin() const { return const_iterator(_vector); };
 
-	iterator		end() { return iterator(_vector) + _size; };
-	const_iterator	end() const { return iterator(_vector) + _size;};
+	iterator		end() { return iterator(_vector + _size); };
+	const_iterator	end() const { return iterator(_vector + _size);};
 	
 	// reverse_iterator       rbegin() noexcept;
 	// const_reverse_iterator rbegin()  const noexcept;
@@ -189,7 +185,7 @@ public:
 		_test_max_size(n);
 		if (n > _capacity)
 		{
-			_backup = allocate(n);
+			_backup = allocator_type::allocate(n);
 			// swap(_vector, _backup); // WARNING : TO-DO
 			for (i = 0; i < _size && i < n; i++)
 				_backup[i] = _vector[i];
@@ -207,15 +203,15 @@ public:
 		iterator _end = end();
 		iterator _begin = begin();
 		for (; _begin < _end; _begin++)
-			destroy(_begin.base());
+			allocator_type::destroy(_begin.base());
 		_size = 0;
 	};
 
 	iterator insert(iterator pos, const reference t)
 	{
-		int i = _get_iterator_i(pos);
+		size_type i = _get_iterator_i(pos);
 		insert(pos, 1, t);
-		return begin() + i;
+		return begin() + static_cast<int>(i);
 		
 	};
 
@@ -230,7 +226,7 @@ public:
 		_end = pos + n;
 		_begin = pos;
 		for (; pos < _end; pos++)	
-			construct(pos.base(), t);
+			allocator_type::construct(pos.base(), t);
 		return ;
 	};
 	
@@ -247,7 +243,7 @@ public:
 		_end = pos + len;
 		_begin = pos;
 		for (; pos < _end; pos++)	
-			construct(pos.base(), *(first++));
+			allocator_type::construct(pos.base(), *(first++));
 		return ;
 	};
 
@@ -256,7 +252,7 @@ public:
 		iterator	it;
 		iterator	_end;
 
-		destroy(pos.base());
+		allocator_type::destroy(pos.base());
 		_end = end();
 		_size--;
 		if (pos + 1 == _end)
@@ -278,7 +274,7 @@ public:
 			it = first;
 			while (it < last)
 			{
-				destroy(it.base());
+				allocator_type::destroy(it.base());
 				if (it != last)
 					*it = *(it + 1);
 				it++;
@@ -289,14 +285,14 @@ public:
 		
 	};
 
-	void push_back(const value_type& x)
+	void push_back(const reference t)
 	{
-		insert(end(), x);
+		insert(end(), t);
 	};
 
 	void pop_back()
 	{
-		destroy((end() - 1).base());
+		allocator_type::destroy((end() - 1).base());
 		_size--;
 	};	
 
@@ -307,7 +303,7 @@ public:
 		reserve(sz);
 		// swap(_vector, _backup); // WARNING : TO-DO
 		while (_size > sz)
-			destroy(&_vector[--_size]);
+			allocator_type::destroy(&_vector[--_size]);
 		if (_size < sz)
 			insert(end(), sz - _size, value);		
 	};
@@ -349,7 +345,7 @@ private:
 	void	_full_clear()
 	{
 		clear();
-		deallocate(_vector, _capacity);
+		allocator_type::allocate(_vector, _capacity);
 		_vector = NULL;
 		_capacity = 0;
 	};
@@ -366,16 +362,16 @@ private:
 		if (_vector)
 		{
 			_full_clear();
-			_vector = allocate(size, hint);
+			_vector = allocator_type::allocate(size, hint);
 		}
 	};
 
 	size_type	_get_iterator_i(iterator pos)
 	{
-		return pos - begin();
+		return static_cast<size_type>(pos.base() - begin().base());
 	};
 
-	// Return the equivalent iterator of a re-allocated vector
+	// Return the equivalent iterator of a re-allocator_type::allocated vector
 	iterator	_revalidate_iter(iterator pos, size_type n, void (*f)(size_type))
 	{
 		size_type i = _get_iterator_i(pos);
