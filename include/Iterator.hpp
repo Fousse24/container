@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/01 18:36:37 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/05 14:54:31 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ namespace ft
 	struct iterator_traits
 	{
 		typedef typename T::value_type			value_type;
-		typedef typename T::pointer_type		pointer;
-		typedef typename T::reference_type		reference;
+		typedef typename T::pointer				pointer;
+		typedef typename T::reference			reference;
 		typedef typename T::iterator_category	iterator_category;
 		typedef typename T::difference_type 	difference_type;
 	};
@@ -79,13 +79,14 @@ namespace ft
 	template <class Category, class T>
 	class iterator
 	{
-	protected:
+	public:
 		typedef typename T::value_type			value_type;
 		typedef typename T::pointer				pointer;
 		typedef typename T::reference			reference;
-		Category								iterator_category;
+		typedef Category						iterator_category;
 		typedef typename T::difference_type 	difference_type;
 
+	protected:
 		pointer	_ptr;
 	};
 
@@ -93,13 +94,16 @@ namespace ft
 	class RandomAccessIterator : public ft::iterator<ft::random_access_iterator_tag, V>
 	{
 	public:
-		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::value_type		value_type;
+		// typedef typename ft::iterator<ft::random_access_iterator_tag, V>::value_type		value_type;
+		// typedef typename ft::iterator<ft::random_access_iterator_tag, V>::pointer			pointer;
+		// typedef typename ft::iterator<ft::random_access_iterator_tag, V>::reference			reference;
+		// typedef typename ft::iterator<ft::random_access_iterator_tag, V>::difference_type	difference_type;
+		// typedef typename V::size_type														size_type;
+		typedef typename V::value_type		value_type;
 		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::pointer			pointer;
 		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::reference			reference;
 		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::difference_type	difference_type;
-		
-		using ft::iterator<ft::random_access_iterator_tag, V>::iterator_category;
-		using ft::iterator<ft::random_access_iterator_tag, V>::_ptr;
+		typedef typename V::size_type														size_type;
 
 		RandomAccessIterator<V>() {  };
 
@@ -115,17 +119,17 @@ namespace ft
 			return *this;
 		}
 
-		virtual pointer	base() 					{ return _ptr; };
-		virtual value_type operator*() const	{ return *_ptr; };
+		virtual pointer	base() 					{ return this->_ptr; };
+		virtual value_type operator*() const	{ return *this->_ptr; };
 
-		virtual RandomAccessIterator<V>& operator++()		{ _ptr++; return *this; }
-		virtual RandomAccessIterator<V>& operator--() 		{ _ptr--; return *this;	}
+		virtual RandomAccessIterator<V>& operator++()		{ this->_ptr++; return *this; }
+		virtual RandomAccessIterator<V>& operator--() 		{ this->_ptr--; return *this;	}
 
-		virtual RandomAccessIterator<V> operator+(int n)	{ return RandomAccessIterator<V>(this->_ptr + n); }
-		virtual RandomAccessIterator<V> operator-(int n)	{ return RandomAccessIterator<V>(this->_ptr - n); }
+		virtual RandomAccessIterator<V> operator+(size_type n)	{ return RandomAccessIterator<V>(this->_ptr + n); }
+		virtual RandomAccessIterator<V> operator-(size_type n)	{ return RandomAccessIterator<V>(this->_ptr - n); }
 
-		virtual RandomAccessIterator<V>& operator+=(int n)	{ this->_ptr += n; return *this; }
-		virtual RandomAccessIterator<V>& operator-=(int n)	{ this->_ptr -= n; return *this; }
+		virtual RandomAccessIterator<V>& operator+=(size_type n)	{ this->_ptr += n; return *this; }
+		virtual RandomAccessIterator<V>& operator-=(size_type n)	{ this->_ptr -= n; return *this; }
 		
 		virtual RandomAccessIterator<V> operator++( int )
 		{

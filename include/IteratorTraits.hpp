@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/01 13:35:14 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/05 15:00:44 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 #define ITERATOR_TRAITS_HPP
 #include <iterator>
 #include <memory>
-#include <limits>
-#include "headers.hpp"
 
 
 namespace ft
@@ -26,14 +24,14 @@ namespace ft
 	struct bidirectional_iterator_tag : public forward_iterator_tag {  };
 	struct random_access_iterator_tag : public bidirectional_iterator_tag {  };
 	
-	template< class T>
+	template< class Iter >
 	struct iterator_traits
 	{
-		typedef typename T::value_type			value_type;
-		typedef typename T::pointer_type		pointer_type;
-		typedef typename T::reference_type		reference_type;
-		typedef typename T::iterator_category	iterator_category;
-		typedef typename T::difference_type 	difference_type;
+		typedef typename Iter::value_type			value_type;
+		typedef typename Iter::pointer				pointer;
+		typedef typename Iter::reference			reference;
+		typedef typename Iter::iterator_category	iterator_category;
+		typedef typename Iter::difference_type 		difference_type;
 	};
 
 	template< class T>

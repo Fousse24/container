@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/01 18:41:24 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/05 15:02:34 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 #include <initializer_list>
 #include <limits>
 #include <memory>
+#include <algorithm>
+
+#include <iostream>
 
 #define FT_VECT_BUFFER	10
 
@@ -34,7 +37,8 @@ public:
 	template <class V>
 	class Iterator;
 	
-	typedef T                                       	value_type;
+	// ft::iterator_traits<vector<T> > _it_traits;
+	typedef T                                      		value_type;
 	typedef Allocator                               	allocator_type;
 	typedef typename allocator_type::reference      	reference;
 	typedef typename allocator_type::const_reference	const_reference;
@@ -50,6 +54,7 @@ public:
 	template <class V>
 	class Iterator : public ft::RandomAccessIterator<V> // You're here
 	{
+		typedef typename allocator_type::size_type      	size_type;
 		using ft::RandomAccessIterator<V>::_ptr;
 	public:
 		Iterator<V>() {  };
@@ -69,16 +74,18 @@ public:
 
 	vector<T>()
 	{
-		this->_size = 0;
-		this->_capacity = 0;
+		_allocator = Allocator();
+		_size = 0;
+		_capacity = 0;
+		_vector = NULL;
 	};
 
 	explicit vector<T>(const Allocator& alloc)
 	{
-		_vector = NULL;
 		_size = 0;
 		_capacity = 0;
-		this->allocator_type = alloc;
+		_allocator = alloc;
+		_vector = NULL;
 	};
 	
 	vector<T>( const vector& vect )
@@ -99,23 +106,25 @@ public:
 		if (_vector)
 			_full_clear();
 		this->assign(v.begin(), v.end());
+		return *this;
 	};
 
 
-	template <class Input_It>
-	void assign(Input_It first, Input_It last)
+	// template <class Input_It>
+	void assign(iterator first, iterator last)
 	{
 		if (_vector)
 			_full_clear();
-		_vector = allocator_type::allocate(last - first, 0);
+		reserve(_get_range_len(first, last));
 		_pure_insert(begin(), end(), first, last);
 	};
 
 	void assign(size_type n, const value_type& u)
 	{
 		_reallocate_if_not_null(n);
-		for (int i = 0; i < n; i++)
+		for (size_type i = 0; i < n; i++)
 			this->_vector[i] = u;
+		_size = n;
 	};
 	
 	allocator_type get_allocator() const { return Allocator(); };
@@ -179,18 +188,22 @@ public:
 
 	void reserve(size_type n) // Not done
 	{
-		pointer		_backup;
+		pointer		backup_;
 		size_type	i;
 
 		_test_max_size(n);
 		if (n > _capacity)
 		{
-			_backup = allocator_type::allocate(n);
+			backup_ = _allocator.allocate(n);
 			// swap(_vector, _backup); // WARNING : TO-DO
+			// std::swap(backup_, _vector);
+			
 			for (i = 0; i < _size && i < n; i++)
-				_backup[i] = _vector[i];
+				backup_[i] = _vector[i];
 			_full_clear();
-			_vector = _backup;
+			_vector = backup_;
+			_size = i;
+			_capacity = n;
 		}		
 	};
 	/* Capacity end */
@@ -200,110 +213,113 @@ public:
 
 	void clear()
 	{
-		iterator _end = end();
-		iterator _begin = begin();
-		for (; _begin < _end; _begin++)
-			allocator_type::destroy(_begin.base());
+		iterator end_ = end();
+		iterator begin_ = begin();
+		for (; begin_ < end_; begin_++)
+			_allocator.destroy(begin_.base());
 		_size = 0;
 	};
 
-	iterator insert(iterator pos, const reference t)
+	iterator insert(iterator pos, const value_type& t)
 	{
 		size_type i = _get_iterator_i(pos);
 		insert(pos, 1, t);
-		return begin() + static_cast<int>(i);
+		return begin() + i;
 		
 	};
 
-	void insert(iterator pos, size_type n, const reference t)
+	void insert(iterator pos, size_type n, const value_type& t)
 	{
-		iterator _end;
-		iterator _begin;
+		iterator end_;
+		iterator begin_;
 
-		if (_size + n >= _capacity)
-			pos = _revalidate_iter(pos, _size + n + FT_VECT_BUFFER, reserve());
-		_shift_to_end(pos, n);
-		_end = pos + n;
-		_begin = pos;
-		for (; pos < _end; pos++)	
-			allocator_type::construct(pos.base(), t);
+		if (_size + n > _capacity)
+			pos = _revalidate_iter(pos, _size + n + FT_VECT_BUFFER, &vector::reserve);
+		if (begin() != end())
+			_shift_to_end(pos, n);
+		end_ = pos + n;
+		begin_ = pos;
+		for (; pos < end_; pos++)	
+			_allocator.construct(pos.base(), t);
+		_size += n;
 		return ;
 	};
 	
-	template <class Iterator>
-	void insert(const_iterator pos, Iterator first, Iterator last)
+	// template<class Iter>
+	void insert(const_iterator pos, iterator first, iterator last) // change to input only
 	{
-		iterator	_end;
-		iterator	_begin;
-		size_type	len = last - first;
+		iterator	end_;
+		iterator	begin_ = pos;
+		size_type	len = _get_range_len(first, last);
 
 		if (_size + len >= _capacity)
-			pos = _revalidate_iter(pos, _size + len + FT_VECT_BUFFER, reserve());
-		_shift_to_end(pos, len);
-		_end = pos + len;
-		_begin = pos;
-		for (; pos < _end; pos++)	
-			allocator_type::construct(pos.base(), *(first++));
+			begin_ = _revalidate_iter(begin_, _size + len + FT_VECT_BUFFER, &vector::reserve);
+		_shift_to_end(begin_, len);
+		end_ = begin_ + len;
+		std::copy(first, last, begin_);
+		// for (; begin_ < end_; begin_++)	
+		// 	_allocator.construct(begin_.base(), first);
 		return ;
 	};
 
 	iterator erase(iterator pos)
 	{
 		iterator	it;
-		iterator	_end;
+		iterator	end_;
 
-		allocator_type::destroy(pos.base());
-		_end = end();
+		_allocator.destroy(pos.base());
+		end_ = end();
 		_size--;
-		if (pos + 1 == _end)
-			return (_end);
+		if (pos + 1 == end_)
+			return (end_);
 		it = pos;
-		while (it < _end - 1)
+		while (it < end_ - 1)
 		{
 			*it = *(it + 1);
 			it++;
 		}
 		return pos;
 	};
+	
 	iterator erase(iterator first, iterator last)
 	{
-		iterator	it;
+		iterator	end_ = end();
+		size_type	len = _get_range_len(first, last);
 		
 		if (first < last)
 		{
-			it = first;
-			while (it < last)
+			while (first < end_)
 			{
-				allocator_type::destroy(it.base());
-				if (it != last)
-					*it = *(it + 1);
-				it++;
-				_size--;
+				_allocator.destroy(first.base());
+				if (first <= end_ - len)
+					_allocator.construct(first.base(), *(first + len));
+				first++;
 			}
+			_size -= len;
 		}
 		return last;
 		
 	};
 
-	void push_back(const reference t)
+	void push_back(const value_type& t)
 	{
 		insert(end(), t);
 	};
 
 	void pop_back()
 	{
-		allocator_type::destroy((end() - 1).base());
+		_allocator.destroy((end() - 1).base());
 		_size--;
 	};	
 
 	void resize(size_type sz, value_type value = value_type()) // Not done
 	{
-		size_type	i;
+		// size_type	i;
 
 		reserve(sz);
 		// swap(_vector, _backup); // WARNING : TO-DO
 		while (_size > sz)
-			allocator_type::destroy(&_vector[--_size]);
+			_allocator.destroy(&_vector[--_size]);
 		if (_size < sz)
 			insert(end(), sz - _size, value);		
 	};
@@ -313,6 +329,7 @@ private:
 	pointer		_vector;
 	size_type	_size;
 	size_type	_capacity;
+	Allocator	_allocator;
 
 	void	_pure_insert(iterator dst_first, iterator dst_last, iterator src_first, iterator src_last)
 	{
@@ -345,16 +362,39 @@ private:
 	void	_full_clear()
 	{
 		clear();
-		allocator_type::allocate(_vector, _capacity);
+		_allocator.deallocate(_vector, _capacity);
 		_vector = NULL;
 		_capacity = 0;
 	};
 
 	void	_shift_to_end(iterator pos, size_type distance)
 	{
-		iterator rhs = end() + distance;
+		iterator end_ = end();
+		iterator rhs;
+
+		// std::uninitialized_copy(rhs - distance, rhs, rhs);
+		// std::uninitialized_copy(rhs - distance, rhs, rhs);
+		for (rhs = end_ + distance - 1; rhs >= end(); rhs--)
+			_allocator.construct(rhs.base(), *(rhs - distance).base()); 
 		for (; rhs > pos + distance; rhs--)
-			*rhs = *(rhs - distance);
+		{
+			_allocator.destroy(rhs.base());
+			_allocator.construct(rhs.base(), *(rhs - distance).base()); 
+		}
+	};
+
+	void	_shift_to_left(iterator dst, iterator begin_)
+	{
+		iterator 	end_ = end();
+		size_type	distance = _get_range_len(dst, begin_);
+
+		for (; dst < begin_ < end_; dst++)
+		{
+			_allocator.destroy(dst.base());
+			_allocator.construct(dst.base(), *(begin_++)); 
+		}
+		for (; dst < end_; dst++)
+			_allocator.destroy(dst.base());
 	};
 
 	void	_reallocate_if_not_null(const size_type & size, const void * hint = 0)
@@ -362,23 +402,34 @@ private:
 		if (_vector)
 		{
 			_full_clear();
-			_vector = allocator_type::allocate(size, hint);
+			_vector = _allocator.allocate(size, hint);
+			_capacity = size;
 		}
 	};
 
 	size_type	_get_iterator_i(iterator pos)
 	{
+		if (empty())
+			return (0);
 		return static_cast<size_type>(pos.base() - begin().base());
 	};
 
 	// Return the equivalent iterator of a re-allocator_type::allocated vector
-	iterator	_revalidate_iter(iterator pos, size_type n, void (*f)(size_type))
+	iterator	_revalidate_iter(iterator pos, size_type n, void (vector::*f)(size_type))
 	{
 		size_type i = _get_iterator_i(pos);
-		f(n);
+		(this->*f)(n);
 		return begin() + i;
 	};
 
+	template <class Iterator>
+	size_type _get_range_len( Iterator first, Iterator last )
+	{
+		size_type i = 0;
+		for (; first != last; i++)
+			first++;
+		return i;
+	};
 	// void	_pure_insert(iterator pos, iterator dst_last, iterator src_first, iterator src_last)
 	// {
 	// 	while (dst_first < dst_last || src_first < src_last)
