@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "include/Vector.hpp"
 #include "include/Iterator.hpp"
+#include "include/VectorIterator.tpp"
 
 using std::cout;
 using std::string;
@@ -104,12 +105,31 @@ int main()
 	cout << endl;
 	print_container(std_vect);
 
-	ft::iterator_traits<std::vector<int>::iterator>::value_type hey = 0;
-	std::iterator_traits<ft::iterator<ft::random_access_iterator_tag, ft::vector<int> > >::value_type hello = 0;
+	// ft::iterator_traits<std::vector<int>::iterator>::value_type hey = 0;
+	// std::iterator_traits<std::vector<int>::iterator>::value_type go = 1;
+	// ft::iterator_traits<ft::vector<int>::iterator>::value_type hello = 2;
+	// std::iterator_traits<ft::vector<int>::iterator>::value_type allo = 3;
+	ft::vector<int> vect_buff;
+	// vect_buff.assign(1, 1); // ERROR
+	vect_buff.push_back(2);
+	vect_buff.push_back(3);
+	vect_buff.push_back(4);
+	vect_buff.push_back(5);
+	vect_buff.push_back(6);
+	vect_buff.push_back(7);
+	vect_buff.push_back(8);
+	vect_buff.push_back(9);
+	vect_buff.push_back(10);
+	vect_buff.push_back(11);
+	vect_buff.push_back(12);
+	vect_buff.push_back(13);
 	cout << endl << "INSERT RANGE 5-12 WITH THE RANGE FROM ANOTHER VECTOR" << endl;
-	// vect.insert(vect.begin() + 4, std_vect.begin() + 2, std_vect.begin() + 9);
-	// std_vect.insert(std_vect.begin() + 4, vect.begin() + 2, vect.begin() + 9);
+		vect.insert(vect.begin() + 4, vect.begin() + 2, vect.begin() + 9);
+	vect.insert(vect.begin() + 4, vect_buff.begin() + 2, vect_buff.begin() + 9);
+	std_vect.insert(std_vect.begin() + 4, vect_buff.begin() + 2, vect_buff.begin() + 9);
 	print_container(vect);
+	cout << endl;
+	print_container(std_vect);
 
 	// cout << ft::iterator_traits<ft::vector<int>::Iterator<ft::vector<int> > >::iterator_category(ft::ran
 	

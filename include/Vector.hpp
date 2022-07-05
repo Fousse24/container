@@ -6,19 +6,20 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/05 15:02:34 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/05 19:10:14 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
-#include "Iterator.hpp"
+
 #include <initializer_list>
 #include <limits>
 #include <memory>
 #include <algorithm>
-
 #include <iostream>
+#include "VectorIterator.tpp"
+#include "IteratorTraits.hpp"
 
 #define FT_VECT_BUFFER	10
 
@@ -33,44 +34,20 @@ using std::allocator_traits;
 template <class T, class Allocator = std::allocator<T> >
 class vector
 {	
-public:
-	template <class V>
-	class Iterator;
-	
+public:	
 	// ft::iterator_traits<vector<T> > _it_traits;
-	typedef T                                      		value_type;
-	typedef Allocator                               	allocator_type;
-	typedef typename allocator_type::reference      	reference;
-	typedef typename allocator_type::const_reference	const_reference;
-	typedef RandomAccessIterator<vector<T> > 			iterator;
-	typedef const RandomAccessIterator<vector<T> >		const_iterator;
-	typedef typename allocator_type::size_type      	size_type;
-	typedef typename allocator_type::difference_type	difference_type;
-	typedef typename allocator_type::pointer        	pointer;
-	typedef typename allocator_type::const_pointer		const_pointer;
+	typedef Allocator                               				allocator_type;
+	typedef typename allocator_type::value_type       				value_type;
+	typedef typename allocator_type::reference      				reference;
+	typedef typename allocator_type::const_reference				const_reference;
+	typedef ft::VectorIterator<vector<T> > 								iterator;
+	typedef const ft::VectorIterator<vector<T> >							const_iterator;
+	typedef typename allocator_type::size_type      				size_type;
+	typedef typename allocator_type::difference_type				difference_type;
+	typedef typename allocator_type::pointer        				pointer;
+	typedef typename allocator_type::const_pointer					const_pointer;
 	// typedef ft::reverse_iterator<iterator>				reverse_iterator;
 	// typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
-	
-	template <class V>
-	class Iterator : public ft::RandomAccessIterator<V> // You're here
-	{
-		typedef typename allocator_type::size_type      	size_type;
-		using ft::RandomAccessIterator<V>::_ptr;
-	public:
-		Iterator<V>() {  };
-
-		Iterator<V>(pointer ptr) { this->_ptr = ptr; }
-
-		Iterator<V>(const Iterator<V>& it) { *this = it; };
-		
-		~Iterator<V>() {  };
-
-		Iterator<V>& operator=( const Iterator<V>& it )
-		{
-			_ptr = it._ptr; // WARNING : Might need a change https://cplusplus.com/reference/iterator/
-			return *this;
-		}
-	};
 
 	vector<T>()
 	{
@@ -210,7 +187,6 @@ public:
 
 
 	/* Modifier */
-
 	void clear()
 	{
 		iterator end_ = end();
@@ -223,7 +199,7 @@ public:
 	iterator insert(iterator pos, const value_type& t)
 	{
 		size_type i = _get_iterator_i(pos);
-		insert(pos, 1, t);
+		insert(pos, static_cast<size_type>(1), t);
 		return begin() + i;
 		
 	};
@@ -245,20 +221,18 @@ public:
 		return ;
 	};
 	
-	// template<class Iter>
-	void insert(const_iterator pos, iterator first, iterator last) // change to input only
+	template<class Iter>
+	void insert(iterator pos, Iter first, Iter last) // change to input only
 	{
 		iterator	end_;
-		iterator	begin_ = pos;
 		size_type	len = _get_range_len(first, last);
 
 		if (_size + len >= _capacity)
-			begin_ = _revalidate_iter(begin_, _size + len + FT_VECT_BUFFER, &vector::reserve);
-		_shift_to_end(begin_, len);
-		end_ = begin_ + len;
-		std::copy(first, last, begin_);
-		// for (; begin_ < end_; begin_++)	
-		// 	_allocator.construct(begin_.base(), first);
+			pos = _revalidate_iter(pos, _size + len + FT_VECT_BUFFER, &vector::reserve);
+		_shift_to_end(pos, len);
+		end_ = pos + len;
+		for (; pos < end_; _size++)	
+			_allocator.construct((pos++).base(), *(first++));
 		return ;
 	};
 
@@ -325,6 +299,7 @@ public:
 	};
 
 	void swap(vector&);
+	
 private:
 	pointer		_vector;
 	size_type	_size;
@@ -376,7 +351,7 @@ private:
 		// std::uninitialized_copy(rhs - distance, rhs, rhs);
 		for (rhs = end_ + distance - 1; rhs >= end(); rhs--)
 			_allocator.construct(rhs.base(), *(rhs - distance).base()); 
-		for (; rhs > pos + distance; rhs--)
+		for (; rhs >= pos + distance; rhs--)
 		{
 			_allocator.destroy(rhs.base());
 			_allocator.construct(rhs.base(), *(rhs - distance).base()); 
@@ -397,12 +372,15 @@ private:
 			_allocator.destroy(dst.base());
 	};
 
-	void	_reallocate_if_not_null(const size_type & size, const void * hint = 0)
+	void	_reallocate_if_not_null(size_type size, const void * hint = 0)
 	{
 		if (_vector)
 		{
+			size += FT_VECT_BUFFER;
+			if (_capacity > size)
+				size = _capacity;
 			_full_clear();
-			_vector = _allocator.allocate(size, hint);
+			_vector = _allocator.allocate(size, hint);	
 			_capacity = size;
 		}
 	};
@@ -422,12 +400,15 @@ private:
 		return begin() + i;
 	};
 
-	template <class Iterator>
-	size_type _get_range_len( Iterator first, Iterator last )
+	template <class Iter>
+	size_type _get_range_len( Iter first, Iter last )
 	{
+		Iter it;
+
+		it = first;
 		size_type i = 0;
-		for (; first != last; i++)
-			first++;
+		for (; it != last; i++)
+			it++;
 		return i;
 	};
 	// void	_pure_insert(iterator pos, iterator dst_last, iterator src_first, iterator src_last)

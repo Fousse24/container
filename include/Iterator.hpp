@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/05 14:54:31 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/05 18:51:31 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,32 +18,32 @@
 
 namespace ft
 {
-	struct iterator_tag {  };
-	struct input_iterator_tag : public iterator_tag {  };
-	struct output_iterator_tag : public iterator_tag {  };
-	struct forward_iterator_tag : public input_iterator_tag {  };
-	struct bidirectional_iterator_tag : public forward_iterator_tag {  };
-	struct random_access_iterator_tag : public bidirectional_iterator_tag {  };
+	// struct iterator_tag {  };
+	// struct input_iterator_tag : public iterator_tag {  };
+	// struct output_iterator_tag : public iterator_tag {  };
+	// struct forward_iterator_tag : public input_iterator_tag {  };
+	// struct bidirectional_iterator_tag : public forward_iterator_tag {  };
+	// struct random_access_iterator_tag : public bidirectional_iterator_tag {  };
 	
-	template< class T>
-	struct iterator_traits
-	{
-		typedef typename T::value_type			value_type;
-		typedef typename T::pointer				pointer;
-		typedef typename T::reference			reference;
-		typedef typename T::iterator_category	iterator_category;
-		typedef typename T::difference_type 	difference_type;
-	};
+	// template< class T>
+	// struct iterator_traits
+	// {
+	// 	typedef typename T::value_type			value_type;
+	// 	typedef typename T::pointer				pointer;
+	// 	typedef typename T::reference			reference;
+	// 	typedef typename T::iterator_category	iterator_category;
+	// 	typedef typename T::difference_type 	difference_type;
+	// };
 
-	template< class T>
-	struct iterator_traits<T*>
-	{
-		typedef T								value_type;
-		typedef T*								pointer;
-		typedef T&								reference;
-		typedef std::ptrdiff_t					difference_type;
-		typedef ft::random_access_iterator_tag	iterator_category;
-	};
+	// template< class T>
+	// struct iterator_traits<T*>
+	// {
+	// 	typedef T								value_type;
+	// 	typedef T*								pointer;
+	// 	typedef T&								reference;
+	// 	typedef std::ptrdiff_t					difference_type;
+	// 	typedef std::random_access_iterator_tag	iterator_category;
+	// };
 
 	// template< class Iter >
 	// struct iterator_traits
@@ -72,7 +72,7 @@ namespace ft
 	// 	typedef T								value_type;
 	// 	typedef T*								pointer;
 	// 	typedef T&								reference;
-	// 	typedef ft::random_access_iterator_tag	iterator_category;
+	// 	typedef std::random_access_iterator_tag	iterator_category;
 	// };
 
 	//template< typename T >
@@ -91,18 +91,18 @@ namespace ft
 	};
 
 	template <class V>
-	class RandomAccessIterator : public ft::iterator<ft::random_access_iterator_tag, V>
+	class RandomAccessIterator : public ft::iterator<std::random_access_iterator_tag, V>
 	{
 	public:
-		// typedef typename ft::iterator<ft::random_access_iterator_tag, V>::value_type		value_type;
-		// typedef typename ft::iterator<ft::random_access_iterator_tag, V>::pointer			pointer;
-		// typedef typename ft::iterator<ft::random_access_iterator_tag, V>::reference			reference;
-		// typedef typename ft::iterator<ft::random_access_iterator_tag, V>::difference_type	difference_type;
+		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::value_type		value_type;
+		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
+		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
+		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
 		// typedef typename V::size_type														size_type;
 		typedef typename V::value_type		value_type;
-		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::pointer			pointer;
-		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::reference			reference;
-		typedef typename ft::iterator<ft::random_access_iterator_tag, V>::difference_type	difference_type;
+		typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
+		typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
+		typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
 		typedef typename V::size_type														size_type;
 
 		RandomAccessIterator<V>() {  };
@@ -293,7 +293,7 @@ namespace ft
 	// public:
 	// 	random_access_iterator<T>() 
 	// 	{
-	// 		iterator<T>::iterator_category = ft::random_access_iterator_tag();
+	// 		iterator<T>::iterator_category = std::random_access_iterator_tag();
 	// 	};
 	// 	// random_access_iterator<T> operator+(int n)
 	// 	// {

@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/05 15:00:44 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/05 18:52:39 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,6 @@
 
 namespace ft
 {
-	struct input_iterator_tag {  };
-	struct output_iterator_tag {  };
-	struct forward_iterator_tag : public input_iterator_tag {  };
-	struct bidirectional_iterator_tag : public forward_iterator_tag {  };
-	struct random_access_iterator_tag : public bidirectional_iterator_tag {  };
 	
 	template< class Iter >
 	struct iterator_traits
@@ -41,9 +36,8 @@ namespace ft
 		typedef T*								pointer;
 		typedef T&								reference;
 		typedef std::ptrdiff_t					difference_type;
-		typedef ft::random_access_iterator_tag	iterator_category;
+		typedef std::random_access_iterator_tag	iterator_category;
 	};
-
 	
 
 	// template< class Iter >
