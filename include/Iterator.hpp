@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/05 18:51:31 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/07 13:49:14 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,149 +18,109 @@
 
 namespace ft
 {
-	// struct iterator_tag {  };
-	// struct input_iterator_tag : public iterator_tag {  };
-	// struct output_iterator_tag : public iterator_tag {  };
-	// struct forward_iterator_tag : public input_iterator_tag {  };
-	// struct bidirectional_iterator_tag : public forward_iterator_tag {  };
-	// struct random_access_iterator_tag : public bidirectional_iterator_tag {  };
-	
-	// template< class T>
-	// struct iterator_traits
+
+	// template <class Category, class T>
+	// class iterator
 	// {
+	// public:
 	// 	typedef typename T::value_type			value_type;
 	// 	typedef typename T::pointer				pointer;
 	// 	typedef typename T::reference			reference;
-	// 	typedef typename T::iterator_category	iterator_category;
+	// 	typedef Category						iterator_category;
 	// 	typedef typename T::difference_type 	difference_type;
-	// };
 
-	// template< class T>
-	// struct iterator_traits<T*>
-	// {
-	// 	typedef T								value_type;
-	// 	typedef T*								pointer;
-	// 	typedef T&								reference;
-	// 	typedef std::ptrdiff_t					difference_type;
-	// 	typedef std::random_access_iterator_tag	iterator_category;
-	// };
-
-	// template< class Iter >
-	// struct iterator_traits
-	// {
-	// 	typedef typename Iter::difference_type		difference_type;
-	// 	typedef typename Iter::value_type			value_type;
-	// 	typedef typename Iter::pointer				pointer;
-	// 	typedef typename Iter::reference			reference;
-	// 	typedef typename Iter::iterator_category	iterator_category;
-	// };
-
-	// template< class Iter >
-	// struct iterator_traits< const Iter >
-	// {
-	// 	typedef typename Iter::difference_type		difference_type;
-	// 	typedef typename Iter::value_type			value_type;
-	// 	typedef typename Iter::pointer				pointer;
-	// 	typedef typename Iter::reference			reference;
-	// 	typedef typename Iter::iterator_category	iterator_category;
-	// };
-
-	// template< class T>
-	// struct iterator_traits<T*>
-	// {
-	// 	typedef std::ptrdiff_t					difference_type;
-	// 	typedef T								value_type;
-	// 	typedef T*								pointer;
-	// 	typedef T&								reference;
-	// 	typedef std::random_access_iterator_tag	iterator_category;
+	// protected:
+	// 	pointer	_ptr;
 	// };
 
 	//template< typename T >
-	template <class Category, class T>
-	class iterator
+	template <class Category, class T, class Pointer = T*
+			, class Reference = T&, class Difference = std::ptrdiff_t>
+	struct iterator
 	{
-	public:
-		typedef typename T::value_type			value_type;
-		typedef typename T::pointer				pointer;
-		typedef typename T::reference			reference;
-		typedef Category						iterator_category;
-		typedef typename T::difference_type 	difference_type;
-
-	protected:
-		pointer	_ptr;
+		typedef T				value_type;
+		typedef Pointer			pointer;
+		typedef Reference		reference;
+		typedef Difference	 	difference_type;
+		typedef Category		iterator_category;
 	};
 
-	template <class V>
-	class RandomAccessIterator : public ft::iterator<std::random_access_iterator_tag, V>
-	{
-	public:
-		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::value_type		value_type;
-		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
-		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
-		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
-		// typedef typename V::size_type														size_type;
-		typedef typename V::value_type		value_type;
-		typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
-		typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
-		typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
-		typedef typename V::size_type														size_type;
+	// template < class InputIt1, class InputIt2 >
+	// bool equal( InputIt1 first_1, InputIt1 last_1, InputIt2,  
+}
 
-		RandomAccessIterator<V>() {  };
+	// template <class V>
+	// class RandomAccessIterator : public ft::iterator<std::random_access_iterator_tag, V::value_type
+	// 									,V::pointer, V::reference, V::difference_type>
+	// {
+	// public:
+	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, V>::value_type		value_type;
+	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
+	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
+	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
+	// 	// typedef typename V::size_type														size_type;
+	// 	typedef typename V::value_type		value_type;
+	// 	typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
+	// 	typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
+	// 	typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
+	// 	typedef typename V::size_type														size_type;
 
-		RandomAccessIterator<V>(pointer ptr) { this->_ptr = ptr; }
+	// 	RandomAccessIterator<V>() {  };
 
-		RandomAccessIterator<V>(const RandomAccessIterator<V>& it) { *this = it; };
+	// 	RandomAccessIterator<V>(pointer ptr) { this->_ptr = ptr; }
+
+	// 	RandomAccessIterator<V>(const RandomAccessIterator<V>& it) { *this = it; };
 		
-		virtual ~RandomAccessIterator<V>() {  };
+	// 	virtual ~RandomAccessIterator<V>() {  };
 
-		virtual RandomAccessIterator<V>& operator=( const RandomAccessIterator<V>& it )
-		{
-			this->_ptr = it._ptr; // WARNING : Might need a change https://cplusplus.com/reference/iterator/
-			return *this;
-		}
+	// 	virtual RandomAccessIterator<V>& operator=( const RandomAccessIterator<V>& it )
+	// 	{
+	// 		this->_ptr = it._ptr; // WARNING : Might need a change https://cplusplus.com/reference/iterator/
+	// 		return *this;
+	// 	}
 
-		virtual pointer	base() 					{ return this->_ptr; };
-		virtual value_type operator*() const	{ return *this->_ptr; };
+	// 	virtual pointer	base() 					{ return this->_ptr; };
+	// 	virtual value_type operator*() const	{ return *this->_ptr; };
 
-		virtual RandomAccessIterator<V>& operator++()		{ this->_ptr++; return *this; }
-		virtual RandomAccessIterator<V>& operator--() 		{ this->_ptr--; return *this;	}
+	// 	virtual RandomAccessIterator<V>& operator++()		{ this->_ptr++; return *this; }
+	// 	virtual RandomAccessIterator<V>& operator--() 		{ this->_ptr--; return *this;	}
 
-		virtual RandomAccessIterator<V> operator+(size_type n)	{ return RandomAccessIterator<V>(this->_ptr + n); }
-		virtual RandomAccessIterator<V> operator-(size_type n)	{ return RandomAccessIterator<V>(this->_ptr - n); }
+	// 	virtual RandomAccessIterator<V> operator+(size_type n)	{ return RandomAccessIterator<V>(this->_ptr + n); }
+	// 	virtual RandomAccessIterator<V> operator-(size_type n)	{ return RandomAccessIterator<V>(this->_ptr - n); }
 
-		virtual RandomAccessIterator<V>& operator+=(size_type n)	{ this->_ptr += n; return *this; }
-		virtual RandomAccessIterator<V>& operator-=(size_type n)	{ this->_ptr -= n; return *this; }
+	// 	virtual RandomAccessIterator<V>& operator+=(size_type n)	{ this->_ptr += n; return *this; }
+	// 	virtual RandomAccessIterator<V>& operator-=(size_type n)	{ this->_ptr -= n; return *this; }
 		
-		virtual RandomAccessIterator<V> operator++( int )
-		{
-			RandomAccessIterator<V> ori = *this;
-			++(*this);
-			return ori;
-		}
-		virtual RandomAccessIterator<V> operator--( int )
-		{
-			RandomAccessIterator<V> ori = *this;
-			--(*this);
-			return ori;
-		}
+	// 	virtual RandomAccessIterator<V> operator++( int )
+	// 	{
+	// 		RandomAccessIterator<V> ori = *this;
+	// 		++(*this);
+	// 		return ori;
+	// 	}
+	// 	virtual RandomAccessIterator<V> operator--( int )
+	// 	{
+	// 		RandomAccessIterator<V> ori = *this;
+	// 		--(*this);
+	// 		return ori;
+	// 	}
 		
-		virtual bool operator==(const RandomAccessIterator<V>& it) const
-		{
-			if (this->_ptr == it._ptr)
-				return true;  
-			return false;
-		}
-		virtual bool operator!=(const RandomAccessIterator<V>& it) const	{ return (!operator==(it)); }
-		virtual bool operator>(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); }
-		virtual bool operator<(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); }
-		virtual bool operator>=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); }
-		virtual bool operator<=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); }
+	// 	virtual bool operator==(const RandomAccessIterator<V>& it) const
+	// 	{
+	// 		if (this->_ptr == it._ptr)
+	// 			return true;  
+	// 		return false;
+	// 	}
+	// 	virtual bool operator!=(const RandomAccessIterator<V>& it) const	{ return (!operator==(it)); }
+	// 	virtual bool operator>(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); }
+	// 	virtual bool operator<(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); }
+	// 	virtual bool operator>=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); }
+	// 	virtual bool operator<=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); }
 
-		virtual value_type operator[](int i)
-		{
-			return (*(base() + i));
-		}
-	};
+	// 	virtual value_type operator[](int i)
+	// 	{
+	// 		return (*(base() + i));
+	// 	}
+
 	// 	iterator<T>(const iterator<T>& it) { *this = it; };
 	// 	~iterator<T>() {  };
 
@@ -337,5 +297,5 @@ namespace ft
 	// 		return (this->_ptr < rhs._ptr ? true : false);
 	// 	}
 	// };
-}
+
 #endif

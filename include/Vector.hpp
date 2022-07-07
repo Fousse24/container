@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/05 19:10:14 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/07 17:18:33 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,13 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
-#include "VectorIterator.tpp"
+#include "vectorIterator.hpp"
 #include "IteratorTraits.hpp"
+#include "utils.hpp"
 
 #define FT_VECT_BUFFER	10
+
+#define TO_TYPE(X, T) (static_cast<T>(X))
 
 /*
 	vector synopsis
@@ -40,8 +43,8 @@ public:
 	typedef typename allocator_type::value_type       				value_type;
 	typedef typename allocator_type::reference      				reference;
 	typedef typename allocator_type::const_reference				const_reference;
-	typedef ft::VectorIterator<vector<T> > 								iterator;
-	typedef const ft::VectorIterator<vector<T> >							const_iterator;
+	typedef ft::vectorIterator<vector<T> > 							iterator;
+	typedef const ft::vectorIterator<vector<T> >					const_iterator;
 	typedef typename allocator_type::size_type      				size_type;
 	typedef typename allocator_type::difference_type				difference_type;
 	typedef typename allocator_type::pointer        				pointer;
@@ -49,7 +52,8 @@ public:
 	// typedef ft::reverse_iterator<iterator>				reverse_iterator;
 	// typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
-	vector<T>()
+	
+	vector()
 	{
 		_allocator = Allocator();
 		_size = 0;
@@ -57,7 +61,7 @@ public:
 		_vector = NULL;
 	};
 
-	explicit vector<T>(const Allocator& alloc)
+	explicit vector(const Allocator& alloc)
 	{
 		_size = 0;
 		_capacity = 0;
@@ -65,7 +69,7 @@ public:
 		_vector = NULL;
 	};
 	
-	vector<T>( const vector& vect )
+	vector( const vector& vect )
 	{ 
 		*this = vect;
 	};
@@ -76,7 +80,7 @@ public:
 	// explicit vector<T>( size_type count, const T& value = T(), const Allocator& alloc = Allocator()){};
 		
 
-	~vector<T>() { clear(); };
+	~vector() { clear(); };
 
 	vector& operator=(const vector& v)
 	{
@@ -86,19 +90,20 @@ public:
 		return *this;
 	};
 
+	
+
 
 	// template <class Input_It>
 	void assign(iterator first, iterator last)
 	{
-		if (_vector)
-			_full_clear();
+		clear();
 		reserve(_get_range_len(first, last));
 		_pure_insert(begin(), end(), first, last);
 	};
 
 	void assign(size_type n, const value_type& u)
 	{
-		_reallocate_if_not_null(n);
+		clear();
 		for (size_type i = 0; i < n; i++)
 			this->_vector[i] = u;
 		_size = n;
@@ -119,10 +124,6 @@ public:
 	// reverse_iterator       rend() noexcept;
 	// const_reverse_iterator rend()    const noexcept;
 	
-	const_iterator	cbegin() const { return const_iterator(_vector); };
-	const_iterator	cend() const { return const_iterator(_vector) + _size; };
-	// const_reverse_iterator crbegin() const noexcept;
-	// const_reverse_iterator crend()   const noexcept;
 	// iterator end
 
 
@@ -189,6 +190,8 @@ public:
 	/* Modifier */
 	void clear()
 	{
+		if (!_vector)
+			return ;
 		iterator end_ = end();
 		iterator begin_ = begin();
 		for (; begin_ < end_; begin_++)
@@ -199,8 +202,8 @@ public:
 	iterator insert(iterator pos, const value_type& t)
 	{
 		size_type i = _get_iterator_i(pos);
-		insert(pos, static_cast<size_type>(1), t);
-		return begin() + i;
+		insert(pos, TO_TYPE(1, size_type), t);
+		return begin() + TO_TYPE(i, difference_type);
 		
 	};
 
@@ -212,25 +215,26 @@ public:
 		if (_size + n > _capacity)
 			pos = _revalidate_iter(pos, _size + n + FT_VECT_BUFFER, &vector::reserve);
 		if (begin() != end())
-			_shift_to_end(pos, n);
-		end_ = pos + n;
+			_shift_to_end(pos, TO_TYPE(n, difference_type));
+		end_ = pos + TO_TYPE(n, difference_type);
 		begin_ = pos;
-		for (; pos < end_; pos++)	
+		for (; pos < end_; pos++)
 			_allocator.construct(pos.base(), t);
 		_size += n;
 		return ;
 	};
 	
 	template<class Iter>
-	void insert(iterator pos, Iter first, Iter last) // change to input only
+	void insert(iterator pos, Iter first, Iter last, typename ft::enable_if<ft::is_not_integral<Iter>, bool>::type = 0) // change to input only
 	{
-		iterator	end_;
-		size_type	len = _get_range_len(first, last);
+		iterator		end_;
+		difference_type	len = _get_range_len(first, last);
 
-		if (_size + len >= _capacity)
-			pos = _revalidate_iter(pos, _size + len + FT_VECT_BUFFER, &vector::reserve);
+		if (_size + TO_TYPE(len, size_type) >= _capacity)
+			pos = _revalidate_iter(pos, _size + TO_TYPE(len, size_type) + FT_VECT_BUFFER, &vector::reserve);
 		_shift_to_end(pos, len);
 		end_ = pos + len;
+		// std::copy(first, last, pos);
 		for (; pos < end_; _size++)	
 			_allocator.construct((pos++).base(), *(first++));
 		return ;
@@ -241,36 +245,18 @@ public:
 		iterator	it;
 		iterator	end_;
 
-		_allocator.destroy(pos.base());
-		end_ = end();
+		_shift_to_left(pos, pos);
 		_size--;
-		if (pos + 1 == end_)
-			return (end_);
-		it = pos;
-		while (it < end_ - 1)
-		{
-			*it = *(it + 1);
-			it++;
-		}
 		return pos;
 	};
 	
 	iterator erase(iterator first, iterator last)
 	{
-		iterator	end_ = end();
-		size_type	len = _get_range_len(first, last);
+		// iterator		end_ = end();
+		difference_type	len = _get_range_len(first, last);
 		
-		if (first < last)
-		{
-			while (first < end_)
-			{
-				_allocator.destroy(first.base());
-				if (first <= end_ - len)
-					_allocator.construct(first.base(), *(first + len));
-				first++;
-			}
-			_size -= len;
-		}
+		_shift_to_left(last, len);
+		_size -= TO_TYPE(len, size_type);
 		return last;
 		
 	};
@@ -295,10 +281,15 @@ public:
 		while (_size > sz)
 			_allocator.destroy(&_vector[--_size]);
 		if (_size < sz)
-			insert(end(), sz - _size, value);		
+			insert(end(), sz - _size, value);
 	};
 
-	void swap(vector&);
+	void swap(vector & other)
+	{
+		pointer temp = _vector;
+		_vector = other.data();
+		other.data() = temp;
+	}
 	
 private:
 	pointer		_vector;
@@ -342,7 +333,7 @@ private:
 		_capacity = 0;
 	};
 
-	void	_shift_to_end(iterator pos, size_type distance)
+	void	_shift_to_end(iterator pos, difference_type distance)
 	{
 		iterator end_ = end();
 		iterator rhs;
@@ -358,18 +349,19 @@ private:
 		}
 	};
 
-	void	_shift_to_left(iterator dst, iterator begin_)
+	void	_shift_to_left(iterator pos, difference_type distance)
 	{
-		iterator 	end_ = end();
-		size_type	distance = _get_range_len(dst, begin_);
+		iterator end_ = end();
+		iterator lhs = pos - distance;
 
-		for (; dst < begin_ < end_; dst++)
+		std::cout << "lhs : " << *lhs << " distance : " << distance << " begin : " << *(pos).base() << std::endl;
+		for (; lhs < end_ - distance; lhs++)
 		{
-			_allocator.destroy(dst.base());
-			_allocator.construct(dst.base(), *(begin_++)); 
+			_allocator.destroy(lhs.base());
+			_allocator.construct(lhs.base(), *(lhs + distance).base());
 		}
-		for (; dst < end_; dst++)
-			_allocator.destroy(dst.base());
+		for (; lhs < end_; lhs++)
+			_allocator.destroy(lhs.base());
 	};
 
 	void	_reallocate_if_not_null(size_type size, const void * hint = 0)
@@ -397,16 +389,16 @@ private:
 	{
 		size_type i = _get_iterator_i(pos);
 		(this->*f)(n);
-		return begin() + i;
+		return begin() + TO_TYPE(i, difference_type);
 	};
 
 	template <class Iter>
-	size_type _get_range_len( Iter first, Iter last )
+	difference_type _get_range_len( const Iter & first, const Iter & last )
 	{
 		Iter it;
 
 		it = first;
-		size_type i = 0;
+		difference_type i = 0;
 		for (; it != last; i++)
 			it++;
 		return i;
@@ -501,4 +493,75 @@ private:
 // 		value_type operator[](size_type i)
 // 		{
 // 			return (base() + i);
+// 		}
+
+// template <class V>
+// 	class RandomAccessIterator : 
+// 	{
+// 	public:
+// 		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::value_type		value_type;
+// 		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
+// 		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
+// 		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
+// 		// typedef typename V::size_type														size_type;
+// 		typedef typename V::value_type		value_type;
+// 		typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
+// 		typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
+// 		typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
+// 		typedef typename V::size_type														size_type;
+
+// 		RandomAccessIterator<V>() {  };
+
+// 		RandomAccessIterator<V>(pointer ptr) { this->_ptr = ptr; }
+
+// 		RandomAccessIterator<V>(const RandomAccessIterator<V>& it) { *this = it; };
+		
+// 		virtual ~RandomAccessIterator<V>() {  };
+
+// 		virtual RandomAccessIterator<V>& operator=( const RandomAccessIterator<V>& it )
+// 		{
+// 			this->_ptr = it._ptr; // WARNING : Might need a change https://cplusplus.com/reference/iterator/
+// 			return *this;
+// 		}
+
+// 		virtual pointer	base() 					{ return this->_ptr; };
+// 		virtual value_type operator*() const	{ return *this->_ptr; };
+
+// 		virtual RandomAccessIterator<V>& operator++()		{ this->_ptr++; return *this; }
+// 		virtual RandomAccessIterator<V>& operator--() 		{ this->_ptr--; return *this;	}
+
+// 		virtual RandomAccessIterator<V> operator+(size_type n)	{ return RandomAccessIterator<V>(this->_ptr + n); }
+// 		virtual RandomAccessIterator<V> operator-(size_type n)	{ return RandomAccessIterator<V>(this->_ptr - n); }
+
+// 		virtual RandomAccessIterator<V>& operator+=(size_type n)	{ this->_ptr += n; return *this; }
+// 		virtual RandomAccessIterator<V>& operator-=(size_type n)	{ this->_ptr -= n; return *this; }
+		
+// 		virtual RandomAccessIterator<V> operator++( int )
+// 		{
+// 			RandomAccessIterator<V> ori = *this;
+// 			++(*this);
+// 			return ori;
+// 		}
+// 		virtual RandomAccessIterator<V> operator--( int )
+// 		{
+// 			RandomAccessIterator<V> ori = *this;
+// 			--(*this);
+// 			return ori;
+// 		}
+		
+// 		virtual bool operator==(const RandomAccessIterator<V>& it) const
+// 		{
+// 			if (this->_ptr == it._ptr)
+// 				return true;  
+// 			return false;
+// 		}
+// 		virtual bool operator!=(const RandomAccessIterator<V>& it) const	{ return (!operator==(it)); }
+// 		virtual bool operator>(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); }
+// 		virtual bool operator<(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); }
+// 		virtual bool operator>=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); }
+// 		virtual bool operator<=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); }
+
+// 		virtual value_type operator[](int i)
+// 		{
+// 			return (*(base() + i));
 // 		}

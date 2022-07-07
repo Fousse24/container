@@ -3,9 +3,10 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "include/Vector.hpp"
+#include "include/vector.hpp"
 #include "include/Iterator.hpp"
-#include "include/VectorIterator.tpp"
+#include "include/vectorIterator.hpp"
+#include "include/utils.hpp"
 
 using std::cout;
 using std::string;
@@ -105,12 +106,7 @@ int main()
 	cout << endl;
 	print_container(std_vect);
 
-	// ft::iterator_traits<std::vector<int>::iterator>::value_type hey = 0;
-	// std::iterator_traits<std::vector<int>::iterator>::value_type go = 1;
-	// ft::iterator_traits<ft::vector<int>::iterator>::value_type hello = 2;
-	// std::iterator_traits<ft::vector<int>::iterator>::value_type allo = 3;
 	ft::vector<int> vect_buff;
-	// vect_buff.assign(1, 1); // ERROR
 	vect_buff.push_back(2);
 	vect_buff.push_back(3);
 	vect_buff.push_back(4);
@@ -124,9 +120,10 @@ int main()
 	vect_buff.push_back(12);
 	vect_buff.push_back(13);
 	cout << endl << "INSERT RANGE 5-12 WITH THE RANGE FROM ANOTHER VECTOR" << endl;
-		vect.insert(vect.begin() + 4, vect.begin() + 2, vect.begin() + 9);
 	vect.insert(vect.begin() + 4, vect_buff.begin() + 2, vect_buff.begin() + 9);
+	// vect.insert(vect.begin() + 4, std_vect.begin() + 2, std_vect.begin() + 9);
 	std_vect.insert(std_vect.begin() + 4, vect_buff.begin() + 2, vect_buff.begin() + 9);
+	// std_vect.insert(std_vect.begin() + 4, vect.begin() + 2, vect.begin() + 9);
 	print_container(vect);
 	cout << endl;
 	print_container(std_vect);
@@ -146,8 +143,16 @@ int main()
 	print_container(vect);
 	cout << endl;
 	print_container(std_vect);
-	
 
+	cout << endl << "INSERT 100 elements of value 2 from the second positions" << endl;
+	vect.insert(vect.begin() + 1, 100, 2);
+	std_vect.insert(std_vect.begin() + 1, 100, 2);
+	print_container(vect);
+	cout << endl;
+	print_container(std_vect);
+	
+	// bool hey(ft::is_integral<int>::value);
+	// cout << endl << endl << ft::enable_if<ft::is_integral<int>, bool>::type() << endl;
 	// vect.push_back(i);
 	// std_vect.push_back(i * i);
 	// for (i = 0; i < 1; i++)
@@ -176,8 +181,8 @@ int main()
 	// std_vect.erase(std_vect.begin() + 2);
 	// std_vect.assign(5, 2);
 
-	cout << endl << "STD::FOR_EACH" << endl;
-	std::for_each(std::begin(vect), std::end(vect), ft_cout_endl<int>);
+	// cout << endl << "STD::FOR_EACH" << endl;
+	// std::for_each(std::begin(vect), std::end(vect), ft_cout_endl<int>);
 	// print_container(vect);
 	// print_container(std_vect);
 	// std::for_each(std::begin(std_vect), std::end(std_vect), ft_cout_endl<int>);
