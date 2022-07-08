@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/07 15:32:12 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/08 16:10:49 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
+#include "IteratorTraits.hpp"
 #include "Iterator.hpp"
 #include "IteratorTraits.hpp"
 
@@ -37,28 +38,28 @@ public:
 	typedef typename V::difference_type 				difference_type;
 	typedef typename V::size_type						size_type;
 
-	typedef typename ft::iterator_traits<vectorIterator<V> >	iterator_traits;
 	vectorIterator<V>() {  };
 
 	vectorIterator<V>(pointer ptr) { this->_ptr = ptr; }
 
 	vectorIterator<V>(const vectorIterator<V>& it) { *this = it; };
 	
-	virtual ~vectorIterator<V>() {  };
+	~vectorIterator<V>() {  };
 
-	virtual vectorIterator<V>& operator=( const vectorIterator<V>& it )
+	vectorIterator<V>& operator=( const vectorIterator<V>& it )
 	{
 		this->_ptr = it._ptr; // WARNING : Might need a change https://cplusplus.com/reference/iterator/
 		return *this;
 	}
 
-	virtual pointer	base() const			{ return this->_ptr; };
-	virtual value_type operator*() const	{ return *this->_ptr; };
+	pointer	base() const				{ return this->_ptr; };
+	value_type operator*() const		{ return *this->_ptr; };
+	value_type operator[](size_type i)	{ return (base()[i]); };
 
-	virtual vectorIterator<V>& operator++()	{ this->_ptr++; return *this; };
-	virtual vectorIterator<V>& operator--() { this->_ptr--; return *this;	};
+	vectorIterator<V>& operator++()	{ this->_ptr++; return *this; };
+	vectorIterator<V>& operator--() { this->_ptr--; return *this;	};
 
-	virtual vectorIterator<V> operator+(difference_type n)	
+	vectorIterator<V> operator+(difference_type n)	
 	{ return vectorIterator<V>(this->_ptr + n); };
 	
 	virtual vectorIterator<V> operator-(difference_type n)	
@@ -67,46 +68,42 @@ public:
 	difference_type operator-(const vectorIterator<V> & it)	
 	{ return base() - it.base(); };
 
-	virtual vectorIterator<V>& operator+=(difference_type n)
+	vectorIterator<V>& operator+=(difference_type n)
 	{ this->_ptr += n; return *this; };
 	
-	virtual vectorIterator<V>& operator-=(difference_type n)
+	vectorIterator<V>& operator-=(difference_type n)
 	{ this->_ptr -= n; return *this; };
 	
-	virtual vectorIterator<V> operator++( int )
+	vectorIterator<V> operator++( int )
 	{
 		vectorIterator<V> ori = *this;
 		++(*this);
 		return ori;
 	};
 
-	virtual vectorIterator<V> operator--( int )
+	vectorIterator<V> operator--( int )
 	{
 		vectorIterator<V> ori = *this;
 		--(*this);
 		return ori;
 	};
-	
-	virtual bool operator==(const vectorIterator<V>& it) const
+
+
+	bool operator==(const vectorIterator<V>& it) const
 	{
 		if (this->_ptr == it._ptr)
 			return true;  
 		return false;
 	};
-	virtual bool operator!=(const vectorIterator<V>& it) const	{ return (!operator==(it)); };
-	virtual bool operator>(const vectorIterator<V>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); };
-	virtual bool operator<(const vectorIterator<V>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); };
-	virtual bool operator>=(const vectorIterator<V>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); };
-	virtual bool operator<=(const vectorIterator<V>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); };
-
-	virtual value_type operator[](size_type i)
-	{
-		return (base()[i]);
-	};
+	bool operator!=(const vectorIterator<V>& it) const	{ return (!operator==(it)); };
+	bool operator>(const vectorIterator<V>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); };
+	bool operator<(const vectorIterator<V>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); };
+	bool operator>=(const vectorIterator<V>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); };
+	bool operator<=(const vectorIterator<V>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); };
 protected:
 	pointer	_ptr;
-
 };
+
 }
 
 #endif

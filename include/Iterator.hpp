@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/07 13:49:14 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/08 16:11:45 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,65 +15,179 @@
 #include <iterator>
 #include <memory>
 #include <limits>
+#include "IteratorTraits.hpp"
 
 namespace ft
 {
 
-	// template <class Category, class T>
-	// class iterator
-	// {
-	// public:
-	// 	typedef typename T::value_type			value_type;
-	// 	typedef typename T::pointer				pointer;
-	// 	typedef typename T::reference			reference;
-	// 	typedef Category						iterator_category;
-	// 	typedef typename T::difference_type 	difference_type;
+// template <class Category, class T>
+// class iterator
+// {
+// public:
+// 	typedef typename T::value_type			value_type;
+// 	typedef typename T::pointer				pointer;
+// 	typedef typename T::reference			reference;
+// 	typedef Category						iterator_category;
+// 	typedef typename T::difference_type 	difference_type;
 
-	// protected:
-	// 	pointer	_ptr;
-	// };
+// protected:
+// 	pointer	_ptr;
+// };
 
-	//template< typename T >
-	template <class Category, class T, class Pointer = T*
-			, class Reference = T&, class Difference = std::ptrdiff_t>
-	struct iterator
+//template< typename T >
+template <class Category, class T, class Pointer = T*
+		, class Reference = T&, class Difference = std::ptrdiff_t>
+struct iterator
+{
+	typedef T				value_type;
+	typedef Pointer			pointer;
+	typedef Reference		reference;
+	typedef Difference	 	difference_type;
+	typedef Category		iterator_category;
+};
+
+
+template <class Iter>
+class reverse_iterator : public ft::iterator<typename ft::iterator_traits<Iter>::iterator_category
+								, typename ft::iterator_traits<Iter>::value_type
+								, typename ft::iterator_traits<Iter>::pointer
+								, typename ft::iterator_traits<Iter>::reference
+								, typename ft::iterator_traits<Iter>::difference_type>
+{
+public:
+	typedef Iter													iterator_type;
+	typedef typename ft::iterator_traits<Iter>::iterator_category	iterator_category;
+	typedef typename ft::iterator_traits<Iter>::value_type			value_type;
+	typedef typename ft::iterator_traits<Iter>::pointer				pointer;
+	typedef typename ft::iterator_traits<Iter>::reference			reference;
+	typedef typename ft::iterator_traits<Iter>::difference_type		difference_type;
+
+	reverse_iterator<Iter>() {  };
+
+	reverse_iterator<Iter>(Iter type) { current = type; }
+
+	template< class U >
+	reverse_iterator<Iter>(const reverse_iterator<U>& it) { current = it; };
+	
+	~reverse_iterator<Iter>() {  };
+
+	template< class U > 
+	reverse_iterator<Iter>& operator=( const reverse_iterator<U>& it )
 	{
-		typedef T				value_type;
-		typedef Pointer			pointer;
-		typedef Reference		reference;
-		typedef Difference	 	difference_type;
-		typedef Category		iterator_category;
+		current.base() = it.base();
+		return *this;
+	}
+
+	iterator_type	base() const	{ return current; };
+	reference operator*() const		{ return *(current - 1); };
+	pointer operator->() const		{ return &(operator*()); };
+
+	value_type operator[](difference_type i)
+	{
+		return (base()[-i - 1]);
 	};
 
-	// template < class InputIt1, class InputIt2 >
-	// bool equal( InputIt1 first_1, InputIt1 last_1, InputIt2,  
+	reverse_iterator<Iter>& operator++()	{ current--; return *this; };
+	reverse_iterator<Iter>& operator--()	{ current++; return *this; };
+
+	reverse_iterator<Iter> operator++( int )
+	{
+		reverse_iterator<Iter> ori = *this;
+		++(*this);
+		return ori;
+	};
+
+	reverse_iterator<Iter> operator--( int )
+	{
+		reverse_iterator<Iter> ori = *this;
+		--(*this);
+		return ori;
+	};
+
+	reverse_iterator<Iter> operator+(difference_type n)	
+	{ return reverse_iterator<Iter>(base() - n); };
+	
+	 reverse_iterator<Iter> operator-(difference_type n)	
+	{ return reverse_iterator<Iter>(base() + n); };
+
+	difference_type operator-(const reverse_iterator<Iter> & it)	
+	{ return base() - it.base(); };
+
+	reverse_iterator<Iter>& operator+=(difference_type n)
+	{ current -= n; return *this; };
+	
+	reverse_iterator<Iter>& operator-=(difference_type n)
+	{ current += n; return *this; };
+
+protected:
+	iterator_type	current;
+};
+
+template< class Iter1, class Iter2 >
+bool operator==( const ft::reverse_iterator<Iter1>& lhs, const ft::reverse_iterator<Iter2>& rhs)
+{ return (lhs.base() == rhs.base()); }
+
+template< class Iter1, class Iter2 >
+bool operator!=( const ft::reverse_iterator<Iter1>& lhs, const ft::reverse_iterator<Iter2>& rhs)
+{ return (lhs.base() != rhs.base()); }
+
+template< class Iter1, class Iter2 >
+bool operator>( const ft::reverse_iterator<Iter1>& lhs, const ft::reverse_iterator<Iter2>& rhs)
+{ return (lhs.base() >= rhs.base()); }
+
+template< class Iter1, class Iter2 >
+bool operator<( const ft::reverse_iterator<Iter1>& lhs, const ft::reverse_iterator<Iter2>& rhs)
+{ return (lhs.base() < rhs.base()); }
+
+template< class Iter1, class Iter2 >
+bool operator>=( const ft::reverse_iterator<Iter1>& lhs, const ft::reverse_iterator<Iter2>& rhs)
+{ return (lhs.base() >= rhs.base()); }
+
+template< class Iter1, class Iter2 >
+bool operator<=( const ft::reverse_iterator<Iter1>& lhs, const ft::reverse_iterator<Iter2>& rhs)
+{ return (lhs.base() <= rhs.base()); }
+
+template< class Iter >
+reverse_iterator<Iter> operator+( typename reverse_iterator<Iter>::difference_type n
+													,const reverse_iterator<Iter>& it )
+{	
+	return ( reverse_iterator<Iter>(it.base() - n) );
 }
 
-	// template <class V>
-	// class RandomAccessIterator : public ft::iterator<std::random_access_iterator_tag, V::value_type
-	// 									,V::pointer, V::reference, V::difference_type>
+template< class Iter >
+typename reverse_iterator<Iter>::difference_type operator-( const reverse_iterator<Iter>& lhs,
+               												const reverse_iterator<Iter>& rhs )
+{
+	return (rhs.base() - lhs.base());
+}
+
+}
+
+	// template <class Iter>
+	// class RandomAccessIterator : public ft::iterator<std::random_access_iterator_tag, Iter::value_type
+	// 									,Iter::pointer, Iter::reference, Iter::difference_type>
 	// {
 	// public:
-	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, V>::value_type		value_type;
-	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
-	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
-	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
-	// 	// typedef typename V::size_type														size_type;
-	// 	typedef typename V::value_type		value_type;
-	// 	typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
-	// 	typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
-	// 	typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
-	// 	typedef typename V::size_type														size_type;
+	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, Iter>::value_type		value_type;
+	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, Iter>::pointer			pointer;
+	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, Iter>::reference			reference;
+	// 	// typedef typename ft::iterator<std::random_access_iterator_tag, Iter>::difference_type	difference_type;
+	// 	// typedef typename Iter::size_type														size_type;
+	// 	typedef typename Iter::value_type		value_type;
+	// 	typedef typename ft::iterator<std::random_access_iterator_tag, Iter>::pointer			pointer;
+	// 	typedef typename ft::iterator<std::random_access_iterator_tag, Iter>::reference			reference;
+	// 	typedef typename ft::iterator<std::random_access_iterator_tag, Iter>::difference_type	difference_type;
+	// 	typedef typename Iter::size_type														size_type;
 
-	// 	RandomAccessIterator<V>() {  };
+	// 	RandomAccessIterator<Iter>() {  };
 
-	// 	RandomAccessIterator<V>(pointer ptr) { this->_ptr = ptr; }
+	// 	RandomAccessIterator<Iter>(pointer ptr) { this->_ptr = ptr; }
 
-	// 	RandomAccessIterator<V>(const RandomAccessIterator<V>& it) { *this = it; };
+	// 	RandomAccessIterator<Iter>(const RandomAccessIterator<Iter>& it) { *this = it; };
 		
-	// 	virtual ~RandomAccessIterator<V>() {  };
+	// 	virtual ~RandomAccessIterator<Iter>() {  };
 
-	// 	virtual RandomAccessIterator<V>& operator=( const RandomAccessIterator<V>& it )
+	// 	virtual RandomAccessIterator<Iter>& operator=( const RandomAccessIterator<Iter>& it )
 	// 	{
 	// 		this->_ptr = it._ptr; // WARNING : Might need a change https://cplusplus.com/reference/iterator/
 	// 		return *this;
@@ -82,39 +196,39 @@ namespace ft
 	// 	virtual pointer	base() 					{ return this->_ptr; };
 	// 	virtual value_type operator*() const	{ return *this->_ptr; };
 
-	// 	virtual RandomAccessIterator<V>& operator++()		{ this->_ptr++; return *this; }
-	// 	virtual RandomAccessIterator<V>& operator--() 		{ this->_ptr--; return *this;	}
+	// 	virtual RandomAccessIterator<Iter>& operator++()		{ this->_ptr++; return *this; }
+	// 	virtual RandomAccessIterator<Iter>& operator--() 		{ this->_ptr--; return *this;	}
 
-	// 	virtual RandomAccessIterator<V> operator+(size_type n)	{ return RandomAccessIterator<V>(this->_ptr + n); }
-	// 	virtual RandomAccessIterator<V> operator-(size_type n)	{ return RandomAccessIterator<V>(this->_ptr - n); }
+	// 	virtual RandomAccessIterator<Iter> operator+(size_type n)	{ return RandomAccessIterator<Iter>(this->_ptr + n); }
+	// 	virtual RandomAccessIterator<Iter> operator-(size_type n)	{ return RandomAccessIterator<Iter>(this->_ptr - n); }
 
-	// 	virtual RandomAccessIterator<V>& operator+=(size_type n)	{ this->_ptr += n; return *this; }
-	// 	virtual RandomAccessIterator<V>& operator-=(size_type n)	{ this->_ptr -= n; return *this; }
+	// 	virtual RandomAccessIterator<Iter>& operator+=(size_type n)	{ this->_ptr += n; return *this; }
+	// 	virtual RandomAccessIterator<Iter>& operator-=(size_type n)	{ this->_ptr -= n; return *this; }
 		
-	// 	virtual RandomAccessIterator<V> operator++( int )
+	// 	virtual RandomAccessIterator<Iter> operator++( int )
 	// 	{
-	// 		RandomAccessIterator<V> ori = *this;
+	// 		RandomAccessIterator<Iter> ori = *this;
 	// 		++(*this);
 	// 		return ori;
 	// 	}
-	// 	virtual RandomAccessIterator<V> operator--( int )
+	// 	virtual RandomAccessIterator<Iter> operator--( int )
 	// 	{
-	// 		RandomAccessIterator<V> ori = *this;
+	// 		RandomAccessIterator<Iter> ori = *this;
 	// 		--(*this);
 	// 		return ori;
 	// 	}
 		
-	// 	virtual bool operator==(const RandomAccessIterator<V>& it) const
+	// 	virtual bool operator==(const RandomAccessIterator<Iter>& it) const
 	// 	{
 	// 		if (this->_ptr == it._ptr)
 	// 			return true;  
 	// 		return false;
 	// 	}
-	// 	virtual bool operator!=(const RandomAccessIterator<V>& it) const	{ return (!operator==(it)); }
-	// 	virtual bool operator>(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); }
-	// 	virtual bool operator<(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); }
-	// 	virtual bool operator>=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); }
-	// 	virtual bool operator<=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); }
+	// 	virtual bool operator!=(const RandomAccessIterator<Iter>& it) const	{ return (!operator==(it)); }
+	// 	virtual bool operator>(const RandomAccessIterator<Iter>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); }
+	// 	virtual bool operator<(const RandomAccessIterator<Iter>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); }
+	// 	virtual bool operator>=(const RandomAccessIterator<Iter>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); }
+	// 	virtual bool operator<=(const RandomAccessIterator<Iter>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); }
 
 	// 	virtual value_type operator[](int i)
 	// 	{

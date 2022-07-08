@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/07 17:18:33 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/08 17:08:25 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,21 +38,19 @@ template <class T, class Allocator = std::allocator<T> >
 class vector
 {	
 public:	
-	// ft::iterator_traits<vector<T> > _it_traits;
-	typedef Allocator                               				allocator_type;
-	typedef typename allocator_type::value_type       				value_type;
-	typedef typename allocator_type::reference      				reference;
-	typedef typename allocator_type::const_reference				const_reference;
-	typedef ft::vectorIterator<vector<T> > 							iterator;
-	typedef const ft::vectorIterator<vector<T> >					const_iterator;
-	typedef typename allocator_type::size_type      				size_type;
-	typedef typename allocator_type::difference_type				difference_type;
-	typedef typename allocator_type::pointer        				pointer;
-	typedef typename allocator_type::const_pointer					const_pointer;
-	// typedef ft::reverse_iterator<iterator>				reverse_iterator;
-	// typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
+	typedef Allocator                               		allocator_type;
+	typedef typename allocator_type::value_type       		value_type;
+	typedef typename allocator_type::reference      		reference;
+	typedef typename allocator_type::const_reference		const_reference;
+	typedef ft::vectorIterator<vector<T> > 				iterator;
+	typedef const ft::vectorIterator<vector<T> >			const_iterator;
+	typedef typename allocator_type::size_type      		size_type;
+	typedef typename allocator_type::difference_type		difference_type;
+	typedef typename allocator_type::pointer        		pointer;
+	typedef typename allocator_type::const_pointer			const_pointer;
+	typedef ft::reverse_iterator<iterator>					reverse_iterator;
+	typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
-	
 	vector()
 	{
 		_allocator = Allocator();
@@ -119,11 +117,10 @@ public:
 	iterator		end() { return iterator(_vector + _size); };
 	const_iterator	end() const { return iterator(_vector + _size);};
 	
-	// reverse_iterator       rbegin() noexcept;
-	// const_reverse_iterator rbegin()  const noexcept;
-	// reverse_iterator       rend() noexcept;
-	// const_reverse_iterator rend()    const noexcept;
-	
+	reverse_iterator       rbegin() { return reverse_iterator(end() - 1); };
+	const_reverse_iterator rbegin() const { return reverse_iterator(end() - 1); };
+	reverse_iterator       rend() { return reverse_iterator(begin() - 1); };
+	const_reverse_iterator rend() const { return reverse_iterator(begin() - 1); };
 	// iterator end
 
 
@@ -411,6 +408,35 @@ private:
 	//bool __invariants() const;
 	/* Modifier end */
 };
+
+template< class T, class Alloc >
+bool operator==( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+{
+	if (lhs.size() != rhs.size())
+		return false;
+	return (std::equal(lhs.begin(), lhs.end(), rhs.begin));
+}
+
+template< class T, class Alloc >
+bool operator!=( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+{ return !(lhs == rhs); }
+
+template< class T, class Alloc >
+bool operator>( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
+{ return !(lhs < rhs); }
+
+template< class T, class Alloc >
+bool operator<( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
+{ return (std::lexicographical_compare(lhs.base(), lhs.end(). rhs.base(), rhs.end())); }
+
+template< class T, class Alloc >
+bool operator>=( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
+{ return (lhs > rhs || lhs == rhs); }
+
+template< class T, class Alloc >
+bool operator<=( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
+{ return !(lhs > rhs); }
+
 
 }  // std
 
