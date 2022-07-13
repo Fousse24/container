@@ -6,15 +6,13 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/07 11:08:08 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/11 16:18:16 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ITERATOR_TRAITS_HPP
 #define ITERATOR_TRAITS_HPP
-#include <iterator>
 #include <memory>
-
 
 namespace ft
 {

@@ -18,8 +18,8 @@ D_OBJ	= objs
 # Files
 MAIN	= test.cpp
 
-_HEAD	= vector.hpp Iterator.hpp IteratorTraits.hpp vectorIterator.hpp utils.hpp
-HEAD	= $(patsubst %.hpp, $(D_INC)/%.hpp, $(_HEAD))
+_HEAD	= vector.hpp iterator.hpp iteratorTraits.hpp vectorIterator.hpp utils.hpp test.hpp
+HEAD	= $(_HEAD)
 
 _SRC	= 	
 SRC		= $(patsubst %.cpp, $(D_SRC)/%.cpp, $(_SRC))

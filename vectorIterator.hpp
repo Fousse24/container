@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   VectorIterator.hpp                                 :+:      :+:    :+:   */
+/*   vectorIterator.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/08 16:10:49 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/13 16:01:33 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,9 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
-#include "IteratorTraits.hpp"
-#include "Iterator.hpp"
-#include "IteratorTraits.hpp"
-
-#define FT_VECT_BUFFER	10
+#include "iteratorTraits.hpp"
+#include "iterator.hpp"
+#include "iteratorTraits.hpp"
 
 namespace ft
 {
@@ -53,8 +51,9 @@ public:
 	}
 
 	pointer	base() const				{ return this->_ptr; };
-	value_type operator*() const		{ return *this->_ptr; };
-	value_type operator[](size_type i)	{ return (base()[i]); };
+	value_type	operator*() const		{ return *base(); };
+	pointer		operator->() const		{ return base(); };
+	value_type	operator[](size_type i)	{ return base()[i]; };
 
 	vectorIterator<V>& operator++()	{ this->_ptr++; return *this; };
 	vectorIterator<V>& operator--() { this->_ptr--; return *this;	};
@@ -62,7 +61,7 @@ public:
 	vectorIterator<V> operator+(difference_type n)	
 	{ return vectorIterator<V>(this->_ptr + n); };
 	
-	virtual vectorIterator<V> operator-(difference_type n)	
+	vectorIterator<V> operator-(difference_type n)	
 	{ return vectorIterator<V>(this->_ptr - n); };
 
 	difference_type operator-(const vectorIterator<V> & it)	

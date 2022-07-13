@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/08 17:08:25 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/13 18:41:54 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,13 @@
 #define VECTOR_HPP
 
 #include <initializer_list>
+#include <iterator>
 #include <limits>
 #include <memory>
 #include <algorithm>
 #include <iostream>
 #include "vectorIterator.hpp"
-#include "IteratorTraits.hpp"
+#include "iteratorTraits.hpp"
 #include "utils.hpp"
 
 #define FT_VECT_BUFFER	10
@@ -42,7 +43,7 @@ public:
 	typedef typename allocator_type::value_type       		value_type;
 	typedef typename allocator_type::reference      		reference;
 	typedef typename allocator_type::const_reference		const_reference;
-	typedef ft::vectorIterator<vector<T> > 				iterator;
+	typedef ft::vectorIterator<vector<T> > 					iterator;
 	typedef const ft::vectorIterator<vector<T> >			const_iterator;
 	typedef typename allocator_type::size_type      		size_type;
 	typedef typename allocator_type::difference_type		difference_type;
@@ -54,36 +55,43 @@ public:
 	vector()
 	{
 		_allocator = Allocator();
-		_size = 0;
-		_capacity = 0;
-		_vector = NULL;
+		_init_vector();
 	};
 
 	explicit vector(const Allocator& alloc)
 	{
-		_size = 0;
-		_capacity = 0;
+		_init_vector();
 		_allocator = alloc;
-		_vector = NULL;
+	};
+
+	explicit vector( size_type count, const T value = value_type(),
+                 	const Allocator& alloc = Allocator())
+	{
+		_allocator = alloc;
+		_init_vector();
+		assign(count, value);
 	};
 	
 	vector( const vector& vect )
 	{ 
+		_init_vector();
 		*this = vect;
 	};
 
-	// template <class Iterator>
-	//  	vector<T>(Iterator first, Iterator last, const allocator_type& = allocator_type()){};
+	template <class Iter>
+	 	vector<T>(Iter first, Iter last, const allocator_type& = allocator_type(),
+				typename ft::enable_if<ft::is_not_integral<Iter>, bool>::type = 0)
+	{
+		_init_vector();
+		assign(first, last);
+	};
 
-	// explicit vector<T>( size_type count, const T& value = T(), const Allocator& alloc = Allocator()){};
-		
-
-	~vector() { clear(); };
+	~vector() { if (_vector) { _full_clear(); } };
 
 	vector& operator=(const vector& v)
 	{
-		if (_vector)
-			_full_clear();
+		// if (_vector)
+		// 	_reallocate_if_not_null(_capacity);
 		this->assign(v.begin(), v.end());
 		return *this;
 	};
@@ -91,20 +99,20 @@ public:
 	
 
 
-	// template <class Input_It>
-	void assign(iterator first, iterator last)
+	template <class Iter>
+	void assign(Iter first, Iter last, typename ft::enable_if<ft::is_not_integral<Iter>, bool>::type = 0)
 	{
 		clear();
 		reserve(_get_range_len(first, last));
-		_pure_insert(begin(), end(), first, last);
+		insert(begin(), first, last);
 	};
 
-	void assign(size_type n, const value_type& u)
+	void assign(size_type n, const value_type u)
 	{
+		if (n <= 0)
+			return ;
 		clear();
-		for (size_type i = 0; i < n; i++)
-			this->_vector[i] = u;
-		_size = n;
+		insert(begin(), n, u);
 	};
 	
 	allocator_type get_allocator() const { return Allocator(); };
@@ -115,7 +123,7 @@ public:
 	const_iterator	begin() const { return const_iterator(_vector); };
 
 	iterator		end() { return iterator(_vector + _size); };
-	const_iterator	end() const { return iterator(_vector + _size);};
+	const_iterator	end() const { return const_iterator(_vector + _size);};
 	
 	reverse_iterator       rbegin() { return reverse_iterator(end() - 1); };
 	const_reverse_iterator rbegin() const { return reverse_iterator(end() - 1); };
@@ -136,19 +144,19 @@ public:
 
 	reference       at(size_type n) // Should not check negative??
 	{
-		_is_in_bound(n);
+		_is_in_bound(n, true);
 		return _vector[n];
 	};
 	const_reference at(size_type n) const 
 	{
-		_is_in_bound(n);
+		_is_in_bound(n, true);
 		return _vector[n];
 	};
 
-	reference       front() { return *begin(); };
-	const_reference front() const { return *begin(); };
-	reference       back() { return *(end() - 1); };
-	const_reference back() const { return *(end() - 1); };
+	reference       front() { return *_vector; };
+	const_reference front() const { return *_vector; };
+	reference       back() { return _vector[_size - 1]; };
+	const_reference back() const { return _vector[_size - 1]; };
 
 	value_type*       data() { return _vector; };
 	const value_type* data() const { return _vector; };
@@ -164,22 +172,22 @@ public:
 	void reserve(size_type n) // Not done
 	{
 		pointer		backup_;
-		size_type	i;
+		size_type	i = 0;
 
 		_test_max_size(n);
 		if (n > _capacity)
 		{
 			backup_ = _allocator.allocate(n);
-			// swap(_vector, _backup); // WARNING : TO-DO
-			// std::swap(backup_, _vector);
-			
-			for (i = 0; i < _size && i < n; i++)
-				backup_[i] = _vector[i];
-			_full_clear();
+			if (_vector)
+			{
+				for (; i < _size && i < n; i++)
+					_allocator.construct(&backup_[i], _vector[i]);
+				_full_clear();
+			}
 			_vector = backup_;
 			_size = i;
 			_capacity = n;
-		}		
+		}	
 	};
 	/* Capacity end */
 
@@ -187,10 +195,11 @@ public:
 	/* Modifier */
 	void clear()
 	{
-		if (!_vector)
-			return ;
 		iterator end_ = end();
 		iterator begin_ = begin();
+		
+		if (!_vector || begin_ == end_)
+			return ;
 		for (; begin_ < end_; begin_++)
 			_allocator.destroy(begin_.base());
 		_size = 0;
@@ -199,7 +208,7 @@ public:
 	iterator insert(iterator pos, const value_type& t)
 	{
 		size_type i = _get_iterator_i(pos);
-		insert(pos, TO_TYPE(1, size_type), t);
+		insert(pos, 1, t);
 		return begin() + TO_TYPE(i, difference_type);
 		
 	};
@@ -207,16 +216,16 @@ public:
 	void insert(iterator pos, size_type n, const value_type& t)
 	{
 		iterator end_;
-		iterator begin_;
 
 		if (_size + n > _capacity)
 			pos = _revalidate_iter(pos, _size + n + FT_VECT_BUFFER, &vector::reserve);
-		if (begin() != end())
+		if (!empty())
 			_shift_to_end(pos, TO_TYPE(n, difference_type));
 		end_ = pos + TO_TYPE(n, difference_type);
-		begin_ = pos;
 		for (; pos < end_; pos++)
+		{
 			_allocator.construct(pos.base(), t);
+		}
 		_size += n;
 		return ;
 	};
@@ -224,16 +233,8 @@ public:
 	template<class Iter>
 	void insert(iterator pos, Iter first, Iter last, typename ft::enable_if<ft::is_not_integral<Iter>, bool>::type = 0) // change to input only
 	{
-		iterator		end_;
-		difference_type	len = _get_range_len(first, last);
-
-		if (_size + TO_TYPE(len, size_type) >= _capacity)
-			pos = _revalidate_iter(pos, _size + TO_TYPE(len, size_type) + FT_VECT_BUFFER, &vector::reserve);
-		_shift_to_end(pos, len);
-		end_ = pos + len;
-		// std::copy(first, last, pos);
-		for (; pos < end_; _size++)	
-			_allocator.construct((pos++).base(), *(first++));
+		typedef typename ft::iterator_traits<Iter>::iterator_category category;
+		_insert(pos, first, last, category());
 		return ;
 	};
 
@@ -242,7 +243,7 @@ public:
 		iterator	it;
 		iterator	end_;
 
-		_shift_to_left(pos, pos);
+		_shift_to_left(pos, static_cast<difference_type>(1));
 		_size--;
 		return pos;
 	};
@@ -265,6 +266,8 @@ public:
 
 	void pop_back()
 	{
+		if (empty())
+			return ;
 		_allocator.destroy((end() - 1).base());
 		_size--;
 	};	
@@ -294,27 +297,56 @@ private:
 	size_type	_capacity;
 	Allocator	_allocator;
 
-	void	_pure_insert(iterator dst_first, iterator dst_last, iterator src_first, iterator src_last)
+	template<class Iter>
+	void _insert(iterator pos, Iter first, Iter last, std::input_iterator_tag)
 	{
-		while (dst_first < dst_last || src_first < src_last)
-			*(dst_first++).base() = *(src_first++).base();
+		while (first != last)
+		{
+			insert(pos, 1, *first);
+			first++;
+		}
+		return ;
 	};
 
-	bool	_is_in_bound(size_type n, bool ex)
+	template<class Iter>
+	void _insert(iterator pos, Iter first, Iter last, std::forward_iterator_tag)
 	{
-		if (n < _size)
+		iterator		end_;
+		difference_type	len = _get_range_len(first, last);
+
+		if (_size + TO_TYPE(len, size_type) >= _capacity)
+			pos = _revalidate_iter(pos, _size + TO_TYPE(len, size_type) + FT_VECT_BUFFER, &vector::reserve);
+		_shift_to_end(pos, len);
+		end_ = pos + len;
+		for (; pos < end_; _size++)
+		{
+			_allocator.construct((pos++).base(), *(first++));
+		}
+		return ;
+	};
+
+	bool	_is_in_bound(size_type n, bool ex = true) const
+	{
+		if (n < _size && n > 0)
 			return true;
 		if (ex)
-			throw std::length_error("out of bound");
+			throw std::out_of_range("out of bound");
 		return false;
 	};
 
 	bool	_test_max_size(size_type n)
 	{
 		if (n > max_size())
-			throw std::length_error("out of bound");
+			throw std::out_of_range("out of bound");
 		return true;
 	};
+
+	void	_init_vector(void)
+	{
+		_size = 0;
+		_capacity = 0;
+		_vector = NULL;
+	}
 
 	void	_move_to(iterator dst, iterator src_first, iterator src_last)
 	{
@@ -330,20 +362,30 @@ private:
 		_capacity = 0;
 	};
 
-	void	_shift_to_end(iterator pos, difference_type distance)
+	void	_shift_to_end(iterator pos, difference_type distance) // FIX THIS SHIT
 	{
 		iterator end_ = end();
 		iterator rhs;
 
 		// std::uninitialized_copy(rhs - distance, rhs, rhs);
 		// std::uninitialized_copy(rhs - distance, rhs, rhs);
-		for (rhs = end_ + distance - 1; rhs >= end(); rhs--)
-			_allocator.construct(rhs.base(), *(rhs - distance).base()); 
+		if (pos == end_)
+			return ;
+		for (rhs = end_ + distance - 1; rhs > end_; rhs--)
+		{
+			_allocator.construct(rhs.base(), *(rhs - distance).base());
+			_allocator.destroy((rhs - distance).base());
+		}
 		for (; rhs >= pos + distance; rhs--)
 		{
-			_allocator.destroy(rhs.base());
-			_allocator.construct(rhs.base(), *(rhs - distance).base()); 
+			// _allocator.destroy(rhs.base());
+			_allocator.construct(rhs.base(), *(rhs - distance).base());
+			_allocator.destroy((rhs - distance).base());
 		}
+		// for (; rhs >= pos; rhs--)
+		// {
+		// 	_allocator.destroy(rhs.base());
+		// }
 	};
 
 	void	_shift_to_left(iterator pos, difference_type distance)
@@ -378,6 +420,8 @@ private:
 	{
 		if (empty())
 			return (0);
+		if (pos == end())
+			return _size;
 		return static_cast<size_type>(pos.base() - begin().base());
 	};
 
@@ -414,7 +458,7 @@ bool operator==( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rh
 {
 	if (lhs.size() != rhs.size())
 		return false;
-	return (std::equal(lhs.begin(), lhs.end(), rhs.begin));
+	return (std::equal(lhs.begin(), lhs.end(), rhs.begin()));
 }
 
 template< class T, class Alloc >
@@ -427,7 +471,7 @@ bool operator>( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
 
 template< class T, class Alloc >
 bool operator<( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
-{ return (std::lexicographical_compare(lhs.base(), lhs.end(). rhs.base(), rhs.end())); }
+{ return (std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end())); }
 
 template< class T, class Alloc >
 bool operator>=( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
@@ -458,136 +502,3 @@ bool operator<=( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs
 
 
 #endif
-// template <class V>
-// 	class Iterator : ft::iterator<ft::random_access_iterator_tag, V>
-// 	{
-// 	protected:
-// 		pointer	_ptr;
-		
-// 	public:
-// 		Iterator<V>() {  };
-
-// 		Iterator<V>(pointer ptr) { this->_ptr = ptr; }
-
-// 		Iterator<V>(const Iterator<V>& it) { *this = it; };
-		
-// 		~Iterator<V>() {  };
-
-// 		Iterator<V>& operator=( const Iterator<V>& it )
-// 		{
-// 			_ptr = it._ptr; // WARNING : Might need a change https://cplusplus.com/reference/iterator/
-// 			return *this;
-// 		}
-
-// 		pointer	base() 					{ return _ptr; };
-// 		value_type operator*() const	{ return *_ptr; };
-
-// 		Iterator<V>& operator++()		{ _ptr++; return *this; }
-// 		Iterator<V>& operator--() 		{ _ptr--; return *this;	}
-
-// 		Iterator<V> operator+(int n)	{ return Iterator<V>(this->_ptr + n); }
-// 		Iterator<V> operator-(int n)	{ return Iterator<V>(this->_ptr - n); }
-
-// 		Iterator<V>& operator+=(int n)	{ this->_ptr += n; return *this; }
-// 		Iterator<V>& operator-=(int n)	{ this->_ptr -= n; return *this; }
-		
-// 		const Iterator<V>& operator++( int )
-// 		{
-// 			Iterator<V> ori = *this;
-// 			++(*this);
-// 			return ori;
-// 		}
-// 		const Iterator<V>& operator--( int )
-// 		{
-// 			Iterator<V> ori = *this;
-// 			--(*this);
-// 			return ori;
-// 		}
-		
-// 		bool operator==(const Iterator<V>& it) const
-// 		{
-// 			if (this->_ptr == it._ptr)
-// 				return true;  
-// 			return false;
-// 		}
-// 		bool operator!=(const Iterator<V>& it) const	{ return (!operator==(it)); }
-// 		bool operator>(const Iterator<V>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); }
-// 		bool operator<(const Iterator<V>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); }
-// 		bool operator>=(const Iterator<V>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); }
-// 		bool operator<=(const Iterator<V>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); }
-
-// 		value_type operator[](size_type i)
-// 		{
-// 			return (base() + i);
-// 		}
-
-// template <class V>
-// 	class RandomAccessIterator : 
-// 	{
-// 	public:
-// 		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::value_type		value_type;
-// 		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
-// 		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
-// 		// typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
-// 		// typedef typename V::size_type														size_type;
-// 		typedef typename V::value_type		value_type;
-// 		typedef typename ft::iterator<std::random_access_iterator_tag, V>::pointer			pointer;
-// 		typedef typename ft::iterator<std::random_access_iterator_tag, V>::reference			reference;
-// 		typedef typename ft::iterator<std::random_access_iterator_tag, V>::difference_type	difference_type;
-// 		typedef typename V::size_type														size_type;
-
-// 		RandomAccessIterator<V>() {  };
-
-// 		RandomAccessIterator<V>(pointer ptr) { this->_ptr = ptr; }
-
-// 		RandomAccessIterator<V>(const RandomAccessIterator<V>& it) { *this = it; };
-		
-// 		virtual ~RandomAccessIterator<V>() {  };
-
-// 		virtual RandomAccessIterator<V>& operator=( const RandomAccessIterator<V>& it )
-// 		{
-// 			this->_ptr = it._ptr; // WARNING : Might need a change https://cplusplus.com/reference/iterator/
-// 			return *this;
-// 		}
-
-// 		virtual pointer	base() 					{ return this->_ptr; };
-// 		virtual value_type operator*() const	{ return *this->_ptr; };
-
-// 		virtual RandomAccessIterator<V>& operator++()		{ this->_ptr++; return *this; }
-// 		virtual RandomAccessIterator<V>& operator--() 		{ this->_ptr--; return *this;	}
-
-// 		virtual RandomAccessIterator<V> operator+(size_type n)	{ return RandomAccessIterator<V>(this->_ptr + n); }
-// 		virtual RandomAccessIterator<V> operator-(size_type n)	{ return RandomAccessIterator<V>(this->_ptr - n); }
-
-// 		virtual RandomAccessIterator<V>& operator+=(size_type n)	{ this->_ptr += n; return *this; }
-// 		virtual RandomAccessIterator<V>& operator-=(size_type n)	{ this->_ptr -= n; return *this; }
-		
-// 		virtual RandomAccessIterator<V> operator++( int )
-// 		{
-// 			RandomAccessIterator<V> ori = *this;
-// 			++(*this);
-// 			return ori;
-// 		}
-// 		virtual RandomAccessIterator<V> operator--( int )
-// 		{
-// 			RandomAccessIterator<V> ori = *this;
-// 			--(*this);
-// 			return ori;
-// 		}
-		
-// 		virtual bool operator==(const RandomAccessIterator<V>& it) const
-// 		{
-// 			if (this->_ptr == it._ptr)
-// 				return true;  
-// 			return false;
-// 		}
-// 		virtual bool operator!=(const RandomAccessIterator<V>& it) const	{ return (!operator==(it)); }
-// 		virtual bool operator>(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr > rhs._ptr ? true : false); }
-// 		virtual bool operator<(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr < rhs._ptr ? true : false); }
-// 		virtual bool operator>=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr >= rhs._ptr ? true : false); }
-// 		virtual bool operator<=(const RandomAccessIterator<V>& rhs) const	{ return (this->_ptr <= rhs._ptr ? true : false); }
-
-// 		virtual value_type operator[](int i)
-// 		{
-// 			return (*(base() + i));
-// 		}

@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/08 16:11:45 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/11 16:06:27 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,11 @@
 #include <iterator>
 #include <memory>
 #include <limits>
-#include "IteratorTraits.hpp"
+#include "iteratorTraits.hpp"
 
 namespace ft
 {
 
-// template <class Category, class T>
-// class iterator
-// {
-// public:
-// 	typedef typename T::value_type			value_type;
-// 	typedef typename T::pointer				pointer;
-// 	typedef typename T::reference			reference;
-// 	typedef Category						iterator_category;
-// 	typedef typename T::difference_type 	difference_type;
-
-// protected:
-// 	pointer	_ptr;
-// };
-
-//template< typename T >
 template <class Category, class T, class Pointer = T*
 		, class Reference = T&, class Difference = std::ptrdiff_t>
 struct iterator

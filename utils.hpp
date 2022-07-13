@@ -6,13 +6,14 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/07 15:32:19 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/07 17:13:52 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/13 18:26:21 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <iterator>
 namespace ft {
 
 template <bool B, class T = void>
@@ -37,12 +38,18 @@ struct false_type
 	bool	operator()() { return value; };
 };
 
+template <class T> struct is_input_iter								: public false_type {};
+template <> struct is_input_iter<std::random_access_iterator_tag>	: public true_type {};
+
 // Default false
 template <class T> struct is_integral 					: public false_type {};
 
 template <class T> struct is_integral<const T> 			: public is_integral<T> {};
 template <class T> struct is_integral<volatile const T> : public is_integral<T>{};
 template <class T> struct is_integral<volatile T> 		: public is_integral<T>{};
+
+// template<typename T> struct remove_const{typedef T type;};
+// template<typename T> struct remove_const<const T>{typedef T type;};  //cool stuff
 
 template<> struct is_integral<char> 					: public true_type{};
 template<> struct is_integral<signed char> 				: public true_type{};
