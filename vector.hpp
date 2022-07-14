@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/13 18:41:54 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/14 17:30:36 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ public:
 	typedef typename allocator_type::reference      		reference;
 	typedef typename allocator_type::const_reference		const_reference;
 	typedef ft::vectorIterator<vector<T> > 					iterator;
-	typedef const ft::vectorIterator<vector<T> >			const_iterator;
+	typedef ft::vectorIterator<vector<const T> >			const_iterator;
 	typedef typename allocator_type::size_type      		size_type;
 	typedef typename allocator_type::difference_type		difference_type;
 	typedef typename allocator_type::pointer        		pointer;
@@ -147,6 +147,7 @@ public:
 		_is_in_bound(n, true);
 		return _vector[n];
 	};
+	
 	const_reference at(size_type n) const 
 	{
 		_is_in_bound(n, true);
@@ -200,8 +201,11 @@ public:
 		
 		if (!_vector || begin_ == end_)
 			return ;
+
 		for (; begin_ < end_; begin_++)
-			_allocator.destroy(begin_.base());
+		{
+			_allocator.destroy(begin_.base());	
+		}
 		_size = 0;
 	};
 
@@ -320,6 +324,7 @@ private:
 		end_ = pos + len;
 		for (; pos < end_; _size++)
 		{
+			// std::cout << "in _insert construct" << std::endl;
 			_allocator.construct((pos++).base(), *(first++));
 		}
 		return ;
@@ -364,24 +369,47 @@ private:
 
 	void	_shift_to_end(iterator pos, difference_type distance) // FIX THIS SHIT
 	{
-		iterator end_ = end();
-		iterator rhs;
+		iterator	end_ = end();
+		iterator	rhs;
+		iterator	lhs;
+		difference_type n_shift;
+		// size_type	size_;
 
 		// std::uninitialized_copy(rhs - distance, rhs, rhs);
 		// std::uninitialized_copy(rhs - distance, rhs, rhs);
 		if (pos == end_)
 			return ;
-		for (rhs = end_ + distance - 1; rhs > end_; rhs--)
+		n_shift = _get_range_len(pos, end_);
+		// std::cout << "n_shift : " << n_shift << std::endl;
+		rhs = pos + distance + (n_shift * 2);
+		lhs = end_ - 1;
+		// std::cout << "range between lhs and rhs : " << _get_range_len(lhs, rhs) << std::endl;
+		// std::cout << "capacity : " << _capacity << std::endl;
+		for (; n_shift > 0 ; n_shift--)
 		{
-			_allocator.construct(rhs.base(), *(rhs - distance).base());
-			_allocator.destroy((rhs - distance).base());
+			// std::cout << "shift to end first while right value : " << rhs.base() << std::endl;
+			// std::cout << "shift to end first while left value : " << *lhs.base() << std::endl;
+			_allocator.construct(rhs.base(), *(lhs.base()));
+			
+			// if (rhs != end_)
+			// 	_allocator.destroy((lhs).base());
+			
+			rhs--;
+			lhs--;
 		}
-		for (; rhs >= pos + distance; rhs--)
-		{
-			// _allocator.destroy(rhs.base());
-			_allocator.construct(rhs.base(), *(rhs - distance).base());
-			_allocator.destroy((rhs - distance).base());
-		}
+		// if (rhs == end_)
+		// 	rhs--;
+		// for (; rhs >= pos + (len_to_end - post_end_len); rhs--)
+		// {
+		// 	_allocator.destroy(rhs.base());
+		// 	_allocator.construct(rhs.base(), *(rhs - distance).base());
+		// 	std::cout << "shift to end second while" << std::endl;
+		// }
+		// for (; rhs >= pos; rhs--)
+		// {
+		// 	_allocator.destroy(rhs.base());
+		// 	std::cout << "shift to end third while" << std::endl;
+		// }
 		// for (; rhs >= pos; rhs--)
 		// {
 		// 	_allocator.destroy(rhs.base());
@@ -393,7 +421,7 @@ private:
 		iterator end_ = end();
 		iterator lhs = pos - distance;
 
-		std::cout << "lhs : " << *lhs << " distance : " << distance << " begin : " << *(pos).base() << std::endl;
+		// std::cout << "lhs : " << *lhs << " distance : " << distance << " begin : " << *(pos).base() << std::endl;
 		for (; lhs < end_ - distance; lhs++)
 		{
 			_allocator.destroy(lhs.base());
