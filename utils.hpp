@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/07 15:32:19 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/13 18:26:21 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/15 17:33:06 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,12 @@ struct false_type
 	operator bool(){ return value; };
 	bool	operator()() { return value; };
 };
+
+template <class T, class U> struct is_same				: public false_type {};
+template <class T> struct is_same<T, T>					: public true_type {};
+
+template <class T, class U> struct is_not_same			: public true_type {};
+template <class T> struct is_not_same<T, T>				: public false_type {};
 
 template <class T> struct is_input_iter								: public false_type {};
 template <> struct is_input_iter<std::random_access_iterator_tag>	: public true_type {};

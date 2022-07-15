@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "vector.hpp"
 #include "iterator.hpp"
-#include "vectorIterator.hpp"
+#include "vector_iterator.hpp"
 #include "utils.hpp"
 #include "test.hpp"
 
@@ -60,6 +60,7 @@ string	title(string title, int level)
 template<class T>
 void print_container(T & cont, int type)
 {
+	
 	typedef typename T::iterator iterator;
 	switch (type)
 	{

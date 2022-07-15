@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/11 16:06:27 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/15 18:48:31 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <iterator>
 #include <memory>
 #include <limits>
-#include "iteratorTraits.hpp"
+#include "iterator_traits.hpp"
 
 namespace ft
 {
