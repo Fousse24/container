@@ -44,18 +44,18 @@ public:
 
 	template <class T>
 	vector_iterator<V>( const vector_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const V>, bool>::type = 0) 
-	{ *this = it; }
+	{ this->_ptr = it.base(); }
 	
 	~vector_iterator<V>() {  };
 
 	vector_iterator<V>& operator=( const vector_iterator<V>& it )
 	{
-		this->_ptr = it.base(); // WARNING : Might need a change https://cplusplus.com/reference/iterator/
+		this->_ptr = it.base();
 		return *this;
 	}
 
 	pointer		base() const			{ return this->_ptr; };
-	virtual reference	operator*() const		{ return *base(); };
+	reference	operator*() const		{ return *base(); };
 	pointer		operator->() const		{ return base(); };
 	reference	operator[](size_type i)	{ return base()[i]; };
 
@@ -103,6 +103,32 @@ public:
 	bool operator<(const vector_iterator<V>& rhs) const		{ return (base() < rhs.base() ? true : false); };
 	bool operator>=(const vector_iterator<V>& rhs) const	{ return (base() >= rhs.base() ? true : false); };
 	bool operator<=(const vector_iterator<V>& rhs) const	{ return (base() <= rhs.base() ? true : false); };
+
+
+	// const overloads
+	template <class T>
+	difference_type operator-(const vector_iterator<T> & it)	
+	{ return base() - it.base(); };
+
+	template <class T>
+	bool operator==(const vector_iterator<T>& it) const
+	{
+		if (base() == it.base())
+			return true;  
+		return false;
+	};
+	template <class T>
+	bool operator!=(const vector_iterator<T>& it) const		{ return (!operator==(it)); };
+	template <class T>
+	bool operator>(const vector_iterator<T>& rhs) const		{ return (base() > rhs.base() ? true : false); };
+	template <class T>
+	bool operator<(const vector_iterator<T>& rhs) const		{ return (base() < rhs.base() ? true : false); };
+	template <class T>
+	bool operator>=(const vector_iterator<T>& rhs) const	{ return (base() >= rhs.base() ? true : false); };
+	template <class T>
+	bool operator<=(const vector_iterator<T>& rhs) const	{ return (base() <= rhs.base() ? true : false); };
+	// end const
+
 protected:
 	pointer	_ptr;
 };
@@ -112,40 +138,6 @@ typename vector_iterator<T>::pointer operator+(const typename vector_iterator<T>
 														, const vector_iterator<T> & it)	
 	{ return it.base() + n; }
 
-// template <class T>
-// typename vector_iterator<T>::difference_type operator-(typename vector_iterator<T>::difference_type n
-// 														, const vector_iterator<T> & it)	
-// 	{ return n - it.base(); };
-
-// template <class V>
-// class const_vector_iterator : public vector_iterator<V>
-// {
-// public:
-// 	typedef typename V::value_type						value_type;
-// 	typedef typename V::pointer							pointer;
-// 	typedef typename V::reference						reference;
-// 	typedef typename std::random_access_iterator_tag	iterator_category;
-// 	typedef typename V::difference_type 				difference_type;
-// 	typedef typename V::size_type						size_type;
-
-// 	const_vector_iterator<V>() {  };
-
-// 	const_vector_iterator<V>(pointer ptr) : vector_iterator<V>(ptr) {  };
-
-// 	const_vector_iterator<V>(const vector_iterator<V>& it) : vector_iterator<V>(it) {  };
-	
-// 	~const_vector_iterator<V>() {  };
-
-// 	const_vector_iterator<V>& operator=( const vector_iterator<V>& it )
-// 	{
-// 		this->_ptr = it.base(); // WARNING : Might need a change https://cplusplus.com/reference/iterator/
-// 		return *this;
-// 	}
-
-// 	const_reference	operator*() const		{ return *base(); };
-// }
-
-// }
 }
 
 #endif

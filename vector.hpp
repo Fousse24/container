@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/15 18:50:35 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/18 17:14:11 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,6 @@
 #include "iterator_traits.hpp"
 #include "utils.hpp"
 
-#define FT_VECT_BUFFER	10
-
 #define TO_TYPE(X, T) (static_cast<T>(X))
 
 /*
@@ -32,7 +30,6 @@
 */
 namespace ft
 {
-//using std::initializer_list;
 using std::allocator_traits;
 
 template <class T, class Allocator = std::allocator<T> >
@@ -43,12 +40,12 @@ public:
 	typedef typename allocator_type::value_type       		value_type;
 	typedef typename allocator_type::reference      		reference;
 	typedef typename allocator_type::const_reference		const_reference;
+	typedef typename allocator_type::pointer        		pointer;
+	typedef typename allocator_type::const_pointer			const_pointer;
 	typedef ft::vector_iterator<vector<T> > 				iterator;
 	typedef ft::vector_iterator<vector<const T> >			const_iterator;
 	typedef typename allocator_type::size_type      		size_type;
 	typedef typename allocator_type::difference_type		difference_type;
-	typedef typename allocator_type::pointer        		pointer;
-	typedef typename allocator_type::const_pointer			const_pointer;
 	typedef ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
@@ -121,9 +118,9 @@ public:
 	const_iterator	end() const { return const_iterator(_vector + _size);};
 	
 	reverse_iterator       rbegin() { return reverse_iterator(end() - 1); };
-	const_reverse_iterator rbegin() const { return reverse_iterator(end() - 1); };
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(end() - 1); };
 	reverse_iterator       rend() { return reverse_iterator(begin() - 1); };
-	const_reverse_iterator rend() const { return reverse_iterator(begin() - 1); };
+	const_reverse_iterator rend() const { return const_reverse_iterator(begin() - 1); };
 	// iterator end
 
 
@@ -173,6 +170,11 @@ public:
 		_test_max_size(n);
 		if (n > _capacity)
 		{
+			
+			if (max_size() - n > n)
+				n *= 2;
+			else
+				n = max_size();
 			backup_ = _allocator.allocate(n);
 			if (_vector)
 			{
@@ -208,7 +210,8 @@ public:
 	{
 		size_type i = _get_iterator_i(pos);
 		insert(pos, 1, t);
-		return begin() + TO_TYPE(i, difference_type);
+
+		return begin() + i;
 		
 	};
 
@@ -219,10 +222,10 @@ public:
 		if (n <= 0)
 			return;
 		if (_size + n + 1 > _capacity)
-			pos = _revalidate_iter(pos, _size + n + FT_VECT_BUFFER, &vector::reserve);
+			pos = _revalidate_iter(pos, _size + n + 1, &vector::reserve);
 		if (!empty())
-			_shift_to_end(pos, TO_TYPE(n, difference_type));
-		end_ = pos + TO_TYPE(n, difference_type);
+			_shift_to_end(pos, n);
+		end_ = pos + n;
 		for (; pos < end_; pos++)
 		{
 			_allocator.construct(pos.base(), t);
@@ -249,7 +252,7 @@ public:
 	
 	iterator erase(iterator first, iterator last)
 	{
-		difference_type	len;
+		size_type	len;
 		
 		if (first == last)
 			return first;
@@ -287,9 +290,21 @@ public:
 
 	void swap(vector & other)
 	{
-		pointer temp = _vector;
-		_vector = other.data();
-		other.data() = temp;
+		pointer		vector_;
+		size_type	size_;
+		size_type	capacity_;
+
+		size_ = other.size();
+		capacity_ = other.capacity();
+		vector_ = other.data();
+
+		other._size = _size;
+		other._capacity = _capacity;
+		other._vector = _vector;
+
+		_size = size_;
+		_capacity = capacity_;
+		_vector = vector_;
 	}
 	
 private:
@@ -304,7 +319,7 @@ private:
 		while (first != last)
 		{
 			if (_size + 2 > _capacity)
-				pos = _revalidate_iter(pos, _size + 2 + FT_VECT_BUFFER, &vector::reserve);
+				pos = _revalidate_iter(pos, _size + 2, &vector::reserve);
 			insert(pos++, 1, *first);
 			++first;
 		}
@@ -314,15 +329,15 @@ private:
 	template<class Iter>
 	void _insert(iterator pos, Iter first, Iter last, std::forward_iterator_tag)
 	{
-		iterator		end_;
-		difference_type	len = _get_range_len(first, last);
-		if (_size + TO_TYPE(len, size_type) + 1 >= _capacity)
-			pos = _revalidate_iter(pos, _size + TO_TYPE(len, size_type) + FT_VECT_BUFFER, &vector::reserve);
+		iterator	end_;
+		size_type	len = _get_range_len(first, last);
+
+		if (_size + len + 1 >= _capacity)
+			pos = _revalidate_iter(pos, _size + len + 1, &vector::reserve);
 		_shift_to_end(pos, len);
 		end_ = pos + len;
 		for (; pos < end_; _size++)
 		{
-			// std::cout << "in _insert construct" << std::endl;
 			_allocator.construct((pos++).base(), *(first++));
 		}
 		return ;
@@ -359,17 +374,16 @@ private:
 		_capacity = 0;
 	};
 
-	void	_shift_to_end(iterator pos, difference_type distance) // FIX THIS SHIT
+	void	_shift_to_end(iterator pos, size_type distance) // FIX THIS SHIT
 	{
 		iterator	end_ = end();
 		iterator	rhs;
 		iterator	lhs;
-		difference_type n_shift;
+		size_type n_shift;
 
 		if (pos == end_)
 			return ;
 		n_shift = _get_range_len(pos, end_);
-		// std::cout << "n_shift : " << n_shift  << " distance : " << distance << " capacity : " << _capacity << std::endl;
 		rhs = pos + n_shift  + distance - 1;
 		lhs = end_ - 1;
 		for (; n_shift > 0 ; n_shift--)
@@ -381,7 +395,7 @@ private:
 		}
 	};
 
-	void	_shift_to_left(iterator pos, difference_type distance)
+	void	_shift_to_left(iterator pos, size_type distance)
 	{
 		iterator end_ = end();
 		iterator lhs = pos - distance;
@@ -399,7 +413,6 @@ private:
 	{
 		if (_vector)
 		{
-			size += FT_VECT_BUFFER;
 			if (_capacity > size)
 				size = _capacity;
 			_full_clear();
@@ -422,16 +435,16 @@ private:
 	{
 		size_type i = _get_iterator_i(pos);
 		(this->*f)(n);
-		return begin() + TO_TYPE(i, difference_type);
+		return begin() + i;
 	};
 
 	template <class Iter>
-	difference_type _get_range_len( const Iter & first, const Iter & last )
+	size_type _get_range_len( const Iter & first, const Iter & last )
 	{
 		Iter it;
 
 		it = first;
-		difference_type i = 0;
+		size_type i = 0;
 		for (; it != last; i++)
 			it++;
 		return i;
@@ -467,12 +480,10 @@ bool operator<=( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs
 { return !(lhs > rhs); }
 
 template< class T, class Alloc>
-void swap(vector<T, Alloc> lhs, vector<T, Alloc> & rhs)
+void swap(vector<T, Alloc> & lhs, vector<T, Alloc> & rhs)
 	{
 		lhs.swap(rhs);
 	}
-
-
 }  // std
 
 	/*
