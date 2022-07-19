@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.hpp                                          :+:      :+:    :+:   */
+/*   enable_if.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/07 15:32:19 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/15 17:33:06 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/19 10:21:58 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#ifndef ENABLE_IF_HPP
+#define ENABLE_IF_HPP
 
 #include <iterator>
 namespace ft {

@@ -19,7 +19,7 @@
 #include <iostream>
 #include "iterator_traits.hpp"
 #include "iterator.hpp"
-#include "utils.hpp"
+#include "enable_if.hpp"
 
 namespace ft
 {
@@ -66,7 +66,7 @@ public:
 	{ return vector_iterator<V>(_ptr + n); };
 	
 	vector_iterator<V> operator-(difference_type n)	
-	{ return vector_iterator<V>(base() - n); };
+	{ return vector_iterator<V>(_ptr - n); };
 
 	difference_type operator-(const vector_iterator<V> & it)	
 	{ return base() - it.base(); };

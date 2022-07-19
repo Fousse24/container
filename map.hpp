@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vector.hpp                                         :+:      :+:    :+:   */
+/*   map.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/19 14:28:19 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/19 16:37:39 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef VECTOR_HPP
-#define VECTOR_HPP
+#ifndef MAP_HPP
+#define MAP_HPP
 
 #include <initializer_list>
 #include <iterator>
@@ -19,76 +19,94 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
-#include "vector_iterator.hpp"
 #include "iterator_traits.hpp"
+#include "map_iterator.hpp"
 #include "enable_if.hpp"
+#include "pair.hpp"
 #include "ft_lib.hpp"
 
 #define TO_DIFF(T) (static_cast<difference_type>(T))
 #define TO_SIZE(T) (static_cast<size_type>(T))
 
 /*
-	vector synopsis
+	map synopsis
 */
 namespace ft
 {
 using std::allocator_traits;
 
-template <class T, class Allocator = std::allocator<T> >
-class vector
+template <class Key, class T, class Compare = std::less<Key>, class Allocator = std::allocator<std::pair<const Key, T> > >
+class map
 {	
 public:	
 	typedef Allocator                               		allocator_type;
-	typedef typename allocator_type::value_type       		value_type;
+	typedef Key												key_type;
+	typedef Compare											key_compare;
+	typedef typename allocator_type::value_type				mapped_type;
+	typedef ft::pair<const key_type, mapped_type>       	value_type;
 	typedef typename allocator_type::reference      		reference;
 	typedef typename allocator_type::const_reference		const_reference;
 	typedef typename allocator_type::pointer        		pointer;
 	typedef typename allocator_type::const_pointer			const_pointer;
-	typedef ft::vector_iterator<vector<T> > 				iterator;
-	typedef ft::vector_iterator<vector<const T> >			const_iterator;
+	typedef ft::map_iterator<map<Key, T> > 					iterator;
+	typedef ft::map_iterator<map<Key, const T> >			const_iterator;
 	typedef typename allocator_type::size_type      		size_type;
 	typedef typename allocator_type::difference_type		difference_type;
 	typedef ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
-	vector()
+
+	class value_compare
 	{
-		_allocator = Allocator();
-		_init_vector();
+	public:
+		bool operator()( const reference lhs, const reference rhs ) const 
+		{  
+			return _comp(lhs < rhs);
+		};
+		~value_compare() {  };
+	protected:
+		Compare	_comp;
+		value_compare( Compare c ) : _comp(c) {  };
 	};
 
-	explicit vector(const Allocator& alloc)
+	map()
 	{
-		_init_vector();
+		_allocator = Allocator();
+		_init_map();
+	};
+
+	explicit map(const Allocator& alloc)
+	{
+		_init_map();
 		_allocator = alloc;
 	};
 
-	explicit vector( size_type count, const T value = value_type(),
+	explicit map( size_type count, const T value = value_type(),
                  	const Allocator& alloc = Allocator())
 	{
 		_test_max_size(count);
 		_allocator = alloc;
-		_init_vector();
+		_init_map();
 		assign(count, value);
 	};
 	
-	vector( const vector& vect )
+	map( const map& other )
 	{ 
-		_init_vector();
-		*this = vect;
+		_init_map();
+		*this = other;
 	};
 
 	template <class Iter>
-	 	vector<T>(Iter first, Iter last, const allocator_type& = allocator_type(),
+	 	map<T>(Iter first, Iter last, const allocator_type& = allocator_type(),
 				typename ft::enable_if<ft::is_not_integral<Iter>, bool>::type = 0)
 	{
-		_init_vector();
+		_init_map();
 		assign(first, last);
 	};
 
-	~vector() { if (_vector) { _full_clear(); } };
+	~map() { if (_map) { _full_clear(); } };
 
-	vector& operator=(const vector& v)
+	map& operator=(const map& v)
 	{
 		this->assign(v.begin(), v.end());
 		return *this;
@@ -113,11 +131,11 @@ public:
 	
 
 	// iterator	
-	iterator		begin() { return iterator(_vector);};
-	const_iterator	begin() const { return const_iterator(_vector); };
+	iterator		begin() { return iterator(_map);};
+	const_iterator	begin() const { return const_iterator(_map); };
 
-	iterator		end() { return iterator(_vector + _size); };
-	const_iterator	end() const { return const_iterator(_vector + _size);};
+	iterator		end() { return iterator(_map + _size); };
+	const_iterator	end() const { return const_iterator(_map + _size);};
 	
 	reverse_iterator       rbegin() { return reverse_iterator(end() - 1); };
 	const_reverse_iterator rbegin() const { return const_reverse_iterator(end() - 1); };
@@ -129,32 +147,32 @@ public:
 	/* Element access */
 	reference       operator[](size_type n) // Must not check bounds
 	{
-		return this->_vector[n];
+		return this->_map[n];
 	};
 	const_reference operator[](size_type n) const // Must not check bounds
 	{
-		return this->_vector[n];
+		return this->_map[n];
 	};
 
 	reference       at(size_type n) // Should not check negative??
 	{
 		_is_in_bound(n, true);
-		return _vector[n];
+		return _map[n];
 	};
 	
 	const_reference at(size_type n) const 
 	{
 		_is_in_bound(n, true);
-		return _vector[n];
+		return _map[n];
 	};
 
-	reference       front() { return *_vector; };
-	const_reference front() const { return *_vector; };
-	reference       back() { return _vector[_size - 1]; };
-	const_reference back() const { return _vector[_size - 1]; };
+	reference       front() { return *_map; };
+	const_reference front() const { return *_map; };
+	reference       back() { return _map[_size - 1]; };
+	const_reference back() const { return _map[_size - 1]; };
 
-	pointer       data() { return _vector; };
-	const_pointer data() const { return _vector; };
+	pointer       data() { return _map; };
+	const_pointer data() const { return _map; };
 	/* Element access end */
 
 
@@ -178,13 +196,13 @@ public:
 			else
 				n = max_size();
 			backup_ = _allocator.allocate(n);
-			if (_vector)
+			if (_map)
 			{
 				for (; i < _size && i < n; i++)
-					_allocator.construct(&backup_[i], _vector[i]);
+					_allocator.construct(&backup_[i], _map[i]);
 				_full_clear();
 			}
-			_vector = backup_;
+			_map = backup_;
 			_size = i;
 			_capacity = n;
 		}	
@@ -198,7 +216,7 @@ public:
 		iterator end_ = end();
 		iterator begin_ = begin();
 		
-		if (!_vector || begin_ == end_)
+		if (!_map || begin_ == end_)
 			return ;
 
 		for (; begin_ < end_; begin_++)
@@ -224,7 +242,7 @@ public:
 		if (n <= 0)
 			return;
 		if (_size + n + 1 > _capacity)
-			pos = _revalidate_iter(pos, _size + n + 1, &vector::reserve);
+			pos = _revalidate_iter(pos, _size + n + 1, &map::reserve);
 		if (!empty())
 			_shift_to_end(pos, n);
 		end_ = pos + TO_DIFF(n);
@@ -283,34 +301,34 @@ public:
 		// size_type	i;
 
 		reserve(sz);
-		// swap(_vector, _backup); // WARNING : TO-DO
+		// swap(_map, _backup); // WARNING : TO-DO
 		while (_size > sz)
-			_allocator.destroy(&_vector[--_size]);
+			_allocator.destroy(&_map[--_size]);
 		if (_size < sz)
 			insert(end(), sz - _size, value);
 	};
 
-	void swap(vector & other)
+	void swap(map & other)
 	{
-		pointer		vector_;
+		pointer		map_;
 		size_type	size_;
 		size_type	capacity_;
 
 		size_ = other.size();
 		capacity_ = other.capacity();
-		vector_ = other.data();
+		map_ = other.data();
 
 		other._size = _size;
 		other._capacity = _capacity;
-		other._vector = _vector;
+		other._map = _map;
 
 		_size = size_;
 		_capacity = capacity_;
-		_vector = vector_;
+		_map = map_;
 	}
 	
 private:
-	pointer		_vector;
+	pointer		_map;
 	size_type	_size;
 	size_type	_capacity;
 	Allocator	_allocator;
@@ -321,7 +339,7 @@ private:
 		while (first != last)
 		{
 			if (_size + 2 > _capacity)
-				pos = _revalidate_iter(pos, _size + 2, &vector::reserve);
+				pos = _revalidate_iter(pos, _size + 2, &map::reserve);
 			insert(pos++, 1, *first);
 			++first;
 		}
@@ -335,7 +353,7 @@ private:
 		size_type	len = _get_range_len(first, last);
 
 		if (_size + len + 1 >= _capacity)
-			pos = _revalidate_iter(pos, _size + len + 1, &vector::reserve);
+			pos = _revalidate_iter(pos, _size + len + 1, &map::reserve);
 		_shift_to_end(pos, len);
 		end_ = pos + TO_DIFF(len);
 		for (; pos < end_; _size++)
@@ -361,18 +379,18 @@ private:
 		return true;
 	};
 
-	void	_init_vector(void)
+	void	_init_map(void)
 	{
 		_size = 0;
 		_capacity = 0;
-		_vector = NULL;
+		_map = NULL;
 	}
 
 	void	_full_clear()
 	{
 		clear();
-		_allocator.deallocate(_vector, _capacity);
-		_vector = NULL;
+		_allocator.deallocate(_map, _capacity);
+		_map = NULL;
 		_capacity = 0;
 	};
 
@@ -413,12 +431,12 @@ private:
 
 	void	_reallocate_if_not_null(size_type size, const void * hint = 0)
 	{
-		if (_vector)
+		if (_map)
 		{
 			if (_capacity > size)
 				size = _capacity;
 			_full_clear();
-			_vector = _allocator.allocate(size, hint);	
+			_map = _allocator.allocate(size, hint);	
 			_capacity = size;
 		}
 	};
@@ -432,8 +450,8 @@ private:
 		return TO_SIZE(pos.base() - begin().base());
 	};
 
-	// Return the equivalent iterator of a re-allocator_type::allocated vector
-	iterator	_revalidate_iter(iterator pos, size_type n, void (vector::*f)(size_type))
+	// Return the equivalent iterator of a re-allocator_type::allocated map
+	iterator	_revalidate_iter(iterator pos, size_type n, void (map::*f)(size_type))
 	{
 		size_type i = _get_iterator_i(pos);
 		(this->*f)(n);
@@ -454,7 +472,7 @@ private:
 };
 
 template< class T, class Alloc >
-bool operator==( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+bool operator==( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>& rhs)
 {
 	if (lhs.size() != rhs.size())
 		return false;
@@ -462,47 +480,31 @@ bool operator==( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rh
 }
 
 template< class T, class Alloc >
-bool operator!=( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+bool operator!=( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>& rhs)
 { return !(lhs == rhs); }
 
 template< class T, class Alloc >
-bool operator>( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
+bool operator>( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>&rhs)
 { return !(lhs < rhs) && lhs != rhs; }
 
 template< class T, class Alloc >
-bool operator<( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
+bool operator<( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>&rhs)
 { return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end())); }
 
 template< class T, class Alloc >
-bool operator>=( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
+bool operator>=( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>&rhs)
 { return !(lhs < rhs); }
 
 template< class T, class Alloc >
-bool operator<=( const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>&rhs)
+bool operator<=( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>&rhs)
 { return !(lhs > rhs); }
 
 template< class T, class Alloc>
-void swap(vector<T, Alloc> & lhs, vector<T, Alloc> & rhs)
+void swap(map<T, Alloc> & lhs, map<T, Alloc> & rhs)
 	{
 		lhs.swap(rhs);
 	}
-}  // std
-
-	/*
-	iterator invalidation
-	swap();
-	clear;
-	operator=;
-	assign;
-	reserve;
-	shrink_to_fit;
-	erase;
-	push_back;
-	emplace_back;
-	insert,emplace;
-	resize;
-	pop_back;
-	*/
+}  
 
 
 #endif

@@ -10,7 +10,7 @@ NAME	= container
 DESC	= \"ft_container : a STL project\"
 
 # Directories
-D_SRC	= src
+D_SRC	= .
 D_INC	= include
 D_OBJ	= objs
 
@@ -18,10 +18,10 @@ D_OBJ	= objs
 # Files
 MAIN	= test.cpp
 
-_HEAD	= vector.hpp iterator.hpp iterator_traits.hpp vector_iterator.hpp utils.hpp test.hpp
+_HEAD	= vector.hpp iterator.hpp iterator_traits.hpp vector_iterator.hpp enable_if.hpp test.hpp
 HEAD	= $(_HEAD)
 
-_SRC	= 	
+_SRC	= test_pair.cpp
 SRC		= $(patsubst %.cpp, $(D_SRC)/%.cpp, $(_SRC))
 
 _OBJ	= $(_SRC:.cpp=.o)
