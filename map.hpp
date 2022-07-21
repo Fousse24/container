@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/19 16:37:39 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/21 17:19:34 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include "enable_if.hpp"
 #include "pair.hpp"
 #include "ft_lib.hpp"
+#include "rb_tree.hpp"
 
 #define TO_DIFF(T) (static_cast<difference_type>(T))
 #define TO_SIZE(T) (static_cast<size_type>(T))
@@ -55,13 +56,25 @@ public:
 	typedef ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
+private:
+	rb_tree<ft::rb_tree<value_type> >	_map;
+	size_type							_size;
+	size_type							_capacity;
+	Allocator							_allocator;
 
-	class value_compare
+public: 
+
+	class value_compare // À REVOIR
 	{
 	public:
 		bool operator()( const reference lhs, const reference rhs ) const 
 		{  
 			return _comp(lhs < rhs);
+		};
+
+		bool operator()( const value_type lhs, const value_type rhs ) const 
+		{  
+			return _comp(lhs.first < rhs.second);
 		};
 		~value_compare() {  };
 	protected:
@@ -71,8 +84,8 @@ public:
 
 	map()
 	{
-		_allocator = Allocator();
 		_init_map();
+		_allocator = Allocator();
 	};
 
 	explicit map(const Allocator& alloc)
@@ -147,11 +160,11 @@ public:
 	/* Element access */
 	reference       operator[](size_type n) // Must not check bounds
 	{
-		return this->_map[n];
+		return this->_map;
 	};
 	const_reference operator[](size_type n) const // Must not check bounds
 	{
-		return this->_map[n];
+		return this->_map;
 	};
 
 	reference       at(size_type n) // Should not check negative??
@@ -328,10 +341,6 @@ public:
 	}
 	
 private:
-	pointer		_map;
-	size_type	_size;
-	size_type	_capacity;
-	Allocator	_allocator;
 
 	template<class Iter>
 	void _insert(iterator pos, Iter first, Iter last, std::input_iterator_tag)

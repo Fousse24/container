@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 #include <algorithm>
 #include "vector.hpp"
 #include "iterator.hpp"
@@ -151,6 +152,10 @@ int main()
 	ft::vector<int> vect;
 	std::vector<int> std_vect;
 	std::vector<TestClass*> std_vect_mem;
+	std::map<string, int>	std_map;
+
+	std_map.insert(std::pair<string, int>("hello", 1));
+	cout << std_map.at("hello") << endl;
 
 	enter_prompt();
 	for (i = 0; i < 51; i++)

@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/19 16:43:29 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/20 17:59:44 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/07/21 17:14:35 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,17 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 using std::string;
 
 namespace ft {
 
-template <class Key>
+template <class Key, class Compare = std::less<Key> >
 class rb_tree
 {
+	
+private:
 	struct node
 	{
 		bool	red;
@@ -31,9 +34,9 @@ class rb_tree
 		node	*left;
 		node	*parent;
 
-		node() : red(true) { init_node(); };
+		node() : red(false) { init_node(); };
 		node(bool color) : red(color) { init_node(); };
-		node(Key k) : key(k), red(true) { init_node(); };
+		node(Key k) : key(k), red(false) { init_node(); };
 		node(Key k, bool color) : key(k), red(color) { init_node(); };
 
 		void init_node()
@@ -44,8 +47,12 @@ class rb_tree
 		}
 	};
 
+	node 	*root;
+	node 	*EMPTY;
+	Compare	_comp;
+
 public:
-	rb_tree() : root(NULL) {  };
+	rb_tree() { _init_empty(); root = EMPTY; };
 	rb_tree( rb_tree const &obj ) { root = obj.root(); }; // to be done
 	~rb_tree() {  };
 
@@ -53,37 +60,40 @@ public:
 
 	void insert(Key key)
 	{
-		node	*n = new node(key);
-		
+		node *n = new node(key);
 		if (!n)
 			return ;
+		n->left = EMPTY;
+		n->right = EMPTY;
+		n->red = true;
 		_insert_node(n);
 	};
 
-	void print_tree() {
+	void print_tree() 
+	{
     	_print_from(this->root, "", true);
     }
 
 	void delete_node(const Key & k) // from n, find node with key value 'k' and delete it
 	{
-		node * n, * save1, * save2;
+		node * n = EMPTY;
+		node * save1;
+		node * save2;
 		bool red_save = false;
 
 		n = _find_node(root, k);
-		if (!n)
+		if (!n || n == EMPTY)
 		{
-			std::cerr << "Failed to find a node with a key value of " << k << std::endl;
 			return ;
 		}
-
 		red_save = n->red;
 		save2 = n;
-		if (!n->left)
+		if ( n->left == EMPTY )
 		{
 			save1 = n->right;
 			_transplant(n, n->right);
 		}
-		else if ( !n->right )
+		else if ( n->right == EMPTY )
 		{
 			save1 = n->left;
 			_transplant(n, n->left); 
@@ -106,17 +116,26 @@ public:
 			save2->left->parent = save2;
 			save2->red = n->red;
 		}
-		
 		delete n;
 		if (!red_save)
+		{
 			_delete_fix(save1);
+		}
 	};
 
 private:
 
+	void _init_empty()
+	{
+		EMPTY = new node();
+		EMPTY->red = false;
+		EMPTY->key = Key();
+		EMPTY->init_node();
+	}
+
 	node * _min(node * node) 
 	{
-		while (node && node->left)
+		while (node && node != EMPTY && node->left && node->left != EMPTY)
 			node = node->left;
 		return node;
 	}
@@ -129,7 +148,8 @@ private:
 			dst->parent->left = src;
 		else
 			dst->parent->right = src;
-		src->parent = dst->parent;
+		if (src)
+			src->parent = dst->parent;
 	
 	}
 	void _fix_as_gp(node ** n, node ** gp)
@@ -145,7 +165,7 @@ private:
 		node * right = n->right;
 
 		n->right = right->left;
-		if (right->left != NULL) {
+		if (right->left != EMPTY) {
 			right->left->parent = n;
 		}
 		
@@ -172,7 +192,7 @@ private:
 		node * left = n->left;
 
 		n->left = left->right;
-		if (left->right != NULL) {
+		if (left->right != EMPTY) {
 			left->right->parent = n;
 		}
 		left->parent = n->parent;
@@ -194,11 +214,11 @@ private:
 
 	node * _find_node(node * start, const Key & k) // return NULL if not found
 	{
-		while ( !start )
+		while ( start && start != EMPTY )
 		{
 			if (start->key == k)
 				break;
-			else if (k < start->key)
+			else if (_comp(k, start->key))
 				start = start->left;
 			else
 				start = start->right;
@@ -214,32 +234,34 @@ private:
 		if (!n)
 			return ;
 			
-		if (!root) //set node as root if there is no root
+		leaf = root;
+		while (leaf != EMPTY) // traverse to the left or the right until NULL
 		{
-			n->red = false;
-			root = n;
-		}
-		else 
-		{
-			leaf = root;
-			while (leaf) // traverse to the left or the right until NULL
-			{
-				prev_leaf = leaf;
-				if (n->key > leaf->key)
-					leaf = leaf->right;
-				else
-					leaf = leaf->left;
-			}
-			n->parent = prev_leaf;
-			if (n->key > prev_leaf->key) // place as left or right child
-				prev_leaf->right = n;
+			prev_leaf = leaf;
+			if (n->key > leaf->key)
+				leaf = leaf->right;
 			else
-				prev_leaf->left = n;
+				leaf = leaf->left;
 		}
-		/*if (!n->parent->parent) 
+		
+		n->parent = prev_leaf;
+		if (!prev_leaf)
+			root = n;
+		else if (_comp(n->key, prev_leaf->key)) // place as left or right child
+			prev_leaf->left = n;
+		else
+			prev_leaf->right = n;
+		
+		
+		if (!n->parent) 
 		{
-      		return;
-    	}*/
+			n->red = 0;
+			return ;
+		}
+		if (!n->parent->parent)
+		{
+			return ;
+		}
 		_insert_fix(n);
 	};
 
@@ -251,14 +273,14 @@ private:
 			return ;
     	while (n->parent->red) 
 		{
-			n->parent->parent = n->parent->parent;
-			if (n->parent->parent && n->parent == n->parent->parent->right) 
+			if (n->parent == n->parent->parent->right) 
 			{
 				iter = n->parent->parent->left;
 				if (iter->red) 
 				{
 					iter->red = false;
 					n->parent->red = false;
+					if (root != n->parent->parent)
 					n->parent->parent->red = true;
 					n = n->parent->parent;
 				} 
@@ -274,9 +296,9 @@ private:
 					_left_rotate(n->parent->parent);
 				}
 			} 
-			else 
+			else
 			{
-				iter = n->parent->right;
+				iter = n->parent->parent->right;
 				if (iter->red) 
 				{
 					iter->red = false;
@@ -298,6 +320,7 @@ private:
 			}
 			if (n == root) 
 			{
+				n->red = false;
 				break;
 			}
     	}
@@ -378,7 +401,7 @@ private:
 
 	void _print_from(node * root, string indent, bool last) 
 	{
-		if (!root)
+		if (!root || root == EMPTY)
 			return ; 
 		std::cout << indent;
 		if (last) 
@@ -397,9 +420,6 @@ private:
 		_print_from(root->left, indent, false);
 		_print_from(root->right, indent, true);
 	};
-
-	node *root;
-
 };
 
 

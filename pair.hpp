@@ -29,20 +29,16 @@ public:
 	pair() {  };
 	pair( const T1 & x, const T2 & y ) : first(x), second(y) {  };
 	template <class U1, class U2>
-	pair( const pair<U1, U2> & p ) : first(p.getFirst()), second(p.getSecond()) {  };
+	pair( const pair<U1, U2> & p ) : first(p.first), second(p.second) {  };
 	~pair() {  };
 
 	pair& operator=( const pair & other )
 	{
-		first = other.getFirst();
-		second = other.getSecond();
+		first = other.first;
+		second = other.second;
 		return *this;
 	}
 
-	const first_type & getFirst(void) const { return first; };
-	const second_type & getSecond(void) const { return second; };
-
-private:
 	first_type	first;
 	second_type	second;
 
@@ -57,7 +53,7 @@ private:
 
 template< class T1, class T2 >
 bool operator==( const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
-{ return (lhs.getFirst() == rhs.getFirst() && lhs.getSecond() == rhs.getSecond()); }
+{ return (lhs.first == rhs.first && lhs.second == rhs.second); }
 
 template< class T1, class T2 >
 bool operator!=( const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
@@ -65,25 +61,31 @@ bool operator!=( const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
 
 template< class T1, class T2 >
 bool operator>( const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
-{ return (lhs.getFirst() > rhs.getFirst() && lhs.getSecond() > rhs.getSecond()); }
+{ return (lhs.first > rhs.first && lhs.second > rhs.second); }
 
 template< class T1, class T2 >
 bool operator<( const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
-{ return (lhs.getFirst() < rhs.getFirst() && lhs.getSecond() < rhs.getSecond()); }
+{ return (lhs.first < rhs.first && lhs.second < rhs.second); }
 
 template< class T1, class T2 >
 bool operator>=( const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
-{ return (lhs.getFirst() >= rhs.getFirst() && lhs.getSecond() >= rhs.getSecond()); }
+{ return (lhs.first >= rhs.first && lhs.second >= rhs.second); }
 
 template< class T1, class T2 >
 bool operator<=( const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
-{ return (lhs.getFirst() <= rhs.getFirst() && lhs.getSecond() <= rhs.getSecond()); }
+{ return (lhs.first <= rhs.first && lhs.second <= rhs.second); }
 
 template< class T1, class T2 >
 std::ostream & operator<<( std::ostream & os, const ft::pair<T1, T2>& rhs ) 
 { 
-	os << "Pair || first = " << rhs.getFirst() << " | second = " << rhs.getSecond();
+	os << "Pair || first = " << rhs.first << " | second = " << rhs.second;
 	return os;
+}
+
+template<class T1, class T2>
+pair<T1, T2>	make_pair(T1 t1, T2 t2)
+{
+	return pair<T1, T2>(t1, t2);
 }
 
 }
