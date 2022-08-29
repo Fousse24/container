@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/19 16:43:29 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/21 17:14:35 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/08/29 17:37:45 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,29 @@
 #include <algorithm>
 
 using std::string;
+
+/*
+
+	rb_tree()
+	rb_tree( rb_tree const &obj )
+	~rb_tree()
+	node * getRoot()
+	void insert(Key key)
+	void print_tree() 
+	void delete_node(const Key & k)
+	void _init_empty()
+	void _set_root();
+	node * _min(node * node) 
+	void _transplant(node * dst, node * src) 
+	void _fix_as_gp(node ** n, node ** gp)
+	void _left_rotate(node * n) 
+	void _right_rotate(node * n) 
+	node * _find_node(node * start, const Key & k) 
+	void _insert_node(node * n)
+	void _insert_fix(node * n)
+	void _delete_fix(node * n) 
+	void _print_from(node * root, string indent, bool last)
+*/
 
 namespace ft {
 
@@ -45,6 +68,13 @@ private:
 			left = NULL;
 			parent = NULL;
 		}
+
+		bool is_empty()
+		{
+			if (!right && !left && !parent)
+				return true;
+			return false;
+		}
 	};
 
 	node 	*root;
@@ -53,20 +83,21 @@ private:
 
 public:
 	rb_tree() { _init_empty(); root = EMPTY; };
-	rb_tree( rb_tree const &obj ) { root = obj.root(); }; // to be done
-	~rb_tree() {  };
+	rb_tree( rb_tree const &obj ) { _set_root(obj.root()); }; // to be done
+	~rb_tree() {  }; // WARNING free
 
 	node * getRoot() { return root; };
 
-	void insert(Key key)
+	node * insert(Key key)
 	{
 		node *n = new node(key);
 		if (!n)
-			return ;
+			return n;
 		n->left = EMPTY;
 		n->right = EMPTY;
 		n->red = true;
 		_insert_node(n);
+		return n;
 	};
 
 	void print_tree() 
@@ -74,7 +105,7 @@ public:
     	_print_from(this->root, "", true);
     }
 
-	void delete_node(const Key & k) // from n, find node with key value 'k' and delete it
+	int	delete_node(const Key & k) // from n, find node with key value 'k' and delete it
 	{
 		node * n = EMPTY;
 		node * save1;
@@ -84,7 +115,7 @@ public:
 		n = _find_node(root, k);
 		if (!n || n == EMPTY)
 		{
-			return ;
+			return 0;
 		}
 		red_save = n->red;
 		save2 = n;
@@ -121,6 +152,7 @@ public:
 		{
 			_delete_fix(save1);
 		}
+		return 1;
 	};
 
 private:
@@ -133,6 +165,13 @@ private:
 		EMPTY->init_node();
 	}
 
+	void _set_root(node * node)
+	{
+		root = node;
+		root->parent = EMPTY; 
+		EMPTY->left = node;
+	}
+
 	node * _min(node * node) 
 	{
 		while (node && node != EMPTY && node->left && node->left != EMPTY)
@@ -140,10 +179,17 @@ private:
 		return node;
 	}
 
+	node * _max(node * node) 
+	{
+		while (node && node != EMPTY && node->right && node->right != EMPTY)
+			node = node->right;
+		return node;
+	}
+
 	void _transplant(node * dst, node * src) 
 	{
 		if ( !dst->parent )
-			root = src;
+			_set_root(src);
 		else if (dst == dst->parent->left)
 			dst->parent->left = src;
 		else
@@ -172,7 +218,7 @@ private:
 		right->parent = n->parent;
 		if (!n->parent)
 		{
-			this->root = right;
+			_set_root(right);
 		} 
 		else if (n == n->parent->left) 
 		{
@@ -198,7 +244,7 @@ private:
 		left->parent = n->parent;
 		if (!n->parent)
 		{
-			this->root = left;
+			_set_root(left);
 		} 
 		else if (n == n->parent->right) 
 		{
@@ -217,13 +263,13 @@ private:
 		while ( start && start != EMPTY )
 		{
 			if (start->key == k)
-				break;
+				return start;
 			else if (_comp(k, start->key))
 				start = start->left;
 			else
 				start = start->right;
 		}
-		return start;
+		return NULL;
 	}
 
 	void _insert_node(node * n)
@@ -246,7 +292,7 @@ private:
 		
 		n->parent = prev_leaf;
 		if (!prev_leaf)
-			root = n;
+			_set_root(n);
 		else if (_comp(n->key, prev_leaf->key)) // place as left or right child
 			prev_leaf->left = n;
 		else
@@ -324,6 +370,7 @@ private:
 				break;
 			}
     	}
+		EMPTY->left = root;
 	};
 
 	void _delete_fix(node * n) 
@@ -397,6 +444,7 @@ private:
 			}
 		}
     	n->red = 0;
+		EMPTY->left = root;
 	};
 
 	void _print_from(node * root, string indent, bool last) 

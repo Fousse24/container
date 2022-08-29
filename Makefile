@@ -1,7 +1,7 @@
 
 # Compilation
 CC		= clang++
-CFLAGS	=  -g  -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++98 #-Werror
+CFLAGS	=  -Werror -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++98 #-Werror
 C_OBJ	= $(CC) $(CFLAGS) $(INC) -c $< -o $@
 C_MAIN	= $(CC) $(CFLAGS) $(INC) $(OBJ) $(MAIN) -o $(NAME)
 
@@ -10,15 +10,31 @@ NAME	= container
 DESC	= \"ft_container : a STL project\"
 
 # Directories
-D_SRC	= .
-D_INC	= include
+D_SRC	= srcs
+D_INC	= includes
+D_VECT	= $(D_SRC)/Vector
+D_MAP	= $(D_SRC)/Map
 D_OBJ	= objs
+
+# Includes
+INC		= 
 
 
 # Files
 MAIN	= test.cpp
 
-_HEAD	= vector.hpp iterator.hpp iterator_traits.hpp vector_iterator.hpp enable_if.hpp test.hpp
+_HEAD	= $(D_INC)/iterator.hpp			\
+		  $(D_INC)/iterator_traits.hpp	\
+		  $(D_INC)/rb_tree.hpp			\
+		  $(D_INC)/enable_if.hpp		\
+		  $(D_INC)/test.hpp				\
+		  \
+		  $(D_VEC)/vector.hpp 			\
+		  $(D_VEC)/vector_iterator.hpp	\
+		  \
+		  $(D_MAP)/map.hpp				\
+		  $(D_MAP)/map_iterator.hpp
+
 HEAD	= $(_HEAD)
 
 _SRC	= test_pair.cpp

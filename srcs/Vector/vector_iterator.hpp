@@ -104,7 +104,6 @@ public:
 	bool operator>=(const vector_iterator<V>& rhs) const	{ return (base() >= rhs.base() ? true : false); };
 	bool operator<=(const vector_iterator<V>& rhs) const	{ return (base() <= rhs.base() ? true : false); };
 
-
 	// const overloads
 	template <class T>
 	difference_type operator-(const vector_iterator<T> & it)	
