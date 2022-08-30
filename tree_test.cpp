@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/20 17:47:33 by sfournie          #+#    #+#             */
-/*   Updated: 2022/08/29 16:11:12 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/08/30 16:25:01 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,12 @@ int main() {
 	bst.insert(57);
 
 	bst.print_tree();
-	cout << endl << "1 deleting" << endl;
+	cout << endl << "1 deleting 40" << endl;
 	bst.delete_node(40);
+	bst.print_tree();
 	cout << endl << "2 deleting something that isn't there" << endl;
 	bst.delete_node(3);
+	bst.print_tree();
 	cout << endl << "3 deleting everything" << endl;
 	cout << endl << "3-1 deleting 55" << endl;
 	bst.delete_node(55);

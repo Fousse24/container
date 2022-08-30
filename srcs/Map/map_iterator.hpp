@@ -30,6 +30,7 @@ template <class M>
 class map_iterator : public ft::iterator<std::bidirectional_iterator_tag, typename M::value_type
 							,typename M::pointer, typename M::reference, typename M::difference_type>
 {
+
 public:
 	typedef typename M::value_type						value_type;
 	typedef typename M::pointer							pointer;
@@ -46,23 +47,26 @@ protected:
 public:
 	map_iterator<M>() : _node(node_type()) {  };
 
+	map_iterator<M>(node_pointer node) { _node = node; };
+
 	map_iterator<M>(const map_iterator<M>& it) { *this = it; };
 
 	template <class T>
 	map_iterator<M>( const map_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const M>, bool>::type = 0) 
-	{ this->_node = it.base(); }
+	{ this->_node = it.get_node(); }
 	
 	~map_iterator<M>() {  };
 
 	map_iterator<M>& operator=( const map_iterator<M>& it )
 	{
-		this->_node = it.base();
+		this->_node = it.get_node();
 		return *this;
 	}
 
-	pointer		base() const			{ return &this->_node->key; };
-	reference	operator*() const		{ return *base(); };
-	pointer		operator->() const		{ return base(); };
+	pointer			base() const			{ return _node->get_key_ptr(); };
+	node_pointer	get_node() const		{ return _node; };
+	reference		operator*() const		{ return *base(); };
+	pointer			operator->() const		{ return base(); };
 
 	map_iterator<M>& operator++()
 	{ 
@@ -103,8 +107,8 @@ public:
 	template <class T>
 	bool operator==(const map_iterator<T>& it) const
 	{
-		if (_node == it._node)
-			return true;  
+		// if (_node == it._node) // WARNING
+		// 	return true;  
 		return false;
 	};
 	template <class T>
@@ -117,6 +121,8 @@ protected:
 	{
 		node_pointer	temp;
 
+		if (_node->is_empty())
+			return ;
 		// If there is a right, get the left-most element from the right node
 		if (_node->right && !_node->right->is_empty())
 		{
@@ -143,7 +149,12 @@ protected:
 	{
 		node_pointer parent;
 
-		if (!_node->left->is_empty())
+		if (_node->is_empty())
+		{
+			while (!_node->right->is_empty())
+				_node = _node->right;
+		}		
+		else if (!_node->left->is_empty())
 		{
 			_node = _node->left;
 			while (!_node->right->is_empty())
@@ -152,7 +163,7 @@ protected:
 		else // Get parent as long as node is a left node
 		{
 			parent = _node->parent;
-			while (parent->left == _node)
+			while (parent->left == _node) // forced segfault on begin()--
 			{
 				_node = parent;
 				parent = parent->parent;

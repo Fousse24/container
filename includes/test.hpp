@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/07 15:32:19 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/19 15:12:00 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/08/30 15:48:17 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #define TEST_HPP
 
 #include <string>
+#include "map_iterator.hpp"
+#include "map.hpp"
 
 #define BLACK	"\033[30m"
 #define RED		"\033[31m"
@@ -25,7 +27,23 @@
 #define WHITE	"\033[37m"
 #define RESET	"\033[0m"
 
-using  std::string;
+using	std::cout;
+using	std::endl;
+using	std::string;
+using	ft::map;
+
+template <class T1, class T2>
+void	print_map(const map<T1, T2>& m)
+{
+	m._tree.print_tree();
+	// typename ft::map<T1, T2>::iterator	it(m.begin());
+
+	// for (; it != m.end(); it++)
+	// 	cout << "Key: " << (*it).first + " | Value: " << (*it).second << endl;
+	// cout << "Key: " << (*m.begin()).first + " | Value: " << (*m.begin()).second << endl;
+
+	
+}
 
 void	print_text(string text, bool nl = true);
 string	title(string title, int level);

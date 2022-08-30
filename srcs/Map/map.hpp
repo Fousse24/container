@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/08/29 17:56:56 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/08/30 15:50:55 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,23 +34,22 @@
 */
 namespace ft
 {
-using std::allocator_traits;
 
-template <class Key, class T, class Compare = std::less<Key>, class Allocator = std::allocator<std::pair<const Key, T> > >
+template <class Key, class T, class Compare = std::less<Key>, class Allocator = std::allocator<ft::pair<const Key, T> > >
 class map
 {	
 public:	
 	typedef Allocator                               		allocator_type;
 	typedef Key												key_type;
 	typedef Compare											key_compare;
-	typedef typename allocator_type::value_type				mapped_type;
+	typedef T												mapped_type;
 	typedef ft::pair<const key_type, mapped_type>       	value_type;
 	typedef typename allocator_type::reference      		reference;
 	typedef typename allocator_type::const_reference		const_reference;
 	typedef typename allocator_type::pointer        		pointer;
 	typedef typename allocator_type::const_pointer			const_pointer;
 	typedef ft::map_iterator<map<Key, T> > 					iterator;
-	typedef ft::map_iterator<map<Key, const T> >			const_iterator;
+	typedef ft::map_iterator<map<Key, T> >					const_iterator;
 	typedef typename allocator_type::size_type      		size_type;
 	typedef typename allocator_type::difference_type		difference_type;
 	typedef ft::reverse_iterator<iterator>					reverse_iterator;
@@ -59,7 +58,7 @@ public:
 	typedef rb_tree<value_type >							t_tree;
 	typedef typename t_tree::node							t_node;
 
-private:
+public: // WARNING private
 	t_tree								_tree;
 	size_type							_size;
 	Allocator							_allocator;
@@ -107,7 +106,7 @@ public:
 	
 	map( const map& other )
 	{ 
-		_init_map();
+		// _init_map();
 		*this = other;
 	};
 
@@ -119,13 +118,13 @@ public:
 		assign(first, last);
 	};
 
-	~map() { if (_tree) { clear(); } };
+	~map() { clear(); };
 
 	map& operator=(const map& rhs)
 	{
 		this->clear();
-		for (map::iterator it = rhs.begin(); it != rhs.end(); it++)
-			this->insert(*rhs);
+		// for (map::iterator it = rhs.begin(); it != rhs.end(); it++)
+		this->insert(rhs.begin(), rhs.end());
 		return *this;
 	};
 	
@@ -133,8 +132,8 @@ public:
 	
 
 	// iterator	
-	iterator		begin() { return iterator(_tree._min(_tree.getRoot()));};
-	const_iterator	begin() const { return const_iterator(_tree._min(_tree.getRoot())); };
+	iterator		begin() { return iterator(_tree.min(_tree.root));};
+	const_iterator	begin() const { return const_iterator(_tree.min(_tree.root)); };
 
 	iterator		end() { return iterator(_tree.EMPTY); };
 	const_iterator	end() const { return const_iterator(_tree.EMPTY);};
@@ -191,24 +190,24 @@ public:
 	/* Modifier */
 	void clear()
 	{
-		iterator end_ = end();
-		iterator begin_ = begin();
+		// iterator end_ = end();
+		// iterator begin_ = begin();
 		
-		if (!_tree || begin_ == end_)
-			return ;
+		// if (!_tree || begin_ == end_)
+		// 	return ;
 
-		for (; begin_ < end_; begin_++)
-		{
-			_allocator.destroy(begin_.base());	
-		}
-		_size = 0;
+		// for (; begin_ < end_; begin_++)
+		// {
+		// 	_allocator.destroy(begin_.base());	
+		// }
+		// _size = 0;
 	};
 
 	ft::pair<iterator, bool> insert(const value_type& t)
 	{
 		t_node*	node;
 		
-		node = _tree._find_node(begin(), t.first);
+		node = _tree.find_node(t);
 		if (node)
 			return ft::make_pair(iterator(node), false);
 			
@@ -220,7 +219,7 @@ public:
 		
 	};
 
-	iterator insert( iterator, const value_type& value )
+	iterator insert( iterator, const value_type& value ) // WARNING
 	{
 		return (insert(value).first);
 	
@@ -287,14 +286,8 @@ private:
 	void	_init_map(void)
 	{
 		_size = 0;
-		_tree = NULL;
+		_tree = t_tree();
 	}
-
-	void	_full_clear()
-	{
-		clear();
-		_tree = NULL;
-	};
 };
 
 template< class T, class Alloc >
