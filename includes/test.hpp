@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/07 15:32:19 by sfournie          #+#    #+#             */
-/*   Updated: 2022/08/30 15:48:17 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/09/01 17:19:48 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,16 @@ using	std::string;
 using	ft::map;
 
 template <class T1, class T2>
-void	print_map(const map<T1, T2>& m)
+void	print_map(map<T1, T2>& m)
 {
-	m._tree.print_tree();
+	typename map<T1, T2>::iterator it;
+
+	cout << "Tree key values in order:" << endl;
+	// for (it = m.end(); it != m.begin(); --it)
+	// 	cout << " " << *it << endl; // YOU ARE HERE
+	for (it = m.begin(); it != m.end(); it++)
+		cout << " " << *it << endl;
+	// m._tree.print_tree();
 	// typename ft::map<T1, T2>::iterator	it(m.begin());
 
 	// for (; it != m.end(); it++)

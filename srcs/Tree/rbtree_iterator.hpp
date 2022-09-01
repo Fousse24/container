@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_iterator.hpp                                 :+:      :+:    :+:   */
+/*   rbtree_iterator.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MAP_ITERATOR_HPP
-#define MAP_ITERATOR_HPP
+#ifndef RBTREE_ITERATOR_HPP
+#define RBTREE_ITERATOR_HPP
 
 #include <iterator>
 #include <limits>
@@ -27,10 +27,9 @@ namespace ft
 {
 
 template <class M>
-class map_iterator : public ft::iterator<std::bidirectional_iterator_tag, typename M::value_type
+class rbtree_iterator : public ft::iterator<std::bidirectional_iterator_tag, typename M::value_type
 							,typename M::pointer, typename M::reference, typename M::difference_type>
 {
-
 public:
 	typedef typename M::value_type						value_type;
 	typedef typename M::pointer							pointer;
@@ -38,82 +37,103 @@ public:
 	typedef typename std::bidirectional_iterator_tag	iterator_category;
 	typedef typename M::difference_type 				difference_type;
 	typedef typename M::size_type						size_type;
-	typedef typename rbtree<value_type>::node			node_type;
-	typedef typename rbtree<value_type>::node*			node_pointer;
+	
+	typedef rbtree<value_type>			t_rbtree;
+	typedef typename t_rbtree::node		node_type;
+	typedef typename t_rbtree::node*	node_pointer;
 
 protected:
+	t_rbtree*		rbtree;
 	node_pointer	_node;
 
 public:
-	map_iterator<M>() : _node(node_type()) {  };
+	rbtree_iterator<M>() : rbtree(NULL), _node(node_pointer()) {  };
 
-	map_iterator<M>(node_pointer node) { _node = node; };
+	rbtree_iterator<M>( t_rbtree* t) { rbtree = t; };
+	rbtree_iterator<M>( t_rbtree* t, node_pointer n ) { rbtree = t; _node = n; };
 
-	map_iterator<M>(const map_iterator<M>& it) { *this = it; };
+	rbtree_iterator<M>(const rbtree_iterator<M>& it) { *this = it; };
 
 	template <class T>
-	map_iterator<M>( const map_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const M>, bool>::type = 0) 
-	{ this->_node = it.get_node(); }
+	rbtree_iterator<M>( const rbtree_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const M>, bool>::type = 0) 
+	{ 
+		this->_node = it.get_node(); 
+		this->rbtree = it.rbtree;
+	}
 	
-	~map_iterator<M>() {  };
+	~rbtree_iterator<M>() {  };
 
-	map_iterator<M>& operator=( const map_iterator<M>& it )
+	rbtree_iterator<M>& operator=( const rbtree_iterator<M>& it )
 	{
-		this->_node = it.get_node();
+		this->_node = it._node;
+		this->rbtree = it.rbtree;
 		return *this;
 	}
 
-	pointer			base() const			{ return _node->get_key_ptr(); };
+	pointer			base() const			{ return &_node->key; };
 	node_pointer	get_node() const		{ return _node; };
 	reference		operator*() const		{ return *base(); };
 	pointer			operator->() const		{ return base(); };
-	
 
-	map_iterator<M>& operator++()
+	rbtree_iterator	begin(t_rbtree* t)
+	{
+		rbtree = t;
+		_node = t->min(t->getRoot());
+		return (*this);
+	}
+
+	rbtree_iterator	end(t_rbtree* t)
+	{
+		rbtree = t;
+		_node = t->getEnd();
+		return (*this);
+	}
+
+	rbtree_iterator<M>& operator++()
 	{ 
 		_increment();
 		return *this;
 	};
 
-	map_iterator<M>& operator--()
+	rbtree_iterator<M>& operator--()
 	{ 
 		_decrement();
 		return *this;
 	};
 	
-	map_iterator<M> operator++( int )
+	rbtree_iterator<M> operator++( int )
 	{
-		map_iterator<M> ori = *this;
+		rbtree_iterator<M> ori = *this;
 		++(*this);
 		return ori;
 	};
 
-	map_iterator<M> operator--( int )
+	rbtree_iterator<M> operator--( int )
 	{
-		map_iterator<M> ori = *this;
+		rbtree_iterator<M> ori = *this;
 		--(*this);
 		return ori;
 	};
 
 
-	bool operator==(const map_iterator<M>& it) const
+	bool operator==(const rbtree_iterator<M>& it) const
 	{
 		if (_node == it._node)
 			return true;  
 		return false;
 	};
-	bool operator!=(const map_iterator<M>& it) const { return (!operator==(it)); };
+	bool operator!=(const rbtree_iterator<M>& it) const { return (!operator==(it)); };
 
 	// const overloads
 	template <class T>
-	bool operator==(const map_iterator<T>& it) const
+	bool operator==(const rbtree_iterator<T>& it) const
 	{
 		// if (_node == it._node) // WARNING
 		// 	return true;  
 		return false;
 	};
 	template <class T>
-	bool operator!=(const map_iterator<T>& it) const { return (!operator==(it)); };
+	bool operator!=(const rbtree_iterator<T>& it) const { return (!operator==(it)); };
 	// end const
 
 protected:
@@ -122,21 +142,27 @@ protected:
 	{
 		node_pointer	temp;
 
-		if (_node->is_empty())
-			return ;
-		// If there is a right, get the left-most element from the right node
-		if (_node->right && !_node->right->is_empty())
+		if (rbtree->is_end(_node))
 		{
-			temp = _node->right;
-			while (temp->left && !temp->left->is_empty())
-				temp = temp->left;
-			_node = temp;
+			std::cout << "this is the end for you!!" << std::endl;
+			return ;
+		}
+		// If there is a right, get the left-most element from the right node
+		if (_node->right && !rbtree->is_empty(_node->right))
+		{
+			_node = rbtree->min(_node->right);
+			// temp = _node->right;
+			// while (temp->left && !rbtree->is_empty(temp->left))
+			// 	temp = temp->left;
+			// _node = temp;
 		}
 		else 
 		{
 			temp = _node->parent;
+			if (!temp)
+				return;
 			// Get parent as long as node is a right node
-			while (_node == temp->right && !temp->right->is_empty())
+			while (temp && _node != temp->left)
 			{
 				_node = temp;
 				temp = temp->parent;
@@ -150,21 +176,21 @@ protected:
 	{
 		node_pointer parent;
 
-		if (_node->is_empty())
+		if (rbtree->is_end(_node))
 		{
-			while (!_node->right->is_empty())
-				_node = _node->right;
-		}		
-		else if (!_node->left->is_empty())
+			_node = rbtree->max(_node->left);
+			return ;
+		}
+		if (!rbtree->is_empty(_node->left))
 		{
 			_node = _node->left;
-			while (!_node->right->is_empty())
+			while (!rbtree->is_empty(_node->right))
 				_node = _node->right;
 		}
 		else // Get parent as long as node is a left node
 		{
 			parent = _node->parent;
-			while (parent->left == _node) // forced segfault on begin()--
+			while (!rbtree->is_end(parent) && parent->left == _node) // forced segfault on begin()--
 			{
 				_node = parent;
 				parent = parent->parent;

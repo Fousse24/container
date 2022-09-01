@@ -6,19 +6,19 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/20 17:47:33 by sfournie          #+#    #+#             */
-/*   Updated: 2022/08/30 16:25:01 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/09/01 11:10:57 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include "rb_tree.hpp"
+#include "srcs/Tree/rbtree.hpp"
 
 using std::cout;
 using std::endl;
 
 
 int main() {
-	ft::rb_tree<int> bst;
+	ft::rbtree<int> bst;
 	cout << "1 insert" << endl;
 	bst.insert(55);
 	cout << "2 insert" << endl;

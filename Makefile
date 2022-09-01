@@ -14,30 +14,32 @@ D_SRC	= srcs
 D_INC	= includes
 D_VECT	= $(D_SRC)/Vector
 D_MAP	= $(D_SRC)/Map
+D_TREE	= $(D_SRC)/Tree
 D_OBJ	= objs
 
 # Includes
-INC		= 
+INC		= -I$(D_INC) -I$(D_VECT) -I$(D_MAP) -I$(D_TREE)
 
 
 # Files
-MAIN	= test.cpp
+MAIN	= test_map.cpp
 
 _HEAD	= $(D_INC)/iterator.hpp			\
 		  $(D_INC)/iterator_traits.hpp	\
-		  $(D_INC)/rb_tree.hpp			\
 		  $(D_INC)/enable_if.hpp		\
 		  $(D_INC)/test.hpp				\
 		  \
-		  $(D_VEC)/vector.hpp 			\
-		  $(D_VEC)/vector_iterator.hpp	\
+		  $(D_VECT)/vector.hpp 			\
+		  $(D_VECT)/vector_iterator.hpp	\
 		  \
 		  $(D_MAP)/map.hpp				\
-		  $(D_MAP)/map_iterator.hpp
+		  \
+		  $(D_TREE)/rbtree.hpp			\
+		  $(D_TREE)/rbtree_iterator.hpp		\
 
 HEAD	= $(_HEAD)
 
-_SRC	= test_pair.cpp
+_SRC	= 
 SRC		= $(patsubst %.cpp, $(D_SRC)/%.cpp, $(_SRC))
 
 _OBJ	= $(_SRC:.cpp=.o)
@@ -72,6 +74,6 @@ exe		: test
 test	: _test $(NAME)
 
 _test	:
-		$(eval CFLAGS= -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++98)
+		$(eval CFLAGS= -g -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++98)
 
 .PHONY	: all clean fclean re test exe

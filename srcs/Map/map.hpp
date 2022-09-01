@@ -6,7 +6,7 @@
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/08/30 15:50:55 by sfournie         ###   ########.fr       */
+/*   Updated: 2022/09/01 16:36:25 by sfournie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,12 @@
 #include <algorithm>
 #include <iostream>
 #include "iterator_traits.hpp"
-#include "map_iterator.hpp"
+// #include "map_iterator.hpp"
+#include "rbtree_iterator.hpp"
 #include "enable_if.hpp"
 #include "pair.hpp"
 #include "ft_lib.hpp"
-#include "rb_tree.hpp"
+#include "rbtree.hpp"
 
 #define TO_DIFF(T) (static_cast<difference_type>(T))
 #define TO_SIZE(T) (static_cast<size_type>(T))
@@ -48,15 +49,15 @@ public:
 	typedef typename allocator_type::const_reference		const_reference;
 	typedef typename allocator_type::pointer        		pointer;
 	typedef typename allocator_type::const_pointer			const_pointer;
-	typedef ft::map_iterator<map<Key, T> > 					iterator;
-	typedef ft::map_iterator<map<Key, T> >					const_iterator;
+	typedef ft::rbtree_iterator<map<Key, T> > 					iterator;
+	typedef ft::rbtree_iterator<map<Key, T> >					const_iterator;
 	typedef typename allocator_type::size_type      		size_type;
 	typedef typename allocator_type::difference_type		difference_type;
 	typedef ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
-	typedef rb_tree<value_type >							t_tree;
-	typedef typename t_tree::node							t_node;
+	typedef rbtree<value_type >			t_tree;
+	typedef typename t_tree::node		t_node;
 
 public: // WARNING private
 	t_tree								_tree;
@@ -132,35 +133,35 @@ public:
 	
 
 	// iterator	
-	iterator		begin() { return iterator(_tree.min(_tree.root));};
-	const_iterator	begin() const { return const_iterator(_tree.min(_tree.root)); };
+	iterator		begin()			{ return iterator(&_tree).begin(&_tree); };
+	const_iterator	begin() const	{ return const_iterator(&_tree).begin(&_tree); };
 
-	iterator		end() { return iterator(_tree.EMPTY); };
-	const_iterator	end() const { return const_iterator(_tree.EMPTY);};
+	iterator		end() 			{ return iterator(&_tree).end(&_tree); };
+	const_iterator	end() const 	{ return const_iterator(&_tree).end(&_tree);};
 	
-	reverse_iterator       rbegin() { return reverse_iterator(end() - 1); };
-	const_reverse_iterator rbegin() const { return const_reverse_iterator(end() - 1); };
-	reverse_iterator       rend() { return reverse_iterator(begin() - 1); };
-	const_reverse_iterator rend() const { return const_reverse_iterator(begin() - 1); };
+	reverse_iterator       rbegin()			{ return reverse_iterator(end() - 1); };
+	const_reverse_iterator rbegin() const 	{ return const_reverse_iterator(end() - 1); };
+	reverse_iterator       rend() 			{ return reverse_iterator(begin() - 1); };
+	const_reverse_iterator rend() const 	{ return const_reverse_iterator(begin() - 1); };
 	// iterator end
 
 
 	/* Element access */
 	reference       operator[](const Key& key) // Must not check bounds
 	{
-		return _tree._find_node(_tree.getRoot(), key)->key;
+		return _tree.find_node(_tree.getRoot(), key)->key;
 	};
 	
 	const_reference operator[](const Key& key) const // Must not check bounds
 	{
-		return _tree._find_node(_tree.getRoot(), key)->key;
+		return _tree.find_node(_tree.getRoot(), key)->key;
 	};
 
 	reference       at(const Key& key) // Should not check negative??
 	{
 		t_node*	node;
 
-		node = _tree._find_node(_tree.getRoot(), key);
+		node = _tree.find_node(_tree.getRoot(), key);
 		if (!node)
 			throw std::out_of_range("is not in map");
 		return node->key;
@@ -170,7 +171,7 @@ public:
 	{
 		t_node*	node;
 
-		node = _tree._find_node(_tree.getRoot(), key);
+		node = _tree.find_node(_tree.getRoot(), key);
 		if (!node)
 			throw std::out_of_range("is not in map");
 		return node->key;
@@ -207,15 +208,15 @@ public:
 	{
 		t_node*	node;
 		
-		node = _tree.find_node(t);
+		node = _tree.find_node(_tree.getRoot(), t);
 		if (node)
-			return ft::make_pair(iterator(node), false);
+			return ft::make_pair(iterator(&_tree, node), false);
 			
 		node = _tree.insert(t);
 		if (!node)
-			return ft::make_pair(iterator(node), false);
+			return ft::make_pair(iterator(&_tree, node), false);
 		_size++;
-		return ft::make_pair(iterator(node), true);
+		return ft::make_pair(iterator(&_tree, node), true);
 		
 	};
 
@@ -286,7 +287,7 @@ private:
 	void	_init_map(void)
 	{
 		_size = 0;
-		_tree = t_tree();
+		// _tree = t_tree();
 	}
 };
 
