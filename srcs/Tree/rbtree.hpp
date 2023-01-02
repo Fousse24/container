@@ -1,946 +1,356 @@
-// /* ************************************************************************** */
-// /*                                                                            */
-// /*                                                        :::      ::::::::   */
-// /*   rbtree.hpp                                        :+:      :+:    :+:   */
-// /*                                                    +:+ +:+         +:+     */
-// /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
-// /*                                                +#+#+#+#+#+   +#+           */
-// /*   Created: 2022/07/19 16:43:29 by sfournie          #+#    #+#             */
-// /*   Updated: 2022/08/29 17:37:45 by sfournie         ###   ########.fr       */
-// /*                                                                            */
-// /* ************************************************************************** */
+ 
+#pragma once
+#ifndef RBTREE_HPP
+#define RBTREE_HPP
 
-// #ifndef RB_TREE_HPP
-// #define RB_TREE_HPP
-
-// #include <iostream>
-// #include <string>
-// #include <algorithm>
-
-// using std::string;
-
-// /*
-
-// 	rbtree()
-// 	rbtree( rbtree const &obj )
-// 	~rbtree()
-// 	node * getRoot()
-// 	void insert(Key key)
-// 	void print_tree() 
-// 	void delete_node(const Key & k)
-// 	void _init_empty()
-// 	void _set_root();
-// 	node * min(node * node) 
-// 	void _transplant(node * dst, node * src) 
-// 	void _fix_as_gp(node ** n, node ** gp)
-// 	void _left_rotate(node * n) 
-// 	void _right_rotate(node * n) 
-// 	node * _find_node(node * start, const Key & k) 
-// 	void _insert_node(node * n)
-// 	void _insert_fix(node * n)
-// 	void _delete_fix(node * n) 
-// 	void _print_from(node * root, string indent, bool last)
-// */
-
-// namespace ft {
-
-// template <class Key, class Compare = std::less<Key> >
-// class rbtree
-// {
-	
-// private:
-// 	struct node
-// 	{
-// 		bool	red;
-// 		Key		key;
-// 		node	*right;
-// 		node	*left;
-// 		node	*parent;
-
-// 		node() : red(false) { init_node(); };
-// 		node(bool color) : red(color) { init_node(); };
-// 		node(Key k) : key(k), red(false) { init_node(); };
-// 		node(Key k, bool color) : key(k), red(color) { init_node(); };
-
-// 		void init_node()
-// 		{
-// 			right = NULL;
-// 			left = NULL;
-// 			parent = NULL;
-// 		}
-
-// 		bool is_empty()
-// 		{
-// 			if (!right && !left && !parent)
-// 				return true;
-// 			return false;
-// 		}
-// 	};
-
-// 	node 	*root;
-// 	node 	*EMPTY;
-// 	Compare	_comp;
-
-// public:
-// 	rbtree() { _init_empty(); root = EMPTY; };
-// 	rbtree( rbtree const &obj ) { _set_root(obj.root()); }; // to be done
-// 	~rbtree() {  }; // WARNING free
-
-// 	node * getRoot() { return root; };
-
-// 	node * insert(Key key)
-// 	{
-// 		node *n = new node(key);
-// 		if (!n)
-// 			return n;
-// 		n->left = EMPTY;
-// 		n->right = EMPTY;
-// 		n->red = true;
-// 		_insert_node(n);
-// 		return n;
-// 	};
-
-// 	void print_tree() 
-// 	{
-//     	_print_from(this->root, "", true);
-//     }
-
-// 	int	delete_node(const Key & k) // from n, find node with key value 'k' and delete it
-// 	{
-// 		node * n = EMPTY;
-// 		node * save1;
-// 		node * save2;
-// 		bool red_save = false;
-
-// 		n = _find_node(root, k);
-// 		if (!n || n == EMPTY)
-// 		{
-// 			return 0;
-// 		}
-// 		red_save = n->red;
-// 		save2 = n;
-// 		if ( n->left == EMPTY )
-// 		{
-// 			save1 = n->right;
-// 			_transplant(n, n->right);
-// 		}
-// 		else if ( n->right == EMPTY )
-// 		{
-// 			save1 = n->left;
-// 			_transplant(n, n->left); 
-// 		}
-// 		else
-// 		{
-// 			save2 = min(n->right);
-// 			red_save = save2->red;
-// 			save1 = save2->right;
-// 			if (save2->parent == n)
-// 				save1->parent = save2;
-// 			else
-// 			{
-// 				_transplant(save2, save2->right);
-// 				save2->right = n->right;
-// 				save2->right->parent = save2;
-// 			}
-// 			_transplant(n, save2);
-// 			save2->left = n->left;
-// 			save2->left->parent = save2;
-// 			save2->red = n->red;
-// 		}
-// 		delete n;
-// 		if (!red_save)
-// 		{
-// 			_delete_fix(save1);
-// 		}
-// 		return 1;
-// 	};
-
-// private:
-
-// 	void _init_empty()
-// 	{
-// 		EMPTY = new node();
-// 		EMPTY->red = false;
-// 		EMPTY->key = Key();
-// 		EMPTY->init_node();
-// 	}
-
-	// void _set_root(node * node)
-	// {
-	// 	root = node;
-	// 	root->parent = EMPTY; 
-	// 	EMPTY->left = node;
-	// }
-
-// 	node * min(node * node) 
-// 	{
-// 		while (node && node != EMPTY && node->left && node->left != EMPTY)
-// 			node = node->left;
-// 		return node;
-// 	}
-
-// 	node * _max(node * node) 
-// 	{
-// 		while (node && node != EMPTY && node->right && node->right != EMPTY)
-// 			node = node->right;
-// 		return node;
-// 	}
-
-// 	void _transplant(node * dst, node * src) 
-// 	{
-// 		if ( !dst->parent )
-// 			_set_root(src);
-// 		else if (dst == dst->parent->left)
-// 			dst->parent->left = src;
-// 		else
-// 			dst->parent->right = src;
-// 		if (src)
-// 			src->parent = dst->parent;
-	
-// 	}
-// 	void _fix_as_gp(node ** n, node ** gp)
-// 	{
-// 		(*gp)->red = true;
-// 		(*gp)->right->red = false;
-// 		(*gp)->left->red = false;
-// 		*n = *gp;
-// 	}
-
-// 	void _left_rotate(node * n) 
-// 	{
-// 		node * right = n->right;
-
-// 		n->right = right->left;
-// 		if (right->left != EMPTY) {
-// 			right->left->parent = n;
-// 		}
-		
-// 		right->parent = n->parent;
-// 		if (!n->parent)
-// 		{
-// 			_set_root(right);
-// 		} 
-// 		else if (n == n->parent->left) 
-// 		{
-// 			n->parent->left = right;
-// 		} 
-// 		else 
-// 		{
-// 			n->parent->right = right;
-// 		}
-		
-// 		right->left = n;
-// 		n->parent = right;
-// 	}
-
-// 	void _right_rotate(node * n) 
-// 	{
-// 		node * left = n->left;
-
-// 		n->left = left->right;
-// 		if (left->right != EMPTY) {
-// 			left->right->parent = n;
-// 		}
-// 		left->parent = n->parent;
-// 		if (!n->parent)
-// 		{
-// 			_set_root(left);
-// 		} 
-// 		else if (n == n->parent->right) 
-// 		{
-// 			n->parent->right = left;
-// 		} 
-// 		else 
-// 		{
-// 			n->parent->left = left;
-// 		}
-// 		left->right = n;
-// 		n->parent = left;
-// 	}
-
-// 	node * _find_node(node * start, const Key & k) // return NULL if not found
-// 	{
-// 		while ( start && start != EMPTY )
-// 		{
-// 			if (start->key == k)
-// 				return start;
-// 			else if (_comp(k, start->key))
-// 				start = start->left;
-// 			else
-// 				start = start->right;
-// 		}
-// 		return NULL;
-// 	}
-
-// 	void _insert_node(node * n)
-// 	{
-// 		node	*leaf;
-// 		node	*prev_leaf = NULL;
-		
-// 		if (!n)
-// 			return ;
-			
-// 		leaf = root;
-// 		while (leaf != EMPTY) // traverse to the left or the right until NULL
-// 		{
-// 			prev_leaf = leaf;
-// 			if (n->key > leaf->key)
-// 				leaf = leaf->right;
-// 			else
-// 				leaf = leaf->left;
-// 		}
-		
-// 		n->parent = prev_leaf;
-// 		if (!prev_leaf)
-// 			_set_root(n);
-// 		else if (_comp(n->key, prev_leaf->key)) // place as left or right child
-// 			prev_leaf->left = n;
-// 		else
-// 			prev_leaf->right = n;
-		
-		
-// 		if (!n->parent) 
-// 		{
-// 			n->red = 0;
-// 			return ;
-// 		}
-// 		if (!n->parent->parent)
-// 		{
-// 			return ;
-// 		}
-// 		_insert_fix(n);
-// 	};
-
-// 	void _insert_fix(node * n)
-// 	{
-// 		node * iter;
-		
-// 		if (!n || !root)
-// 			return ;
-//     	while (n->parent->red) 
-// 		{
-// 			if (n->parent == n->parent->parent->right) 
-// 			{
-// 				iter = n->parent->parent->left;
-// 				if (iter->red) 
-// 				{
-// 					iter->red = false;
-// 					n->parent->red = false;
-// 					if (root != n->parent->parent)
-// 					n->parent->parent->red = true;
-// 					n = n->parent->parent;
-// 				} 
-// 				else 
-// 				{
-// 					if (n == n->parent->left) 
-// 					{
-// 						n = n->parent;
-// 						_right_rotate(n);
-// 					}
-// 					n->parent->red = false;
-// 					n->parent->parent->red = true;
-// 					_left_rotate(n->parent->parent);
-// 				}
-// 			} 
-// 			else
-// 			{
-// 				iter = n->parent->parent->right;
-// 				if (iter->red) 
-// 				{
-// 					iter->red = false;
-// 					n->parent->red = false;
-// 					n->parent->parent->red = true;
-// 					n = n->parent->parent;
-// 				} 
-// 				else 
-// 				{
-// 					if (n == n->parent->right) 
-// 					{
-// 						n = n->parent;
-// 						_left_rotate(n);
-// 					}
-// 					n->parent->red = 0;
-// 					n->parent->parent->red = 1;
-// 					_right_rotate(n->parent->parent);
-// 				}
-// 			}
-// 			if (n == root) 
-// 			{
-// 				n->red = false;
-// 				break;
-// 			}
-//     	}
-// 		EMPTY->left = root;
-// 	};
-
-// 	void _delete_fix(node * n) 
-// 	{
-// 		node * save;
-		
-// 		while (n != root && n->red == 0) 
-// 		{
-// 			if (n == n->parent->left) 
-// 			{
-// 				save = n->parent->right;
-// 				if (save->red == 1) 
-// 				{
-// 					save->red = 0;
-// 					n->parent->red = 1;
-// 					_left_rotate(n->parent);
-// 					save = n->parent->right;
-// 				}
-// 				if (save->left->red == 0 && save->right->red == 0) 
-// 				{
-// 					save->red = 1;
-// 					n = n->parent;
-// 				} 
-// 				else 
-// 				{
-// 					if (save->right->red == 0) 
-// 					{
-// 						save->left->red = 0;
-// 						save->red = 1;
-// 						_right_rotate(save);
-// 						save = n->parent->right;
-// 					}
-// 					save->red = n->parent->red;
-// 					n->parent->red = 0;
-// 					save->right->red = 0;
-// 					_left_rotate(n->parent);
-// 					n = root;
-// 				}
-// 			} 
-// 			else 
-// 			{
-// 				save = n->parent->left;
-// 				if (save->red == 1) 
-// 				{
-// 					save->red = 0;
-// 					n->parent->red = 1;
-// 					_right_rotate(n->parent);
-// 					save = n->parent->left;
-// 				}
-
-// 				if (save->right->red == 0 && save->right->red == 0) 
-// 				{
-// 					save->red = 1;
-// 					n = n->parent;
-// 				} 
-// 				else 
-// 				{
-// 					if (save->left->red == 0) 
-// 					{
-// 						save->right->red = 0;
-// 						save->red = 1;
-// 						_left_rotate(save);
-// 						save = n->parent->left;
-// 					}
-// 					save->red = n->parent->red;
-// 					n->parent->red = 0;
-// 					save->left->red = 0;
-// 					_right_rotate(n->parent);
-// 					n = root;
-// 				}
-// 			}
-// 		}
-//     	n->red = 0;
-// 		EMPTY->left = root;
-// 	};
-
-// 	void _print_from(node * root, string indent, bool last) 
-// 	{
-// 		if (!root || root == EMPTY)
-// 			return ; 
-// 		std::cout << indent;
-// 		if (last) 
-// 		{
-// 			std::cout << "R----";
-// 			indent += "   ";
-// 		}
-// 		else 
-// 		{
-// 			std::cout << "L----";
-// 			indent += "|  ";
-// 		}
-
-// 		string sColor = root->red ? "RED" : "BLACK";
-// 		std::cout << root->key << "(" << sColor << ")" << std::endl;
-// 		_print_from(root->left, indent, false);
-// 		_print_from(root->right, indent, true);
-// 	};
-// };
-
-
-
-// };
-
-// #endif
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   rbtree.hpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/19 16:43:29 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/21 17:14:35 by sfournie         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#ifndef RB_TREE_HPP
-#define RB_TREE_HPP
-
+#include <stdlib.h>
+#include <stdio.h>
 #include <iostream>
+#include <iomanip>
 #include <string>
-#include <algorithm>
 
+using std::cout;
 using std::string;
+using std::endl;
+using std::setw;
 
-namespace ft {
+class RBTree {
+private:
+	struct Node {
+		int data;
+		Node* left;
+		Node* right;
+		Node* parent;
+		bool red;
 
-template <class Key, class Compare = std::less<Key> >
-class rbtree
-{
-public:
-	struct node
-	{
-		bool	red;
-		Key		key;
-		node	*right;
-		node	*left;
-		node	*parent;
-
-		node() : red(false) { init_node(); };
-		node(bool color) : red(color) { init_node(); };
-		node(Key k) : red(false), key(k) { init_node(); };
-		node(Key k, bool color) : key(k), red(color) { init_node(); };
-
-		void init_node()
-		{
-			right = NULL;
+		Node() {
+			data = 0;
 			left = NULL;
+			right = NULL;
 			parent = NULL;
+			red = true;
 		}
 
-		bool operator==(const node& rhs) const
-	{
-		if (key == rhs.key)
-			return true;  
-		return false;
-	};
-	};
-
-private:
-	node	END;
-	node 	*root;
-	node 	*EMPTY;
-	Compare	_comp;
-
-public:
-	rbtree() { _init_empty(); root = EMPTY; };
-	rbtree( rbtree const &obj ) { root = obj.root(); }; // to be done
-	~rbtree() {  };
-
-	node * getRoot() { return root; };
-	node * getEnd() { return &END; };
-
-	void set_root(node * node)
-	{
-		root = node;
-		root->parent = &END; 
-		END.left = root;
-	}
-
-	node * insert(Key key)
-	{
-		node *n = new node(key);
-		if (!n)
-			return NULL;
-		n->left = EMPTY;
-		n->right = EMPTY;
-		n->red = true;
-		_insert_node(n);
-		return n;
-	};
-
-	void print_tree() const
-	{
-    	_print_from(this->root, "", true);
-    }
-
-	void delete_node(const Key & k) // from n, find node with key value 'k' and delete it
-	{
-		node * n = EMPTY;
-		node * save1;
-		node * save2;
-		bool red_save = false;
-
-		n = find_node(root, k);
-		if (!n || n == EMPTY)
-		{
-			return ;
-		}
-		red_save = n->red;
-		save2 = n;
-		if ( n->left == EMPTY )
-		{
-			save1 = n->right;
-			_transplant(n, n->right);
-		}
-		else if ( n->right == EMPTY )
-		{
-			save1 = n->left;
-			_transplant(n, n->left); 
-		}
-		else
-		{
-			save2 = min(n->right);
-			red_save = save2->red;
-			save1 = save2->right;
-			if (save2->parent == n)
-				save1->parent = save2;
-			else
-			{
-				_transplant(save2, save2->right);
-				save2->right = n->right;
-				save2->right->parent = save2;
-			}
-			_transplant(n, save2);
-			save2->left = n->left;
-			save2->left->parent = save2;
-			save2->red = n->red;
-		}
-		delete n;
-		if (!red_save)
-		{
-			_delete_fix(save1);
+		Node(const int & data) {
+			this->data = data;
+			left = NULL;
+			right = NULL;
+			parent = NULL;
+			red = true;
 		}
 	};
 
-	node * max(node * node) 
+	Node* _root;
+	Node* _end;
+	const int _SPACECOUNT;
+
+
+	Node* _createNode(const int & data)
 	{
-		while (node && node != EMPTY && node->right && node->right != EMPTY)
-			node = node->right;
+		Node* node = new Node(data);
 		return node;
 	}
 
-	node * min(node * node) 
+	void _setRoot( Node* node )
 	{
-		while (node && node != EMPTY && node->left && node->left != EMPTY)
-			node = node->left;
-		return node;
-	}
-
-	bool	is_end( node * n )
-	{
-		if (n == &END)
-			return true;
-		return false;
-	}
-
-	bool	is_empty( node * n )
-	{
-		if (n == EMPTY)
-			return true;
-		return false;
-	}
-
-	node * find_node(node * start, const Key & k) // return NULL if not found
-	{
-		while ( start && start != EMPTY )
+		_root = node;
+		if (_root)
 		{
-			if (start->key == k) // WARNING
-				return start;
-			else if (_comp(k, start->key))
-				start = start->left;
-			else
-				start = start->right;
+			_end->left = _root;
+			_root->parent = _end;
 		}
-		return NULL;
 	}
 
-private:
-
-	void _init_empty()
+	void _insertRight( Node* parent, Node* child)
 	{
-		EMPTY = new node();
-		EMPTY->red = false;
-		// EMPTY->key = Key();
-		EMPTY->init_node();
+		if (!parent || !child)
+			return;
+
+		parent->right = child;
+		child->parent = parent;
 	}
 
-	void _transplant(node * dst, node * src) 
+	void _insertLeft( Node* parent, Node* child)
 	{
-		node*	parent;
-		if ( !dst->parent || dst->parent == &END)
-			set_root(src);
-		else if (dst == dst->parent->left)
+		if (!parent || !child)
+			return;
+
+		parent->left = child;
+		child->parent = parent;
+	}
+
+	void _transplant( Node* src, Node* dst)
+	{
+		if (!src || !dst)
+			return;
+		if (dst->parent->left == dst)
 			dst->parent->left = src;
 		else
 			dst->parent->right = src;
-		if (src)
-			src->parent = dst->parent;
-	
-	}
-	void _fix_as_gp(node ** n, node ** gp)
-	{
-		(*gp)->red = true;
-		(*gp)->right->red = false;
-		(*gp)->left->red = false;
-		*n = *gp;
+		src->parent = dst->parent;
+		 
+		delete dst;
 	}
 
-	void _left_rotate(node * n) 
+	Node* _insert( Node* root, Node* node )
 	{
-		node * right = n->right;
-
-		n->right = right->left;
-		if (right->left != EMPTY) {
-			right->left->parent = n;
+		if (!_root || _root == _end) {
+			_setRoot(node);
 		}
-		
-		right->parent = n->parent;
-		if (!n->parent)
+		else if (node->data < root->data)
 		{
-			this->root = right;
-		} 
-		else if (n == n->parent->left) 
-		{
-			n->parent->left = right;
-		} 
-		else 
-		{
-			n->parent->right = right;
-		}
-		
-		right->left = n;
-		n->parent = right;
-	}
-
-	void _right_rotate(node * n) 
-	{
-		node * left = n->left;
-
-		n->left = left->right;
-		if (left->right != EMPTY) {
-			left->right->parent = n;
-		}
-		left->parent = n->parent;
-		if (!n->parent)
-		{
-			this->root = left;
-		} 
-		else if (n == n->parent->right) 
-		{
-			n->parent->right = left;
-		} 
-		else 
-		{
-			n->parent->left = left;
-		}
-		left->right = n;
-		n->parent = left;
-	}
-
-	void _insert_node(node * n)
-	{
-		node	*leaf;
-		node	*prev_leaf = NULL;
-		
-		if (!n)
-			return ;
-			
-		leaf = root;
-		while (leaf != EMPTY) // traverse to the left or the right until NULL
-		{
-			prev_leaf = leaf;
-			if (n->key > leaf->key)
-				leaf = leaf->right;
+			if (!root->left)
+			{
+				_insertLeft(root, node);
+			}
 			else
-				leaf = leaf->left;
+			{
+				return _insert(root->left, node);
+			}
 		}
+		else if (node->data > root->data)
+		{
+			if (!root->right)
+			{
+				_insertRight(root, node);
+			}
+			else
+			{
+				return _insert(root->right, node);
+			}
+		}
+		return node;
+	}
+
+	Node* _insertFix( Node* root )
+	{
 		
-		n->parent = prev_leaf;
-		if (!prev_leaf)
-			root = n;
-		else if (_comp(n->key, prev_leaf->key)) // place as left or right child
-			prev_leaf->left = n;
+	}
+
+public:
+	RBTree(): _SPACECOUNT(5)
+	{
+		_end = _createNode(0);
+		_root = _end;
+	}
+
+	~RBTree()
+	{
+		delete _end;
+	}
+
+	Node* insert( const int & data )
+	{
+		Node* node = _createNode(data);
+		return _insert(_root, node);	
+	}
+
+	void deleteNode( const int & data )
+	{
+		Node* node = findNode(_root, data);
+		
+		if (node)
+		{
+			cout << "deleteNode found node with value " << data << endl;
+		}
+
+	}
+
+	Node* findNode(Node* root, const int & data ) {
+		if (!root)
+			return root;
+		if (root->data == data)
+			return root;
+		if (root->data < data)
+			return findNode(root->right, data);
 		else
-			prev_leaf->right = n;
-		
-		
-		if (!n->parent) 
-		{
-			n->red = 0;
-			return ;
-		}
-		if (!n->parent->parent)
-		{
-			return ;
-		}
-		_insert_fix(n);
-	};
+			return findNode(root->left, data);
+	}
 
-	void _insert_fix(node * n)
+	Node* next( Node* node )
 	{
-		node * iter;
-		
-		if (!n || !root)
-			return ;
-    	while (n->parent->red) 
+		if (!node)
 		{
-			if (n->parent == n->parent->parent->right) 
-			{
-				iter = n->parent->parent->left;
-				if (iter->red) 
-				{
-					iter->red = false;
-					n->parent->red = false;
-					if (root != n->parent->parent)
-					n->parent->parent->red = true;
-					n = n->parent->parent;
-				} 
-				else 
-				{
-					if (n == n->parent->left) 
-					{
-						n = n->parent;
-						_right_rotate(n);
-					}
-					n->parent->red = false;
-					n->parent->parent->red = true;
-					_left_rotate(n->parent->parent);
-				}
-			} 
-			else
-			{
-				iter = n->parent->parent->right;
-				if (iter->red) 
-				{
-					iter->red = false;
-					n->parent->red = false;
-					n->parent->parent->red = true;
-					n = n->parent->parent;
-				} 
-				else 
-				{
-					if (n == n->parent->right) 
-					{
-						n = n->parent;
-						_left_rotate(n);
-					}
-					n->parent->red = 0;
-					n->parent->parent->red = 1;
-					_right_rotate(n->parent->parent);
-				}
-			}
-			if (n == root) 
-			{
-				n->red = false;
-				break;
-			}
-    	}
-	};
+			return node;
+		}
+		if (node->right)
+		{
+			return node->right;
+		}
+		if (node->parent == _end || node == _end)
+		{
+			return _end;
+		}
 
-	void _delete_fix(node * n) 
+		return node->parent;
+	}
+
+	Node* inorderPre( Node* root )
 	{
-		node * save;
-		
-		while (n != root && n->red == 0) 
+		if (!root)
+			return root;
+		return max(root->left);
+
+	}
+
+	Node* inorderSucc( Node* root )
+	{
+		if (!root)
+			return root;
+		return min(root->right);
+	}
+
+	Node* min( Node* root)
+	{
+		if (root && root->left)
 		{
-			if (n == n->parent->left) 
+			return root->left;
+		}
+		return root;
+	}
+
+	Node* max( Node* root)
+	{
+		if (root && root->right)
+		{
+			return root->right;
+		}
+		return root;
+	}
+
+	void printTree()
+	{
+		int i = 0;
+		while (i <= _getHeight(_root, 0))
+		{
+			printLevel(i);
+			i++;
+			cout << endl;
+		}
+	}
+		
+	void printLevel(int n)
+	{
+		Node* temp = _root;
+		int depth = pow(2, _getHeight(_root, 0) -n+2);
+
+		cout << setw(depth) << "";
+		displayLevel(temp, n, depth);
+	}
+		
+	void displayLevel(Node* node, int level, int depth)
+	{
+		int disp = 2 * depth;
+		if (level == 0)
+		{
+			if (node == NULL)
 			{
-				save = n->parent->right;
-				if (save->red == 1) 
-				{
-					save->red = 0;
-					n->parent->red = 1;
-					_left_rotate(n->parent);
-					save = n->parent->right;
-				}
-				if (save->left->red == 0 && save->right->red == 0) 
-				{
-					save->red = 1;
-					n = n->parent;
-				} 
-				else 
-				{
-					if (save->right->red == 0) 
-					{
-						save->left->red = 0;
-						save->red = 1;
-						_right_rotate(save);
-						save = n->parent->right;
-					}
-					save->red = n->parent->red;
-					n->parent->red = 0;
-					save->right->red = 0;
-					_left_rotate(n->parent);
-					n = root;
-				}
-			} 
+
+				cout << " x ";
+				cout << setw(disp - 3) << "";
+				return;
+			}
 			else 
 			{
-				save = n->parent->left;
-				if (save->red == 1) 
-				{
-					save->red = 0;
-					n->parent->red = 1;
-					_right_rotate(n->parent);
-					save = n->parent->left;
-				}
-
-				if (save->right->red == 0 && save->right->red == 0) 
-				{
-					save->red = 1;
-					n = n->parent;
-				} 
-				else 
-				{
-					if (save->left->red == 0) 
-					{
-						save->right->red = 0;
-						save->red = 1;
-						_left_rotate(save);
-						save = n->parent->left;
-					}
-					save->red = n->parent->red;
-					n->parent->red = 0;
-					save->left->red = 0;
-					_right_rotate(n->parent);
-					n = root;
-				}
+				int result = ((node->data <= 1) ? 1 : log10(node->data) + 1);
+				if (node->red)
+					cout << "\033[1;31m";
+				else
+					cout << "\033[1;37m";
+				cout << " " << node->data << " ";
+				cout << setw(disp - result-2) << "";
+				cout << "\033[0m";
 			}
 		}
-    	n->red = 0;
-	};
-
-	void _print_from(node * r, string indent, bool last) const
-	{
-		if (!r || r == EMPTY)
-			return ; 
-		std::cout << indent;
-		if (last) 
+		else
 		{
-			std::cout << "R----";
-			indent += "   ";
+			if (node == NULL&& level >= 1)
+			{
+				displayLevel(NULL, level - 1, depth);
+				displayLevel(NULL, level - 1, depth);
+			}
+			else
+			{
+				displayLevel(node->left, level - 1, depth);
+				displayLevel(node->right, level - 1, depth);
+			}
 		}
-		else 
-		{
-			std::cout << "L----";
-			indent += "|  ";
-		}
+	}
 
-		string sColor = r->red ? "RED" : "BLACK";
-		std::cout << r->key << "(" << sColor << ")" << std::endl;
-		_print_from(r->left, indent, false);
-		_print_from(r->right, indent, true);
-	};
+	// void printTree() {
+	// 	string* lines;
+	// 	int height = 0;
+	// 	int length = 0;
+
+	// 	height = _getHeight(_root, 0);
+	// 	length = _getLength(_root);
+	// 	cout << "length: " << length << endl << "height: " << height << endl;
+	// 	lines = new string[height * 2];
+
+	// 	// _fillPrintLines(_root, lines);
+
+	// }
+
+	// int _getLength(Node* root) {
+	// 	Node* mover = _root;
+	// 	int length = 0;
+
+	// 	while (mover && mover->left) {
+	// 		length++;
+	// 		mover = mover->left;
+	// 	}
+	// 	mover = root;
+	// 	while (mover && mover->right) {
+	// 		length++;
+	// 		mover = mover->right;
+	// 	}
+	// 	return length;
+	// }
+
+	int _getHeight(const Node* root, int height) {
+		int distance = 0;
+		int leftH = 0;
+		int rightH = 0;
+
+		if (!root) {
+			return height;
+		} 
+		else {
+			leftH = _getHeight(root->left, height + 1);
+			rightH = _getHeight(root->right, height + 1);
+			if (leftH < rightH || leftH == rightH) {
+				return leftH;
+			} 
+			else {
+				return rightH;
+			}
+		}
+	}
+
+	// void printTree(Node* root) {
+	// 	_printTreeUtil(root, 0)
+	// }
+
+	// void _printTreeUtil(Node* root, int length) {
+	// 	if (!root)
+	// 		return;
+	
+	// 	// Increase distance between levels
+	// 	length += _SPACECOUNT;
+	
+	// 	// Process right child first
+	// 	_printTreeUtil(root->right, length);
+	
+	// 	// Print current node after space
+	// 	// count
+	// 	cout << endl;
+	// 	for (int i = _SPACECOUNT; i < _SPACECOUNT; i++)
+	// 		cout << " ";
+	// 	cout << root->data << "\n";
+	
+	// 	// Process left child
+	// 	_printTreeUtil(root->left, space);
+	// }
 };
-
-
-
-}
 
 #endif
