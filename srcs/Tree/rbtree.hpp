@@ -47,6 +47,8 @@ private:
 	Node* _createNode(const int & data, bool red)
 	{
 		Node* node = new Node(data);
+		node->left = _NIL;
+		node->right = _NIL;
 		node->red = red;
 		return node;
 	}
@@ -62,23 +64,22 @@ private:
 		}
 	}
 
-	bool _isNil( const Node* node )
+	void _deleteRoot(  )
 	{
-		if (node == NULL || node == _NIL || node == _end)
-			return true;
-		return false;
+		delete _root;
+		_end->left = _NIL;
 	}
 
 	void _recolor( Node* node )
 	{
-		if (_isNil(node))
+		if (isNil(node) || node == _root)
 			return;
 		node->red = !node->red;
 	}
 
 	void _insertRight( Node* parent, Node* child)
 	{
-		if (_isNil(parent) || _isNil(child))
+		if (isNil(parent) || isNil(child))
 			return;
 
 		parent->right = child;
@@ -87,7 +88,7 @@ private:
 
 	void _insertLeft( Node* parent, Node* child)
 	{
-		if (_isNil(parent) || _isNil(child))
+		if (isNil(parent) || isNil(child))
 			return;
 
 		parent->left = child;
@@ -96,58 +97,58 @@ private:
 
 	void _rotateRight( Node* node )
 	{
-		Node* parent;
 		Node* child;
 
-		parent = node->parent;
 		child = node->left;
-
 		if (node == _root)
 			_setRoot(child);
-		else if (!_isNil(parent) && parent->right == node)
-			parent->right = child;
-		else if (!_isNil(parent))
-			parent->left = child;
+		else
+			_giveParent(node, child);
 
-		child->parent = node->parent;
 		node->parent = child;
 		node->left = child->right;
+		node->left->parent = node;
 		child->right = node;
 	}
 
 	void _rotateLeft( Node* node )
 	{
-		Node* parent;
 		Node* child;
 
-		parent = node->parent;
 		child = node->right;
-
 		if (node == _root)
 			_setRoot(child);
-		else if (parent->left == node)
-			parent->left = child;
 		else
-			parent->right = child;
+			_giveParent(node, child);
 
-		child->parent = node->parent;
 		node->parent = child;
 		node->right = child->left;
+		node->right->parent = node;
 		child->left = node;
 	}
 
-	void _transplant( Node* src, Node* dst)
+	// Replace <dst>'s data with <src>'s
+	Node* _transplantData( Node* src, Node* dst )
 	{
-		if (!src || !dst)
-			return;
-		if (dst->parent->left == dst)
-			dst->parent->left = src;
-		else
-			dst->parent->right = src;
-		src->parent = dst->parent;
-		 
-		delete dst;
+		// TODO delete dst->data somehow
+		dst->data = src->data;
+		return dst;
 	}
+
+	// Orphan <current> and assign its parent to <newChild> (if not NIL)
+	void _giveParent( Node* current, Node* newChild )
+	{
+		if (current->parent->left == current)
+			current->parent->left = newChild;
+		else if (current->parent->right == current)
+			current->parent->right = newChild;
+		else
+			return;
+		
+		if (!isNil(newChild))
+			newChild->parent = current->parent;
+	}
+
 
 	Node* _insert( Node* root, Node* node )
 	{
@@ -155,7 +156,7 @@ private:
 			return root;
 		if (node->data < root->data)
 		{
-			if (_isNil(root->left))
+			if (isNil(root->left))
 			{
 				_insertLeft(root, node);
 			}
@@ -166,7 +167,7 @@ private:
 		}
 		else if (node->data > root->data)
 		{
-			if (_isNil(root->right))
+			if (isNil(root->right))
 			{
 				_insertRight(root, node);
 			}
@@ -185,36 +186,40 @@ private:
 		Node* aunt = NULL;
 		Node* save = NULL;
 
-		if (_isNil(node) || !node->parent->red)
+		// Exit if parent is black
+		if (isNil(node) || !node->parent->red)
 		{
 			return ;
 		}
 	
-		if (!_isNil(node->parent))
+		if (!isNil(node->parent))
 			grandP = node->parent->parent;
 		aunt = getSibling(node->parent);
 		
-		// aunt is black or nil
-		if (_isNil(aunt) || !aunt->red)
+		// aunt is nil or black
+		if (isNil(aunt) || !aunt->red)
 		{
 			save = node->parent;
-			// left left and left right
 			if (node->parent == grandP->left)
 			{
+				// left right
 				if (node->parent->right == node)
 				{
 					_rotateLeft(node->parent);
 					save = node;
 				}
+				// left left
 				_rotateRight(grandP);
 			}
-			else // right right and right left
+			else
 			{
+				// right left
 				if (node->parent->left == node)
 				{
 					_rotateRight(node->parent);
 					save = node;
 				}
+				// right right
 				_rotateLeft(grandP);
 			}
 			_recolor(grandP);
@@ -224,14 +229,138 @@ private:
 		{
 			_recolor(node->parent);
 			_recolor(aunt);
-			if (grandP != _root)
+			if (!isNil(grandP) && grandP != _root)
 			{
 				_recolor(grandP);
-				if (!_isNil(grandP) && grandP != _root)	
-					_rbInsertFix(grandP);
+				// Recheck with grand parent as critical node
+				_rbInsertFix(grandP);
 			}
 		}
 	_root->red = false;
+	}
+
+	void _delete( Node* node )
+	{
+		Node* replacement = NULL;
+		bool wasRed;
+		bool doubleBlack = false;
+
+		if (isNil(node))
+			return ;
+		/* 
+		 * 1.	0 child
+		 * 2.	2 children
+		 * 3.	1 child
+		 *  3.1.	left child
+		 *  3.2.	right child
+		*/
+		wasRed = node->red;
+		// 0 child
+		if (isNil(node->right) && isNil(node->left))
+		{
+			_giveParent(node, _NIL);
+			delete node;
+		}
+		else
+		{ 
+			// 2 and 1 child cases 
+			if (!isNil(node->left) && !isNil(node->right))
+			{
+				replacement = inorderSucc(node);
+			}
+			else
+			{
+				if (!isNil(node->left))
+					replacement = node->left;
+				else
+					replacement = node->right;
+				
+			}
+			cout << "got successor which is " << replacement->data << " with parent " << replacement->parent->data << endl;
+			node = _transplantData(replacement, node);
+			_delete(replacement);
+		}
+
+		// If deleted node was red, we need to fix the rbtree
+		// if (!wasRed)
+		// 	_rbDeleteFix();
+	}
+
+	Node* _rbDeleteFix( Node* node )
+	{
+		// Node* replacement = NULL;
+		// Node* sibling;
+		// bool wasRed;
+
+		// if (isNil(node))
+		// 	return;
+		// /* 
+		//  * 1.	no children
+		//  * 2.	2 children
+		//  * 3.	1 child
+		//  *  3.1.	left child
+		//  *  3.2.	right child
+		// */
+		// wasRed = node->red;
+		// replacement = inorderSucc(node);
+		// _transplantData(replacement, node);
+		// /*
+		//  * Case 1: Node is red
+		//  */
+		// if (node->red)
+		// {
+		// 	return _delete(replacement);
+		// }
+
+		// /*
+		//  * Case 2: Node is black
+		//  */
+		// if (isNil(node->right) && isNil(node->left))
+		// {
+		// 	sibling = getSibling(node);
+		// 	if (!sibling->red)
+		// 	{
+		// 		if (node->parent->red)
+		// 			_recolor(node->parent);
+		// 		else
+		// 		{
+
+		// 		}
+		// 		_recolor(sibling);
+		// 	}
+		// 	else
+		// 	{
+		// 		_recolor(node->parent);
+		// 		_recolor(sibling);
+		// 		if (node->parent->left == node)
+		// 			_rotateLeft(node->parent);
+		// 		else
+		// 			_rotateRight(node->parent);
+		// 	}
+		// 	_giveParent(node, _NIL);
+		// 	delete node;
+		// }
+		// else
+		// { 
+		// 	if (!isNil(node->left) && !isNil(node->right))
+		// 	{
+		// 		replacement = inorderSucc(node);
+		// 		node = _transplantData(replacement, node);
+		// 	}
+		// 	else
+		// 	{
+		// 		if (!isNil(node->left))
+		// 			replacement = node->left;
+		// 		else
+		// 			replacement = node->right;
+		// 	}
+		// 	_delete(replacement);
+		// }
+
+		// // If deleted node was red, we need to fix the rbtree
+		// if (!wasRed)
+		// 	_rbDeleteFix();
+		return _NIL;
 	}
 
 public:
@@ -239,7 +368,7 @@ public:
 	{
 		_end = _createNode(0, false);
 		_NIL = _createNode(0, false);
-		_root = _end;
+		_setRoot(_end);
 	}
 
 	~RBTree()
@@ -252,7 +381,7 @@ public:
 		Node* node = _createNode(data, true);
 
 		// if tree is empty, new node becomes root
-		if (_isNil(_root) || _root == _end) {
+		if (isNil(_root) || _root == _end) {
 			_setRoot(node);
 			return node;
 		}
@@ -262,16 +391,18 @@ public:
 	void deleteNode( const int & data )
 	{
 		Node* node = findNode(_root, data);
+		Node* preNode;
+		Node* child = NULL;
 		
-		if (node)
-		{
-			cout << "deleteNode found node with value " << data << endl;
-		}
+		if (isNil(node))
+			return;
 
+		cout << "Found delete node which is " << node->data << " with parent " << node->parent->data << endl;
+		_delete(node);
 	}
 
 	Node* findNode(Node* root, const int & data ) {
-		if (_isNil(root))
+		if (isNil(root))
 			return root;
 		if (root->data == data)
 			return root;
@@ -283,11 +414,11 @@ public:
 
 	Node* next( Node* node )
 	{
-		if (!_isNil(node))
+		if (!isNil(node))
 		{
 			return node;
 		}
-		if (_isNil(node->right))
+		if (isNil(node->right))
 		{
 			return node->right;
 		}
@@ -301,7 +432,7 @@ public:
 
 	Node* inorderPre( Node* root )
 	{
-		if (_isNil(root))
+		if (isNil(root))
 			return root;
 		return max(root->left);
 
@@ -309,34 +440,34 @@ public:
 
 	Node* inorderSucc( Node* root )
 	{
-		if (_isNil(root))
+		if (isNil(root))
 			return root;
 		return min(root->right);
 	}
 
 	Node* min( Node* root)
 	{
-		if (!_isNil(root) && !_isNil(root->left))
+		while (!isNil(root) && !isNil(root->left))
 		{
-			return root->left;
+			root = root->left;
 		}
 		return root;
 	}
 
 	Node* max( Node* root)
 	{
-		if (!_isNil(root) && !_isNil(root->right))
+		while (!isNil(root) && !isNil(root->right))
 		{
-			return root->right;
+			root = root->right;
 		}
 		return root;
 	}
 
 	Node* getSibling( Node* node )
 	{
-		if (_isNil(node) || _isNil(node->parent))
+		if (isNil(node) || isNil(node->parent))
 		{
-			return NULL;
+			return _NIL;
 		}
 		if (node->parent->right == node)
 		{
@@ -348,7 +479,7 @@ public:
 
 	void printTree()
 	{
-		for (int level = 0; level <= _getHeight(_root, 0); level++)
+		for (int level = 0; level <= getHeight(_root, 0); level++)
 		{
 			printLevel(level);
 			cout << endl;
@@ -359,7 +490,7 @@ public:
 	void printLevel(int level)
 	{
 		Node* temp = _root;
-		int depth = pow(2, _getHeight(_root, 0) - level + 2);
+		int depth = pow(2, getHeight(_root, 0) - level + 2);
 
 		cout << setw(depth) << "";
 		displayLevel(temp, level, depth);
@@ -370,7 +501,7 @@ public:
 		int disp = 2 * depth;
 		if (level == 0)
 		{
-			if (_isNil(node))
+			if (isNil(node))
 			{
 				cout << " x ";
 				cout << setw(disp - 3) << "";
@@ -390,7 +521,7 @@ public:
 		}
 		else
 		{
-			if (_isNil(node) && level >= 1)
+			if (isNil(node) && level >= 1)
 			{
 				displayLevel(NULL, level - 1, depth);
 				displayLevel(NULL, level - 1, depth);
@@ -403,18 +534,18 @@ public:
 		}
 	}
 
-	int _getHeight(const Node* root, int height)
+	int getHeight(const Node* root, int height)
 	{
 		int leftH = 0;
 		int rightH = 0;
 
-		if (_isNil(root))
+		if (isNil(root))
 		{
 			return height - 1;
 		} 
 		else {
-			leftH = _getHeight(root->left, height + 1);
-			rightH = _getHeight(root->right, height + 1);
+			leftH = getHeight(root->left, height + 1);
+			rightH = getHeight(root->right, height + 1);
 			if (leftH > rightH || leftH == rightH) 
 			{
 				return leftH;
@@ -424,6 +555,13 @@ public:
 				return rightH;
 			}
 		}
+	}
+
+	bool isNil( const Node* node )
+	{
+		if (node == NULL || node == _NIL || node == _end)
+			return true;
+		return false;
 	}
 };
 

@@ -24,10 +24,11 @@ int main() {
 
 	while (input)
 	{
-		cout << "number: ";
+		cout << "insert number: ";
 		cin >> input;
 		if (input) {
 			bst.insert(input);
+			bst.printTree();
 		}
 	}
 
@@ -54,6 +55,7 @@ int main() {
 	// bst.insert(1);
 	// bst.printTree();
 	// bst.insert(70);
+	// bst.printTree();
 	// bst.insert(2);
 	// bst.printTree();
 	// bst.insert(85);
@@ -73,25 +75,33 @@ int main() {
 	// bst.insert(115);
 
 
-	// bst.insert(50);
-	// bst.printTree();
-	// bst.insert(28);
-	// bst.printTree();
-	// bst.insert(19);
-	// bst.printTree();
-	// bst.insert(30);
-	// bst.printTree();
-	// bst.insert(29);
-	// bst.insert(17);
-	// bst.insert(42);
-	// bst.insert(200);
-	// bst.insert(160);
-	// bst.insert(170);
-	// bst.insert(180);
-	// bst.insert(240);
-	// bst.insert(44);
-	// bst.insert(26);
-	// bst.insert(27);
+	bst.insert(40);
+	bst.insert(20);
+	bst.insert(10);
+	bst.insert(30);
+	bst.insert(25);
+	bst.insert(5);
+	bst.insert(35);
+	bst.insert(55);
+	bst.insert(45);
+	bst.insert(50);
+	bst.insert(52);
+	bst.insert(60);
+	bst.insert(37);
+	bst.insert(15);
+	bst.insert(17);
+	bst.printTree();
+
+	input = -1;
+	while (input)
+	{
+		cout << "delete number: ";
+		cin >> input;
+		if (input) {
+			bst.deleteNode(input);
+			bst.printTree();
+		}
+	}
 
     bst.printTree();
 
