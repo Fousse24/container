@@ -42,12 +42,12 @@ private:
 
 	Node* _root;
 	Node* _end;
-	const int _SPACECOUNT;
+	Node* _NIL;
 
-
-	Node* _createNode(const int & data)
+	Node* _createNode(const int & data, bool red)
 	{
 		Node* node = new Node(data);
+		node->red = red;
 		return node;
 	}
 
@@ -58,12 +58,27 @@ private:
 		{
 			_end->left = _root;
 			_root->parent = _end;
+			_root->red = false;
 		}
+	}
+
+	bool _isNil( const Node* node )
+	{
+		if (node == NULL || node == _NIL || node == _end)
+			return true;
+		return false;
+	}
+
+	void _recolor( Node* node )
+	{
+		if (_isNil(node))
+			return;
+		node->red = !node->red;
 	}
 
 	void _insertRight( Node* parent, Node* child)
 	{
-		if (!parent || !child)
+		if (_isNil(parent) || _isNil(child))
 			return;
 
 		parent->right = child;
@@ -72,11 +87,53 @@ private:
 
 	void _insertLeft( Node* parent, Node* child)
 	{
-		if (!parent || !child)
+		if (_isNil(parent) || _isNil(child))
 			return;
 
 		parent->left = child;
 		child->parent = parent;
+	}
+
+	void _rotateRight( Node* node )
+	{
+		Node* parent;
+		Node* child;
+
+		parent = node->parent;
+		child = node->left;
+
+		if (node == _root)
+			_setRoot(child);
+		else if (!_isNil(parent) && parent->right == node)
+			parent->right = child;
+		else if (!_isNil(parent))
+			parent->left = child;
+
+		child->parent = node->parent;
+		node->parent = child;
+		node->left = child->right;
+		child->right = node;
+	}
+
+	void _rotateLeft( Node* node )
+	{
+		Node* parent;
+		Node* child;
+
+		parent = node->parent;
+		child = node->right;
+
+		if (node == _root)
+			_setRoot(child);
+		else if (parent->left == node)
+			parent->left = child;
+		else
+			parent->right = child;
+
+		child->parent = node->parent;
+		node->parent = child;
+		node->right = child->left;
+		child->left = node;
 	}
 
 	void _transplant( Node* src, Node* dst)
@@ -94,12 +151,11 @@ private:
 
 	Node* _insert( Node* root, Node* node )
 	{
-		if (!_root || _root == _end) {
-			_setRoot(node);
-		}
-		else if (node->data < root->data)
+		if (node->data == root->data)
+			return root;
+		if (node->data < root->data)
 		{
-			if (!root->left)
+			if (_isNil(root->left))
 			{
 				_insertLeft(root, node);
 			}
@@ -110,7 +166,7 @@ private:
 		}
 		else if (node->data > root->data)
 		{
-			if (!root->right)
+			if (_isNil(root->right))
 			{
 				_insertRight(root, node);
 			}
@@ -119,18 +175,70 @@ private:
 				return _insert(root->right, node);
 			}
 		}
+		_rbInsertFix(node);
 		return node;
 	}
 
-	Node* _insertFix( Node* root )
+	void _rbInsertFix( Node* node )
 	{
+		Node* grandP = NULL;
+		Node* aunt = NULL;
+		Node* save = NULL;
+
+		if (_isNil(node) || !node->parent->red)
+		{
+			return ;
+		}
+	
+		if (!_isNil(node->parent))
+			grandP = node->parent->parent;
+		aunt = getSibling(node->parent);
 		
+		// aunt is black or nil
+		if (_isNil(aunt) || !aunt->red)
+		{
+			save = node->parent;
+			// left left and left right
+			if (node->parent == grandP->left)
+			{
+				if (node->parent->right == node)
+				{
+					_rotateLeft(node->parent);
+					save = node;
+				}
+				_rotateRight(grandP);
+			}
+			else // right right and right left
+			{
+				if (node->parent->left == node)
+				{
+					_rotateRight(node->parent);
+					save = node;
+				}
+				_rotateLeft(grandP);
+			}
+			_recolor(grandP);
+			_recolor(save);
+		}
+		else
+		{
+			_recolor(node->parent);
+			_recolor(aunt);
+			if (grandP != _root)
+			{
+				_recolor(grandP);
+				if (!_isNil(grandP) && grandP != _root)	
+					_rbInsertFix(grandP);
+			}
+		}
+	_root->red = false;
 	}
 
 public:
-	RBTree(): _SPACECOUNT(5)
+	RBTree()
 	{
-		_end = _createNode(0);
+		_end = _createNode(0, false);
+		_NIL = _createNode(0, false);
 		_root = _end;
 	}
 
@@ -141,7 +249,13 @@ public:
 
 	Node* insert( const int & data )
 	{
-		Node* node = _createNode(data);
+		Node* node = _createNode(data, true);
+
+		// if tree is empty, new node becomes root
+		if (_isNil(_root) || _root == _end) {
+			_setRoot(node);
+			return node;
+		}
 		return _insert(_root, node);	
 	}
 
@@ -157,7 +271,7 @@ public:
 	}
 
 	Node* findNode(Node* root, const int & data ) {
-		if (!root)
+		if (_isNil(root))
 			return root;
 		if (root->data == data)
 			return root;
@@ -169,11 +283,11 @@ public:
 
 	Node* next( Node* node )
 	{
-		if (!node)
+		if (!_isNil(node))
 		{
 			return node;
 		}
-		if (node->right)
+		if (_isNil(node->right))
 		{
 			return node->right;
 		}
@@ -187,7 +301,7 @@ public:
 
 	Node* inorderPre( Node* root )
 	{
-		if (!root)
+		if (_isNil(root))
 			return root;
 		return max(root->left);
 
@@ -195,14 +309,14 @@ public:
 
 	Node* inorderSucc( Node* root )
 	{
-		if (!root)
+		if (_isNil(root))
 			return root;
 		return min(root->right);
 	}
 
 	Node* min( Node* root)
 	{
-		if (root && root->left)
+		if (!_isNil(root) && !_isNil(root->left))
 		{
 			return root->left;
 		}
@@ -211,31 +325,44 @@ public:
 
 	Node* max( Node* root)
 	{
-		if (root && root->right)
+		if (!_isNil(root) && !_isNil(root->right))
 		{
 			return root->right;
 		}
 		return root;
 	}
 
+	Node* getSibling( Node* node )
+	{
+		if (_isNil(node) || _isNil(node->parent))
+		{
+			return NULL;
+		}
+		if (node->parent->right == node)
+		{
+			return node->parent->left;
+		}
+		return node->parent->right;
+
+	}
+
 	void printTree()
 	{
-		int i = 0;
-		while (i <= _getHeight(_root, 0))
+		for (int level = 0; level <= _getHeight(_root, 0); level++)
 		{
-			printLevel(i);
-			i++;
+			printLevel(level);
 			cout << endl;
 		}
+		cout << "___" << endl;
 	}
 		
-	void printLevel(int n)
+	void printLevel(int level)
 	{
 		Node* temp = _root;
-		int depth = pow(2, _getHeight(_root, 0) -n+2);
+		int depth = pow(2, _getHeight(_root, 0) - level + 2);
 
 		cout << setw(depth) << "";
-		displayLevel(temp, n, depth);
+		displayLevel(temp, level, depth);
 	}
 		
 	void displayLevel(Node* node, int level, int depth)
@@ -243,9 +370,8 @@ public:
 		int disp = 2 * depth;
 		if (level == 0)
 		{
-			if (node == NULL)
+			if (_isNil(node))
 			{
-
 				cout << " x ";
 				cout << setw(disp - 3) << "";
 				return;
@@ -264,7 +390,7 @@ public:
 		}
 		else
 		{
-			if (node == NULL&& level >= 1)
+			if (_isNil(node) && level >= 1)
 			{
 				displayLevel(NULL, level - 1, depth);
 				displayLevel(NULL, level - 1, depth);
@@ -277,80 +403,28 @@ public:
 		}
 	}
 
-	// void printTree() {
-	// 	string* lines;
-	// 	int height = 0;
-	// 	int length = 0;
-
-	// 	height = _getHeight(_root, 0);
-	// 	length = _getLength(_root);
-	// 	cout << "length: " << length << endl << "height: " << height << endl;
-	// 	lines = new string[height * 2];
-
-	// 	// _fillPrintLines(_root, lines);
-
-	// }
-
-	// int _getLength(Node* root) {
-	// 	Node* mover = _root;
-	// 	int length = 0;
-
-	// 	while (mover && mover->left) {
-	// 		length++;
-	// 		mover = mover->left;
-	// 	}
-	// 	mover = root;
-	// 	while (mover && mover->right) {
-	// 		length++;
-	// 		mover = mover->right;
-	// 	}
-	// 	return length;
-	// }
-
-	int _getHeight(const Node* root, int height) {
-		int distance = 0;
+	int _getHeight(const Node* root, int height)
+	{
 		int leftH = 0;
 		int rightH = 0;
 
-		if (!root) {
-			return height;
+		if (_isNil(root))
+		{
+			return height - 1;
 		} 
 		else {
 			leftH = _getHeight(root->left, height + 1);
 			rightH = _getHeight(root->right, height + 1);
-			if (leftH < rightH || leftH == rightH) {
+			if (leftH > rightH || leftH == rightH) 
+			{
 				return leftH;
 			} 
-			else {
+			else 
+			{
 				return rightH;
 			}
 		}
 	}
-
-	// void printTree(Node* root) {
-	// 	_printTreeUtil(root, 0)
-	// }
-
-	// void _printTreeUtil(Node* root, int length) {
-	// 	if (!root)
-	// 		return;
-	
-	// 	// Increase distance between levels
-	// 	length += _SPACECOUNT;
-	
-	// 	// Process right child first
-	// 	_printTreeUtil(root->right, length);
-	
-	// 	// Print current node after space
-	// 	// count
-	// 	cout << endl;
-	// 	for (int i = _SPACECOUNT; i < _SPACECOUNT; i++)
-	// 		cout << " ";
-	// 	cout << root->data << "\n";
-	
-	// 	// Process left child
-	// 	_printTreeUtil(root->left, space);
-	// }
 };
 
 #endif
