@@ -16,7 +16,8 @@ using std::setw;
 
 class RBTree {
 private:
-	struct Node {
+	struct Node 
+	{
 		int data;
 		Node* left;
 		Node* right;
@@ -40,9 +41,17 @@ private:
 		}
 	};
 
+	struct Sentinel 
+	{
+		Node* toBeDeleted;
+		Node* begin;
+		Node* end;
+	};
+
 	Node* _root;
 	Node* _end;
 	Node* _NIL;
+	Sentinel* _sentinel;
 
 	Node* _createNode(const int & data, bool red)
 	{
@@ -62,6 +71,38 @@ private:
 			_root->parent = _end;
 			_root->red = false;
 		}
+	}
+
+	void _swapColor( Node* node1, Node* node2)
+	{
+		bool tempRed;
+
+		tempRed = node1->red;
+		node1->red = node2->red;
+		node2->red = tempRed;
+
+	}
+
+	Node* _getFarNiece( Node* node )
+	{
+		if (isNil(node))
+			return _NIL;
+		
+		if (node == node->parent->left)
+			return node->parent->right->right;
+		else
+			return node->parent->left->left;
+	}
+
+	Node* _getCloseNiece( Node* node )
+	{
+		if (isNil(node))
+			return _NIL;
+		
+		if (node == node->parent->left)
+			return node->parent->right->left;
+		else
+			return node->parent->left->right;
 	}
 
 	void _deleteRoot(  )
@@ -145,8 +186,20 @@ private:
 		else
 			return;
 		
-		if (!isNil(newChild))
-			newChild->parent = current->parent;
+		newChild->parent = current->parent;
+	}
+
+	void _unlinkFromParent( Node* node )
+	{
+		if (isNil(node) || isNil(node->parent))
+			return;
+
+		if (node->parent->left == node)
+			node->parent->left = _NIL;
+		else if (node->parent->right == node)
+			node->parent->right = _NIL;
+
+		return;		
 	}
 
 
@@ -194,7 +247,7 @@ private:
 	
 		if (!isNil(node->parent))
 			grandP = node->parent->parent;
-		aunt = getSibling(node->parent);
+		aunt = _getSibling(node->parent);
 		
 		// aunt is nil or black
 		if (isNil(aunt) || !aunt->red)
@@ -239,128 +292,181 @@ private:
 	_root->red = false;
 	}
 
-	void _delete( Node* node )
+	// BST deletion, FIX if deleted node was black
+	bool _delete( Node* node )
 	{
-		Node* replacement = NULL;
+		Node* replacement = _NIL;
 		bool wasRed;
-		bool doubleBlack = false;
 
 		if (isNil(node))
-			return ;
+			return node->red;
 		/* 
 		 * 1.	0 child
-		 * 2.	2 children
-		 * 3.	1 child
-		 *  3.1.	left child
-		 *  3.2.	right child
-		*/
+		 * 2.	1 child
+		 * 3.	2 child
+		 */
+		
 		wasRed = node->red;
-		// 0 child
 		if (isNil(node->right) && isNil(node->left))
 		{
 			_giveParent(node, _NIL);
-			delete node;
+			wasRed = _deleteLeaf(node);
+			node = _NIL;
+		}
+		else if (isNil(node->right) || isNil(node->left))
+		{
+			wasRed = _deleteSingleChildNode(node);
 		}
 		else
 		{ 
-			// 2 and 1 child cases 
-			if (!isNil(node->left) && !isNil(node->right))
-			{
-				replacement = inorderSucc(node);
-			}
-			else
-			{
-				if (!isNil(node->left))
-					replacement = node->left;
-				else
-					replacement = node->right;
-				
-			}
-			cout << "got successor which is " << replacement->data << " with parent " << replacement->parent->data << endl;
+			replacement = inorderSucc(node);				
 			node = _transplantData(replacement, node);
 			_delete(replacement);
 		}
 
 		// If deleted node was red, we need to fix the rbtree
-		// if (!wasRed)
-		// 	_rbDeleteFix();
+		if (!wasRed)
+		{
+			_rbDeleteFix(node);
+		}
+		// _cleanSentinel();
+		return wasRed;
 	}
 
-	Node* _rbDeleteFix( Node* node )
+	void _rbDeleteFix( Node* node )
+	{	
+		Node* sibling;
+		Node* closeNiece;
+		Node* farNiece;
+		bool left = false;
+		bool doubleBlack = false;
+
+		if (node->red)
+		{
+			// TODO not double black
+		}
+		else
+		{
+			cout << "Double black for node " << node->data << " with parent " << node->parent->data << endl;
+			/* DOUBLE BLACK */
+			if (node == _root)
+				return;
+			
+			sibling = _getSibling(node);
+			if (!sibling->red)
+			{
+				cout << "case 3-5-6 with sibling " << sibling->data << endl;
+				if (!sibling->left->red && !sibling->right->red)
+				{
+					cout << "case 3" << endl;
+					if (node->parent->red)
+						_recolor(node->parent);
+					else
+						doubleBlack = true;
+
+					_recolor(sibling);
+					if (doubleBlack)
+						return _rbDeleteFix(node->parent);
+				}
+				else
+				{
+					cout << "case 5-6" << endl;
+					closeNiece = _getCloseNiece(node);
+					farNiece = _getFarNiece(node);
+					if (!farNiece->red && closeNiece->red)
+					{
+						cout << "case 5" << endl;
+						_swapColor(sibling, closeNiece);
+						if (node == node->parent->left)
+							_rotateRight(sibling);
+						else
+							_rotateLeft(sibling);
+						sibling = _getSibling(node);
+						
+					}
+
+					farNiece = _getFarNiece(node);
+					if (farNiece->red)
+					{
+						cout << "case 6" << endl;
+						_swapColor(node->parent, sibling);
+						if (node == node->parent->right)
+							_rotateLeft(node->parent);
+						else
+							_rotateRight(node->parent);
+						_recolor(farNiece);
+					}
+				}
+			}
+			else
+			{
+				cout << "case 4" << endl;
+				_swapColor(node->parent, sibling);
+
+				if (node == node->parent->left)
+					_rotateLeft(node->parent);
+				else
+					_rotateRight(node->parent);
+
+				return _rbDeleteFix(node);
+			}
+		}
+		return ;
+	}
+
+	bool _deleteLeaf(Node* leaf)
 	{
-		// Node* replacement = NULL;
-		// Node* sibling;
-		// bool wasRed;
+		bool wasRed = false;
 
-		// if (isNil(node))
-		// 	return;
-		// /* 
-		//  * 1.	no children
-		//  * 2.	2 children
-		//  * 3.	1 child
-		//  *  3.1.	left child
-		//  *  3.2.	right child
-		// */
-		// wasRed = node->red;
-		// replacement = inorderSucc(node);
-		// _transplantData(replacement, node);
-		// /*
-		//  * Case 1: Node is red
-		//  */
-		// if (node->red)
-		// {
-		// 	return _delete(replacement);
-		// }
+		if (!isNil(leaf)) 
+		{
+			wasRed = leaf->red;
+			_unlinkFromParent(leaf);
+			delete leaf;
+		}
+		return wasRed;
+		
+		
+	}
 
-		// /*
-		//  * Case 2: Node is black
-		//  */
-		// if (isNil(node->right) && isNil(node->left))
-		// {
-		// 	sibling = getSibling(node);
-		// 	if (!sibling->red)
-		// 	{
-		// 		if (node->parent->red)
-		// 			_recolor(node->parent);
-		// 		else
-		// 		{
+	bool _deleteSingleChildNode(Node* node)
+	{
+		Node* replacement;
 
-		// 		}
-		// 		_recolor(sibling);
-		// 	}
-		// 	else
-		// 	{
-		// 		_recolor(node->parent);
-		// 		_recolor(sibling);
-		// 		if (node->parent->left == node)
-		// 			_rotateLeft(node->parent);
-		// 		else
-		// 			_rotateRight(node->parent);
-		// 	}
-		// 	_giveParent(node, _NIL);
-		// 	delete node;
-		// }
-		// else
-		// { 
-		// 	if (!isNil(node->left) && !isNil(node->right))
-		// 	{
-		// 		replacement = inorderSucc(node);
-		// 		node = _transplantData(replacement, node);
-		// 	}
-		// 	else
-		// 	{
-		// 		if (!isNil(node->left))
-		// 			replacement = node->left;
-		// 		else
-		// 			replacement = node->right;
-		// 	}
-		// 	_delete(replacement);
-		// }
+		if (!isNil(node))
+		{
+			if (isNil(node->right))
+				replacement = node->left;
+			else if (isNil(node->left))
+				replacement = node->right;
+			
+			_transplantData(replacement, node);
+			return _delete(replacement);
+		}
+		return false;
+	}
 
-		// // If deleted node was red, we need to fix the rbtree
-		// if (!wasRed)
-		// 	_rbDeleteFix();
-		return _NIL;
+	Node* _getSibling( Node* node )
+	{
+		if (isNil(node) || isNil(node->parent))
+		{
+			return _NIL;
+		}
+		if (node->parent->right == node)
+		{
+			return node->parent->left;
+		}
+		return node->parent->right;
+
+	}
+
+	void _cleanSentinel()
+	{
+		if (!isNil(_sentinel->toBeDeleted))
+		{	
+			_deleteLeaf(_sentinel->toBeDeleted);
+		}
+		_sentinel->toBeDeleted = NULL;
 	}
 
 public:
@@ -368,12 +474,18 @@ public:
 	{
 		_end = _createNode(0, false);
 		_NIL = _createNode(0, false);
+		_sentinel = new Sentinel();
+		_sentinel->begin = _NIL;
+		_sentinel->end = _NIL;
+		_sentinel->toBeDeleted = NULL;
 		_setRoot(_end);
 	}
 
 	~RBTree()
 	{
 		delete _end;
+		delete _NIL;
+		delete _sentinel;
 	}
 
 	Node* insert( const int & data )
@@ -461,20 +573,6 @@ public:
 			root = root->right;
 		}
 		return root;
-	}
-
-	Node* getSibling( Node* node )
-	{
-		if (isNil(node) || isNil(node->parent))
-		{
-			return _NIL;
-		}
-		if (node->parent->right == node)
-		{
-			return node->parent->left;
-		}
-		return node->parent->right;
-
 	}
 
 	void printTree()

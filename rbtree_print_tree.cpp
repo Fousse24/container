@@ -75,21 +75,46 @@ int main() {
 	// bst.insert(115);
 
 
-	bst.insert(40);
-	bst.insert(20);
-	bst.insert(10);
-	bst.insert(30);
-	bst.insert(25);
-	bst.insert(5);
-	bst.insert(35);
-	bst.insert(55);
-	bst.insert(45);
+	// bst.insert(40);
+	// bst.insert(20);
+	// bst.insert(10);
+	// bst.insert(30);
+	// bst.insert(25);
+	// bst.insert(5);
+	// bst.insert(35);
+	// bst.insert(55);
+	// bst.insert(45);
+	// bst.insert(50);
+	// bst.insert(52);
+	// bst.insert(60);
+	// bst.insert(37);
+	// bst.insert(15);
+	// bst.insert(17);
+	// bst.printTree();
+
+	// bst.insert(11);
+	// bst.insert(6);
+	// bst.insert(8);
+	// bst.insert(19);
+	// bst.insert(4);
+	// bst.insert(10);
+	// bst.insert(5);
+	// bst.insert(17);
+	// bst.insert(43);
+	// bst.insert(49);
+	// bst.insert(31);
+	// bst.printTree();
+
 	bst.insert(50);
-	bst.insert(52);
-	bst.insert(60);
-	bst.insert(37);
 	bst.insert(15);
-	bst.insert(17);
+	bst.insert(20);
+	
+	bst.insert(35);
+	bst.insert(65);
+	bst.insert(70);
+	bst.insert(80);
+	bst.insert(68);
+	bst.insert(90);
 	bst.printTree();
 
 	input = -1;
