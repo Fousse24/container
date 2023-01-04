@@ -293,44 +293,49 @@ private:
 	}
 
 	// BST deletion, FIX if deleted node was black
-	bool _delete( Node* node )
+	void _delete( Node* node )
 	{
 		Node* replacement = _NIL;
 		bool wasRed;
 
 		if (isNil(node))
-			return node->red;
+			return ;
 		/* 
-		 * 1.	0 child
-		 * 2.	1 child
-		 * 3.	2 child
+		 * if 1 or 2 child
+		 *   if	1 child
+		 *   else 2 child
+		 * 0 child
 		 */
-		
+		cout << "Starting deletion on node " << node->data \
+		<< " of color " << node->red << " with parent " << node->parent->data << endl; 
 		wasRed = node->red;
-		if (isNil(node->right) && isNil(node->left))
+		if (!isNil(node->right) || !isNil(node->left))
 		{
-			_giveParent(node, _NIL);
-			wasRed = _deleteLeaf(node);
-			node = _NIL;
+			if (isNil(node->right) || isNil(node->left))
+			{
+				if (isNil(node->right))
+					replacement = node->left;
+				else if (isNil(node->left))
+					replacement = node->right;
+				node = _transplantData(replacement, node);
+				return _delete(replacement);
+			}
+			else
+			{ 
+				replacement = inorderSucc(node);				
+				node = _transplantData(replacement, node);
+				return _delete(replacement);
+			}
 		}
-		else if (isNil(node->right) || isNil(node->left))
-		{
-			wasRed = _deleteSingleChildNode(node);
-		}
-		else
-		{ 
-			replacement = inorderSucc(node);				
-			node = _transplantData(replacement, node);
-			_delete(replacement);
-		}
+		
+		_giveParent(node, _NIL);
+		wasRed = _deleteLeaf(node);
+		node = _NIL;
 
 		// If deleted node was red, we need to fix the rbtree
 		if (!wasRed)
-		{
 			_rbDeleteFix(node);
-		}
-		// _cleanSentinel();
-		return wasRed;
+		return ;
 	}
 
 	void _rbDeleteFix( Node* node )
@@ -428,7 +433,7 @@ private:
 		
 		
 	}
-
+	// TODO unused?
 	bool _deleteSingleChildNode(Node* node)
 	{
 		Node* replacement;
@@ -441,17 +446,17 @@ private:
 				replacement = node->right;
 			
 			_transplantData(replacement, node);
-			return _delete(replacement);
+			return _deleteLeaf(replacement);
 		}
 		return false;
 	}
 
 	Node* _getSibling( Node* node )
 	{
-		if (isNil(node) || isNil(node->parent))
-		{
-			return _NIL;
-		}
+		// if (isNil(node) || isNil(node->parent))
+		// {
+		// 	return _NIL;
+		// }
 		if (node->parent->right == node)
 		{
 			return node->parent->left;
