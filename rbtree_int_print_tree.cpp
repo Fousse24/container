@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <iostream>
-#include "srcs/Tree/rbtree.hpp"
+#include "rbtree_int/rbtree.hpp"
 
 using std::cout;
 using std::cin;
@@ -19,7 +19,7 @@ using std::endl;
 
 
 int main() {
-	ft::RBTree<int> bst;
+	RBTree bst;
 	int input = -1;
 
 	while (input)

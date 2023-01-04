@@ -51,6 +51,13 @@ public:
 	typedef ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
+private:
+	pointer		_vector;
+	size_type	_size;
+	size_type	_capacity;
+	Allocator	_allocator;
+
+public:
 	vector()
 	{
 		_allocator = Allocator();
@@ -59,8 +66,8 @@ public:
 
 	explicit vector(const Allocator& alloc)
 	{
-		_init_vector();
 		_allocator = alloc;
+		_init_vector();
 	};
 
 	explicit vector( size_type count, const T value = value_type(),
@@ -310,11 +317,6 @@ public:
 	}
 	
 private:
-	pointer		_vector;
-	size_type	_size;
-	size_type	_capacity;
-	Allocator	_allocator;
-
 	template<class Iter>
 	void _insert(iterator pos, Iter first, Iter last, std::input_iterator_tag)
 	{

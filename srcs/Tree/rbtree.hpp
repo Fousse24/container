@@ -14,28 +14,73 @@ using std::string;
 using std::endl;
 using std::setw;
 
+/*
+ * ATTRIBUTES
+ *
+ * CONSTRUCTORS
+ *
+ * PRIVATE FUNCTIONS
+ *		_createNode
+ *		_setRoot
+ *		_deleteRoot
+ *		_insertRight
+ *		_insertLeft
+ *		_rotateRight
+ *		_rotateLeft
+ *		_unlinkFromParent
+ *		_insert
+ *		_rbInsertFix
+ *		_delete
+ *		_rbDeleteFix
+ *		_deleteLeaf
+ *		_transplantData
+ *		_recolor
+ *		_swapColor
+ *		_giveParent
+ *		_getFarNiece
+ *		_getCloseNiece
+ *		_getSibling
+ *
+ * PUBLIC FUNCTIONS
+ *		insert
+ *		deleteNode
+ *		findNode
+ *		inorderPre
+ *		inorderSucc
+ *		isNil
+ *		min
+ *		max
+ *		getHeight
+ *		printTree
+ *		printLevel
+ *		displayLevel
+ */
 
+namespace ft {
+
+template <class Key, class Compare = std::less<Key> >
 class RBTree {
 
 /* ATTRIBUTES */
 private:
 	struct Node 
 	{
-		int data;
+		Key data;
 		Node* left;
 		Node* right;
 		Node* parent;
 		bool red;
 
-		Node() {
-			data = 0;
+		Node()
+		{
 			left = NULL;
 			right = NULL;
 			parent = NULL;
 			red = true;
 		}
 
-		Node(const int & data) {
+		Node(const Key & data)
+		{
 			this->data = data;
 			left = NULL;
 			right = NULL;
@@ -48,6 +93,10 @@ private:
 	Node* _end;
 	Node* _NIL;
 
+/*************************************************/
+
+
+/* CONSTRUCTORS & DESTRUCTOR */
 public:
 	RBTree()
 	{
@@ -62,8 +111,12 @@ public:
 		delete _NIL;
 	}
 
+/*************************************************/
+
+
+/* PRIVATE FUNCTIONS */
 private:
-	Node* _createNode(const int & data, bool red)
+	Node* _createNode(const Key & data, bool red)
 	{
 		Node* node = new Node(data);
 		node->left = _NIL;
@@ -83,49 +136,10 @@ private:
 		}
 	}
 
-	void _swapColor( Node* node1, Node* node2)
-	{
-		bool tempRed;
-
-		tempRed = node1->red;
-		node1->red = node2->red;
-		node2->red = tempRed;
-
-	}
-
-	Node* _getFarNiece( Node* node )
-	{
-		if (isNil(node))
-			return _NIL;
-		
-		if (node == node->parent->left)
-			return node->parent->right->right;
-		else
-			return node->parent->left->left;
-	}
-
-	Node* _getCloseNiece( Node* node )
-	{
-		if (isNil(node))
-			return _NIL;
-		
-		if (node == node->parent->left)
-			return node->parent->right->left;
-		else
-			return node->parent->left->right;
-	}
-
 	void _deleteRoot(  )
 	{
 		delete _root;
 		_end->left = _NIL;
-	}
-
-	void _recolor( Node* node )
-	{
-		if (isNil(node) || node == _root)
-			return;
-		node->red = !node->red;
 	}
 
 	void _insertRight( Node* parent, Node* child)
@@ -176,27 +190,6 @@ private:
 		node->right = child->left;
 		node->right->parent = node;
 		child->left = node;
-	}
-
-	// Replace <dst>'s data with <src>'s
-	Node* _transplantData( Node* src, Node* dst )
-	{
-		// TODO delete dst->data somehow
-		dst->data = src->data;
-		return dst;
-	}
-
-	// Orphan <current> and assign its parent to <newChild> (if not NIL)
-	void _giveParent( Node* current, Node* newChild )
-	{
-		if (current->parent->left == current)
-			current->parent->left = newChild;
-		else if (current->parent->right == current)
-			current->parent->right = newChild;
-		else
-			return;
-		
-		newChild->parent = current->parent;
 	}
 
 	void _unlinkFromParent( Node* node )
@@ -309,42 +302,39 @@ private:
 
 		if (isNil(node))
 			return ;
-		/* 
-		 * if 1 or 2 child
-		 *   if	1 child
-		 *   else 2 child
-		 * 0 child
-		 */
+
 		cout << "Starting deletion on node " << node->data \
 		<< " of color " << node->red << " with parent " << node->parent->data << endl; 
 		if (!isNil(node->right) || !isNil(node->left))
 		{
 			if (isNil(node->right) || isNil(node->left))
 			{
+				/* 1 child */
 				if (isNil(node->right))
 					replacement = node->left;
 				else if (isNil(node->left))
 					replacement = node->right;
 				node = _transplantData(replacement, node);
 				return _delete(replacement);
+				/**/
 			}
 			else
 			{ 
+				/* 2 children */
 				replacement = inorderSucc(node);				
 				node = _transplantData(replacement, node);
 				return _delete(replacement);
+				/**/
 			}
 		}
-		
-		// _giveParent(node, _NIL);
-		// wasRed = _deleteLeaf(node);
-		// node = _NIL;
 
-		// If deleted node was red, we need to fix the rbtree
+		/* 0 child */
+		// If node to be deleted is red, we need to fix the rbtree
 		if (!node->red)
 			_rbDeleteFix(node);
 		_deleteLeaf(node);
 		return ;
+		/**/
 	}
 
 	void _rbDeleteFix( Node* node )
@@ -405,7 +395,6 @@ private:
 							_rotateLeft(node->parent);
 						else
 							_rotateRight(node->parent);
-						printTree();
 						_recolor(farNiece);
 					}
 				}
@@ -442,22 +431,65 @@ private:
 		
 		
 	}
-	// TODO unused?
-	bool _deleteSingleChildNode(Node* node)
-	{
-		Node* replacement;
 
-		if (!isNil(node))
-		{
-			if (isNil(node->right))
-				replacement = node->left;
-			else if (isNil(node->left))
-				replacement = node->right;
-			
-			_transplantData(replacement, node);
-			return _deleteLeaf(replacement);
-		}
-		return false;
+	// Replace <dst>'s data with <src>'s
+	Node* _transplantData( Node* src, Node* dst )
+	{
+		// TODO delete dst->data somehow
+		dst->data = src->data;
+		return dst;
+	}
+
+	void _recolor( Node* node )
+	{
+		if (isNil(node) || node == _root)
+			return;
+		node->red = !node->red;
+	}
+
+	void _swapColor( Node* node1, Node* node2)
+	{
+		bool tempRed;
+
+		tempRed = node1->red;
+		node1->red = node2->red;
+		node2->red = tempRed;
+
+	}
+
+	// Orphan <current> and assign its parent to <newChild> (if not NIL)
+	void _giveParent( Node* current, Node* newChild )
+	{
+		if (current->parent->left == current)
+			current->parent->left = newChild;
+		else if (current->parent->right == current)
+			current->parent->right = newChild;
+		else
+			return;
+		
+		newChild->parent = current->parent;
+	}
+
+	Node* _getFarNiece( Node* node )
+	{
+		if (isNil(node))
+			return _NIL;
+		
+		if (node == node->parent->left)
+			return node->parent->right->right;
+		else
+			return node->parent->left->left;
+	}
+
+	Node* _getCloseNiece( Node* node )
+	{
+		if (isNil(node))
+			return _NIL;
+		
+		if (node == node->parent->left)
+			return node->parent->right->left;
+		else
+			return node->parent->left->right;
 	}
 
 	Node* _getSibling( Node* node )
@@ -474,9 +506,12 @@ private:
 
 	}
 
+/*************************************************/
 
+
+/* PUBLIC FUNCTIONS */
 public:
-	Node* insert( const int & data )
+	Node* insert( const Key & data )
 	{
 		Node* node = _createNode(data, true);
 
@@ -488,7 +523,7 @@ public:
 		return _insert(_root, node);	
 	}
 
-	void deleteNode( const int & data )
+	void deleteNode( const Key & data )
 	{
 		Node* node = findNode(_root, data);
 		Node* preNode;
@@ -501,7 +536,7 @@ public:
 		_delete(node);
 	}
 
-	Node* findNode(Node* root, const int & data ) {
+	Node* findNode(Node* root, const Key & data ) {
 		if (isNil(root))
 			return root;
 		if (root->data == data)
@@ -512,24 +547,7 @@ public:
 			return findNode(root->left, data);
 	}
 
-	Node* next( Node* node )
-	{
-		if (!isNil(node))
-		{
-			return node;
-		}
-		if (isNil(node->right))
-		{
-			return node->right;
-		}
-		if (node->parent == _end || node == _end)
-		{
-			return _end;
-		}
-
-		return node->parent;
-	}
-
+	// TODO
 	Node* inorderPre( Node* root )
 	{
 		if (isNil(root))
@@ -538,11 +556,19 @@ public:
 
 	}
 
+	// TODO
 	Node* inorderSucc( Node* root )
 	{
 		if (isNil(root))
 			return root;
 		return min(root->right);
+	}
+
+	bool isNil( const Node* node )
+	{
+		if (node == NULL || node == _NIL || node == _end)
+			return true;
+		return false;
 	}
 
 	Node* min( Node* root)
@@ -561,6 +587,29 @@ public:
 			root = root->right;
 		}
 		return root;
+	}
+
+	int getHeight(const Node* root, int height)
+	{
+		int leftH = 0;
+		int rightH = 0;
+
+		if (isNil(root))
+		{
+			return height - 1;
+		} 
+		else {
+			leftH = getHeight(root->left, height + 1);
+			rightH = getHeight(root->right, height + 1);
+			if (leftH > rightH || leftH == rightH) 
+			{
+				return leftH;
+			} 
+			else 
+			{
+				return rightH;
+			}
+		}
 	}
 
 	void printTree()
@@ -620,35 +669,8 @@ public:
 		}
 	}
 
-	int getHeight(const Node* root, int height)
-	{
-		int leftH = 0;
-		int rightH = 0;
-
-		if (isNil(root))
-		{
-			return height - 1;
-		} 
-		else {
-			leftH = getHeight(root->left, height + 1);
-			rightH = getHeight(root->right, height + 1);
-			if (leftH > rightH || leftH == rightH) 
-			{
-				return leftH;
-			} 
-			else 
-			{
-				return rightH;
-			}
-		}
-	}
-
-	bool isNil( const Node* node )
-	{
-		if (node == NULL || node == _NIL || node == _end)
-			return true;
-		return false;
-	}
+	/*************************************************/
 };
 
+}
 #endif
