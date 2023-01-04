@@ -14,10 +14,7 @@ using std::string;
 using std::endl;
 using std::setw;
 
-
 class RBTree {
-
-/* ATTRIBUTES */
 private:
 	struct Node 
 	{
@@ -44,25 +41,18 @@ private:
 		}
 	};
 
+	struct Sentinel 
+	{
+		Node* toBeDeleted;
+		Node* begin;
+		Node* end;
+	};
+
 	Node* _root;
 	Node* _end;
 	Node* _NIL;
+	Sentinel* _sentinel;
 
-public:
-	RBTree()
-	{
-		_end = _createNode(0, false);
-		_NIL = _createNode(0, false);
-		_setRoot(_end);
-	}
-
-	~RBTree()
-	{
-		delete _end;
-		delete _NIL;
-	}
-
-private:
 	Node* _createNode(const int & data, bool red)
 	{
 		Node* node = new Node(data);
@@ -474,8 +464,34 @@ private:
 
 	}
 
+	void _cleanSentinel()
+	{
+		if (!isNil(_sentinel->toBeDeleted))
+		{	
+			_deleteLeaf(_sentinel->toBeDeleted);
+		}
+		_sentinel->toBeDeleted = NULL;
+	}
 
 public:
+	RBTree()
+	{
+		_end = _createNode(0, false);
+		_NIL = _createNode(0, false);
+		_sentinel = new Sentinel();
+		_sentinel->begin = _NIL;
+		_sentinel->end = _NIL;
+		_sentinel->toBeDeleted = NULL;
+		_setRoot(_end);
+	}
+
+	~RBTree()
+	{
+		delete _end;
+		delete _NIL;
+		delete _sentinel;
+	}
+
 	Node* insert( const int & data )
 	{
 		Node* node = _createNode(data, true);
