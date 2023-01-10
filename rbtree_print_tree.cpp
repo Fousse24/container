@@ -93,18 +93,18 @@ int main() {
 	ft::RBTree<int> bst;
 	string input = "";
 
-	bst.insert(11);
-	bst.insert(6);
-	bst.insert(8);
-	bst.insert(19);
-	bst.insert(4);
-	bst.insert(10);
-	bst.insert(5);
-	bst.insert(17);
-	bst.insert(43);
-	bst.insert(49);
-	bst.insert(31);
-	bst.printTree();
+	// bst.insert(11);
+	// bst.insert(6);
+	// bst.insert(8);
+	// bst.insert(19);
+	// bst.insert(4);
+	// bst.insert(10);
+	// bst.insert(5);
+	// bst.insert(17);
+	// bst.insert(43);
+	// bst.insert(49);
+	// bst.insert(31);
+	// bst.printTree();
 
 	showCommands();
 	while (input[0] != 'q')

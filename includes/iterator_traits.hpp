@@ -16,7 +16,6 @@
 
 namespace ft
 {
-	
 	template< class Iter >
 	struct iterator_traits
 	{

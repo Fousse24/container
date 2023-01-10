@@ -14,7 +14,6 @@
 #define TEST_HPP
 
 #include <string>
-#include "map_iterator.hpp"
 #include "map.hpp"
 
 #define BLACK	"\033[30m"
@@ -40,8 +39,8 @@ void	print_map(map<T1, T2>& m)
 	cout << "Tree key values in order:" << endl;
 	// for (it = m.end(); it != m.begin(); --it)
 	// 	cout << " " << *it << endl; // YOU ARE HERE
-	for (it = m.begin(); it != m.end(); it++)
-		cout << " " << *it << endl;
+	// for (it = m.begin(); it != m.end(); it++)
+	// 	cout << " " << *it << endl;
 	// m._tree.print_tree();
 	// typename ft::map<T1, T2>::iterator	it(m.begin());
 

@@ -46,7 +46,7 @@ public:
 	vector_iterator<V>( const vector_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const V>, bool>::type = 0) 
 	{ this->_ptr = it.base(); }
 	
-	~vector_iterator<V>() {  };
+	~vector_iterator<V>() { };
 
 	vector_iterator<V>& operator=( const vector_iterator<V>& it )
 	{

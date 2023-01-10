@@ -56,34 +56,47 @@ public:
 	typedef ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
-	typedef RBTree<value_type >			t_tree;
-	typedef typename t_tree::Node		t_node;
+	typedef RBTree<value_type, Allocator>					t_tree;
+	typedef typename t_tree::Node							t_node;
 
-public: // WARNING private
-	t_tree								_tree;
-	size_type							_size;
-	Allocator							_allocator;
-
-public: 
-
-	class value_compare // À REVOIR
+	class value_compare : public std::binary_function<value_type, value_type, bool>
 	{
+		friend class map;
 	public:
-		bool operator()( const reference lhs, const reference rhs ) const 
-		{  
-			return _comp(lhs < rhs);
+		bool operator()(const value_type& left, const value_type& right) const 
+		{
+			return comp(left.first, right.first);
 		};
-
-		bool operator()( const value_type lhs, const value_type rhs ) const 
-		{  
-			return _comp(lhs.first < rhs.second);
-		};
-		~value_compare() {  };
 	protected:
-		Compare	_comp;
-		value_compare( Compare c ) : _comp(c) {  };
+		Compare comp;
+		value_compare(Compare pred) : comp(pred) {};
 	};
 
+	// class value_compare : std::binary_function<Key, T, bool> // À REVOIR
+	// {
+	// public:
+	// 	bool operator()( const reference lhs, const reference rhs ) const 
+	// 	{  
+	// 		return _comp(lhs < rhs);
+	// 	};
+
+	// 	bool operator()( const value_type lhs, const value_type rhs ) const 
+	// 	{  
+	// 		return _comp(lhs < rhs);
+	// 	};
+	// 	~value_compare() {  };
+	// protected:
+	// 	Compare	_comp;
+	// 	value_compare( Compare c ) : _comp(c) {
+	// 	};
+	// };
+
+private: // WARNING private
+	t_tree			_tree;
+	size_type		_size;
+	Allocator		_allocator;
+
+public:
 	map()
 	{
 		_init_map();
@@ -133,11 +146,11 @@ public:
 	
 
 	// iterator	
-	iterator		begin()			{ return iterator(&_tree).begin(&_tree); };
-	const_iterator	begin() const	{ return const_iterator(&_tree).begin(&_tree); };
+	iterator		begin()			{ return iterator(&_tree).begin(); };
+	const_iterator	begin() const	{ return const_iterator(&_tree).begin(); };
 
-	iterator		end() 			{ return iterator(&_tree).end(&_tree); };
-	const_iterator	end() const 	{ return const_iterator(&_tree).end(&_tree);};
+	iterator		end() 			{ return iterator(&_tree).end(); };
+	const_iterator	end() const 	{ return const_iterator(&_tree).end();};
 	
 	reverse_iterator       rbegin()			{ return reverse_iterator(end() - 1); };
 	const_reverse_iterator rbegin() const 	{ return const_reverse_iterator(end() - 1); };
@@ -149,19 +162,19 @@ public:
 	/* Element access */
 	reference       operator[](const Key& key) // Must not check bounds
 	{
-		return _tree.find_node(_tree.getRoot(), key)->key;
+		return _tree.findNode(_tree.getRoot(), key)->key;
 	};
 	
 	const_reference operator[](const Key& key) const // Must not check bounds
 	{
-		return _tree.find_node(_tree.getRoot(), key)->key;
+		return _tree.findNode(_tree.getRoot(), key)->key;
 	};
 
 	reference       at(const Key& key) // Should not check negative??
 	{
 		t_node*	node;
 
-		node = _tree.find_node(_tree.getRoot(), key);
+		node = _tree.findNode(_tree.getRoot(), key);
 		if (!node)
 			throw std::out_of_range("is not in map");
 		return node->key;
@@ -171,7 +184,7 @@ public:
 	{
 		t_node*	node;
 
-		node = _tree.find_node(_tree.getRoot(), key);
+		node = _tree.findNode(_tree.getRoot(), key);
 		if (!node)
 			throw std::out_of_range("is not in map");
 		return node->key;
@@ -208,7 +221,7 @@ public:
 	{
 		t_node*	node;
 		
-		node = _tree.find_node(_tree.getRoot(), t);
+		node = _tree.findNode(_tree.getRoot(), t);
 		if (node)
 			return ft::make_pair(iterator(&_tree, node), false);
 			

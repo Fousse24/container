@@ -43,6 +43,7 @@ using std::setw;
  *		_getSibling
  *
  * PUBLIC FUNCTIONS
+ *		getRoot
  *		insert
  *		deleteNode
  *		findNode
@@ -51,6 +52,8 @@ using std::setw;
  *		isNil
  *		min
  *		max
+ *		begin
+ *		end
  *		getHeight
  *		printTree
  *		printSuccessor
@@ -61,11 +64,17 @@ using std::setw;
 
 namespace ft {
 
-template <class Key, class Compare = std::less<Key> >
+template <class Key, class Compare = std::less<Key>, class Allocator = std::allocator<Key> >
 class RBTree {
+
+	typedef Allocator	allocator_type;
+	typedef Compare		key_compare;
 
 /* ATTRIBUTES */
 private:
+	allocator_type	_alloc;
+
+public:
 	struct Node 
 	{
 		Key data;
@@ -74,8 +83,9 @@ private:
 		Node* parent;
 		bool red;
 
-		Node()
+		Node(Allocator alloc)
 		{
+			alloc.construct(&data);
 			left = NULL;
 			right = NULL;
 			parent = NULL;
@@ -92,10 +102,12 @@ private:
 		}
 	};
 
-	Node* _root;
-	Node* _end;
-	Node* _NIL;
-	Node* _sentinel;
+private:
+	Node*			_root;
+	Node*			_end;
+	Node*			_NIL;
+	Node*			_sentinel;
+	key_compare		compare;
 
 /*************************************************/
 
@@ -104,9 +116,10 @@ private:
 public:
 	RBTree()
 	{
-		_end = _createNode(0, false);
-		_NIL = _createNode(0, false);
-		_sentinel = _createNode(0, false);
+		_alloc = allocator_type();
+		_end = _createNode(false);
+		_NIL = _createNode(false);
+		_sentinel = _createNode(false);
 		_setRoot(_end);
 	}
 
@@ -114,6 +127,8 @@ public:
 	{
 		delete _end;
 		delete _NIL;
+		delete _sentinel;
+		_deleteTree(_root);
 	}
 
 /*************************************************/
@@ -124,6 +139,15 @@ private:
 	Node* _createNode(const Key & data, bool red)
 	{
 		Node* node = new Node(data);
+		node->left = _NIL;
+		node->right = _NIL;
+		node->red = red;
+		return node;
+	}
+
+	Node* _createNode(bool red)
+	{
+		Node* node = new Node(_alloc);
 		node->left = _NIL;
 		node->right = _NIL;
 		node->red = red;
@@ -141,15 +165,21 @@ private:
 		}
 	}
 
-	void _getRoot( )
-	{
-		return _root;
-	}
-
 	void _deleteRoot(  )
 	{
 		delete _root;
 		_end->left = _end;
+	}
+
+	void _deleteTree(Node* root)
+	{
+		if (isNil(root))
+			return;
+		if (!isNil(root->right))
+			_deleteTree(root->right);
+		if (!isNil(root->left))
+			_deleteTree(root->left);
+		delete root;
 	}
 
 	void _insertRight( Node* parent, Node* child)
@@ -220,7 +250,7 @@ private:
 	{
 		if (node->data == root->data)
 			return root;
-		if (node->data < root->data)
+		if (compare(node->data, root->data))
 		{
 			if (isNil(root->left))
 			{
@@ -231,7 +261,7 @@ private:
 				return _insert(root->left, node);
 			}
 		}
-		else if (node->data > root->data)
+		else if (!compare(node->data, root->data))
 		{
 			if (isNil(root->right))
 			{
@@ -350,13 +380,11 @@ private:
 		Node* sibling;
 		Node* closeNiece;
 		Node* farNiece;
-		bool left = false;
 		bool doubleBlack = false;
 
 		printTree();
 		if (!node->red)
 		{
-			cout << "Double black for node " << node->data << " with parent " << node->parent->data << endl;
 			/* DOUBLE BLACK */
 			if (node == _root)
 				return;
@@ -364,10 +392,8 @@ private:
 			sibling = _getSibling(node);
 			if (!sibling->red)
 			{
-				cout << "case 3-5-6 with sibling " << sibling->data << endl;
 				if (!sibling->left->red && !sibling->right->red)
 				{
-					cout << "case 3" << endl;
 					if (node->parent->red)
 						_recolor(node->parent);
 					else
@@ -379,12 +405,10 @@ private:
 				}
 				else
 				{
-					cout << "case 5-6" << endl;
 					closeNiece = _getCloseNiece(node);
 					farNiece = _getFarNiece(node);
 					if (!farNiece->red && closeNiece->red)
 					{
-						cout << "case 5" << endl;
 						_swapColor(sibling, closeNiece);
 						if (node == node->parent->left)
 							_rotateRight(sibling);
@@ -397,7 +421,6 @@ private:
 					farNiece = _getFarNiece(node);
 					if (farNiece->red)
 					{
-						cout << "case 6" << endl;
 						_swapColor(node->parent, sibling);
 						if (node == node->parent->left)
 							_rotateLeft(node->parent);
@@ -409,7 +432,6 @@ private:
 			}
 			else
 			{
-				cout << "case 4" << endl;
 				_swapColor(node->parent, sibling);
 
 				if (node == node->parent->left)
@@ -524,6 +546,12 @@ private:
 
 /* PUBLIC FUNCTIONS */
 public:
+
+	Node* getRoot( )
+	{
+		return _root;
+	}
+
 	Node* insert( const Key & data )
 	{
 		Node* node = _createNode(data, true);
@@ -532,11 +560,10 @@ public:
 		if (isNil(_root) || _root == _end) 
 		{
 			_setRoot(node);
-			node = node;
 		}
 		else
 		{
-			node =  _insert(_root, node);
+			node = _insert(_root, node);
 		}
 		_updateSentinel();
 		return node;
@@ -558,7 +585,7 @@ public:
 			return root;
 		if (root->data == data)
 			return root;
-		if (root->data < data)
+		if (compare(root->data, data))
 			return findNode(root->right, data);
 		else
 			return findNode(root->left, data);
@@ -573,6 +600,8 @@ public:
 			return max(node->left);
 		if (node == _sentinel->left)
 			return _end;
+		if (node == _end)
+			return _sentinel->right;
 		else
 		{
 			// While the node is a left child, keep going.
@@ -583,16 +612,6 @@ public:
 			return node->parent;
 		}
 	}
-
-	/*
-	Node* inorderPre( Node* root )
-	{
-		if (isNil(root))
-			return root;
-		return max(root->left);
-
-	}
-	*/
 
 	// TODO
 	Node* inorderSucc( Node* node )
@@ -613,15 +632,6 @@ public:
 			return node->parent;
 		}
 	}
-	
-	/*
-	Node* inorderSucc( Node* node )
-	{
-		if (isNil(node))
-			return node;
-		return min(node->right);
-	}
-	*/
 
 	bool isNil( const Node* node )
 	{
@@ -646,6 +656,16 @@ public:
 			root = root->right;
 		}
 		return root;
+	}
+
+	Node* begin()
+	{
+		return _sentinel->left;
+	}
+
+	Node* end()
+	{
+		return _end;
 	}
 
 	int getHeight(const Node* root, int height)
