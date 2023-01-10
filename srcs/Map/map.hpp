@@ -21,7 +21,7 @@
 #include <iostream>
 #include "iterator_traits.hpp"
 // #include "map_iterator.hpp"
-#include "rbtree_iterator.hpp"
+#include "rbtreeIterator.hpp"
 #include "enable_if.hpp"
 #include "pair.hpp"
 #include "ft_lib.hpp"
@@ -49,15 +49,15 @@ public:
 	typedef typename allocator_type::const_reference		const_reference;
 	typedef typename allocator_type::pointer        		pointer;
 	typedef typename allocator_type::const_pointer			const_pointer;
-	typedef ft::rbtree_iterator<map<Key, T> > 					iterator;
-	typedef ft::rbtree_iterator<map<Key, T> >					const_iterator;
+	typedef ft::rbtreeIterator<map<Key, T> > 				iterator;
+	typedef ft::rbtreeIterator<map<Key, T> >				const_iterator;
 	typedef typename allocator_type::size_type      		size_type;
 	typedef typename allocator_type::difference_type		difference_type;
 	typedef ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
-	typedef rbtree<value_type >			t_tree;
-	typedef typename t_tree::node		t_node;
+	typedef RBTree<value_type >			t_tree;
+	typedef typename t_tree::Node		t_node;
 
 public: // WARNING private
 	t_tree								_tree;
@@ -246,7 +246,7 @@ public:
 	{
 		int	deleted;
 
-		deleted = _tree.delete_node(ft::make_pair(key, mapped_type()));
+		deleted = _tree.deleteNode(ft::make_pair(key, mapped_type()));
 		_size -= deleted;
 		return (size_type)deleted;
 	}
@@ -269,10 +269,10 @@ public:
 		size_ = other.size();
 
 		other._size = _size;
-		other._tree._set_root(_tree.getRoot());
+		other._tree._setRoot(_tree.getRoot());
 
 		_size = size_;
-		_tree._set_root(save);
+		_tree._setRoot(save);
 	}
 	
 private:

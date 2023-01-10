@@ -11,24 +11,122 @@
 /* ************************************************************************** */
 
 #include <iostream>
+#include <string>
 #include "srcs/Tree/rbtree.hpp"
 
 using std::cout;
 using std::cin;
 using std::endl;
+using std::string;
 
+
+void showCommands()
+{
+	cout << "Insertion:     i <number> " << endl;
+	cout << "Deletion:      d <number>" << endl;
+	cout << "Print tree:    p" << endl;
+	cout << "Print pre:     ps <number>" << endl;
+	cout << "Print succ:    pp <number>" << endl;
+	cout << "Quit:          q" << endl;
+}
+
+void insert( string input, ft::RBTree<int> & tree )
+{
+	try
+	{
+		tree.insert(stoi(input.substr(2)));
+		tree.printTree();
+	}
+	catch (std::exception e)
+	{
+		cout << "Invalid number: " << e.what() << endl;
+	}
+}
+
+void deletion( string input, ft::RBTree<int> & tree )
+{
+	try
+	{
+		tree.deleteNode(stoi(input.substr(2)));
+		tree.printTree();
+	}
+	catch (std::exception e)
+	{
+		cout << "Invalid number: " << e.what() << endl;
+	}
+}
+
+void print( string input, ft::RBTree<int> & tree )
+{
+	try
+	{
+		int value;
+		if (input.length() >= 4 && input[1] == 'p')
+		{	
+			value = stoi(input.substr(3));
+			tree.printPredecessor(value);
+		}
+		else if (input.length() >= 4 && input[1] == 's')
+		{	
+			value = stoi(input.substr(3));
+			tree.printSuccessor(value);
+		}
+		else
+			tree.printTree();
+	}
+	catch (std::exception e)
+	{
+		cout << "Invalid: " << e.what() << endl;
+	}
+}
+
+bool validateEntry( string input )
+{
+	if (input.length() <= 0  || (input.at(0) != 'd' && input.at(0) != 'i' && input.at(0) != 'p'))
+	{
+		return false;
+	}
+	return true;
+}
 
 int main() {
 	ft::RBTree<int> bst;
-	int input = -1;
+	string input = "";
 
-	while (input)
+	bst.insert(11);
+	bst.insert(6);
+	bst.insert(8);
+	bst.insert(19);
+	bst.insert(4);
+	bst.insert(10);
+	bst.insert(5);
+	bst.insert(17);
+	bst.insert(43);
+	bst.insert(49);
+	bst.insert(31);
+	bst.printTree();
+
+	showCommands();
+	while (input[0] != 'q')
 	{
-		cout << "insert number: ";
-		cin >> input;
-		if (input) {
-			bst.insert(input);
-			bst.printTree();
+		cout << endl << "Enter command: ";
+		std::getline(std::cin, input);
+		if (!validateEntry(input))
+		{
+			cout << "Invalid entry" << endl;
+			showCommands();
+		}
+		else if (input[0] == 'i') 
+		{
+			insert(input, bst);
+		}
+		else if (input[0] == 'd')
+		{
+			deletion(input, bst);
+		}
+		else if (input[0] == 'p')
+		{
+			print(input, bst);
 		}
 	}
 
@@ -105,29 +203,28 @@ int main() {
 	// bst.insert(31);
 	// bst.printTree();
 
-	bst.insert(50);
-	bst.insert(15);
-	bst.insert(20);
+	// bst.insert(50);
+	// bst.insert(15);
+	// bst.insert(20);
 	
-	bst.insert(35);
-	bst.insert(65);
-	bst.insert(70);
-	bst.insert(80);
-	bst.insert(68);
-	bst.insert(90);
-	bst.printTree();
+	// bst.insert(35);
+	// bst.insert(65);
+	// bst.insert(70);
+	// bst.insert(80);
+	// bst.insert(68);
+	// bst.insert(90);
+	// bst.printTree();
 
-	input = -1;
-	while (input)
-	{
-		cout << "delete number: ";
-		cin >> input;
-		if (input) {
-			bst.deleteNode(input);
-			bst.printTree();
-		}
-	}
+	// input = -1;
+	// while (input)
+	// {
+	// 	cout << "delete number: ";
+	// 	cin >> input;
+	// 	if (input) {
+	// 		bst.deleteNode(input);
+	// 		bst.printTree();
+	// 	}
+	// }
 
-    bst.printTree();
-
+    // bst.printTree();
 }

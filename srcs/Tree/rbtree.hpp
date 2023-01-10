@@ -33,6 +33,7 @@ using std::setw;
  *		_delete
  *		_rbDeleteFix
  *		_deleteLeaf
+ *		_updateSentinel
  *		_transplantData
  *		_recolor
  *		_swapColor
@@ -52,6 +53,8 @@ using std::setw;
  *		max
  *		getHeight
  *		printTree
+ *		printSuccessor
+ *		printPredecessor
  *		printLevel
  *		displayLevel
  */
@@ -92,6 +95,7 @@ private:
 	Node* _root;
 	Node* _end;
 	Node* _NIL;
+	Node* _sentinel;
 
 /*************************************************/
 
@@ -102,6 +106,7 @@ public:
 	{
 		_end = _createNode(0, false);
 		_NIL = _createNode(0, false);
+		_sentinel = _createNode(0, false);
 		_setRoot(_end);
 	}
 
@@ -136,10 +141,15 @@ private:
 		}
 	}
 
+	void _getRoot( )
+	{
+		return _root;
+	}
+
 	void _deleteRoot(  )
 	{
 		delete _root;
-		_end->left = _NIL;
+		_end->left = _end;
 	}
 
 	void _insertRight( Node* parent, Node* child)
@@ -302,9 +312,7 @@ private:
 
 		if (isNil(node))
 			return ;
-
-		cout << "Starting deletion on node " << node->data \
-		<< " of color " << node->red << " with parent " << node->parent->data << endl; 
+ 
 		if (!isNil(node->right) || !isNil(node->left))
 		{
 			if (isNil(node->right) || isNil(node->left))
@@ -424,12 +432,17 @@ private:
 			wasRed = leaf->red;
 			_unlinkFromParent(leaf);
 			if (_root == leaf)
-				_root = _NIL;
+				_root = _end;
 			delete leaf;
 		}
-		return wasRed;
-		
-		
+		return wasRed;	
+	}
+
+	void _updateSentinel( )
+	{
+		_sentinel->left = min(_root);
+		_sentinel->right = max(_root);
+		_sentinel->parent = _end;
 	}
 
 	// Replace <dst>'s data with <src>'s
@@ -516,24 +529,28 @@ public:
 		Node* node = _createNode(data, true);
 
 		// if tree is empty, new node becomes root
-		if (isNil(_root) || _root == _end) {
+		if (isNil(_root) || _root == _end) 
+		{
 			_setRoot(node);
-			return node;
+			node = node;
 		}
-		return _insert(_root, node);	
+		else
+		{
+			node =  _insert(_root, node);
+		}
+		_updateSentinel();
+		return node;
 	}
 
 	void deleteNode( const Key & data )
 	{
 		Node* node = findNode(_root, data);
-		Node* preNode;
-		Node* child = NULL;
 		
 		if (isNil(node))
 			return;
 
-		cout << "Found delete node which is " << node->data << " with parent " << node->parent->data << endl;
 		_delete(node);
+		_updateSentinel();
 	}
 
 	Node* findNode(Node* root, const Key & data ) {
@@ -548,6 +565,26 @@ public:
 	}
 
 	// TODO
+	Node* inorderPre( Node* node )
+	{
+		if (isNil(node))
+			return node;
+		if (!isNil(node->left))
+			return max(node->left);
+		if (node == _sentinel->left)
+			return _end;
+		else
+		{
+			// While the node is a left child, keep going.
+			while (!isNil(node->parent) && node == node->parent->left)
+			{
+				node = node->parent;
+			}
+			return node->parent;
+		}
+	}
+
+	/*
 	Node* inorderPre( Node* root )
 	{
 		if (isNil(root))
@@ -555,14 +592,36 @@ public:
 		return max(root->left);
 
 	}
+	*/
 
 	// TODO
-	Node* inorderSucc( Node* root )
+	Node* inorderSucc( Node* node )
 	{
-		if (isNil(root))
-			return root;
-		return min(root->right);
+		if (isNil(node))
+			return node;
+		if (!isNil(node->right))
+			return min(node->right);
+		if (node == _sentinel->right)
+			return _end;
+		else
+		{
+			// While the node is a right child, keep going.
+			while (!isNil(node->parent) && node == node->parent->right)
+			{
+				node = node->parent;
+			}
+			return node->parent;
+		}
 	}
+	
+	/*
+	Node* inorderSucc( Node* node )
+	{
+		if (isNil(node))
+			return node;
+		return min(node->right);
+	}
+	*/
 
 	bool isNil( const Node* node )
 	{
@@ -621,7 +680,51 @@ public:
 		}
 		cout << "___" << endl;
 	}
-		
+
+	void printSuccessor( Key & data )
+	{
+		Node* node = findNode(_root, data);
+
+		if (isNil(node))
+		{
+			cout << "Couldn't find node of data " << data << endl;
+		}
+		else
+		{
+			node = inorderSucc(node);
+			if (node == _end)
+			{
+				cout << "Successor is the end" << endl;
+			}
+			else
+			{
+				cout << "Successor is node " << node->data << endl;
+			}
+		}
+	}
+
+	void printPredecessor( Key & data )
+	{
+		Node* node = findNode(_root, data);
+
+		if (isNil(node))
+		{
+			cout << "Couldn't find node of data " << data << endl;
+		}
+		else
+		{
+			node = inorderPre(node);
+			if (node == _end)
+			{
+				cout << "Predecessor is the end" << endl;
+			}
+			else
+			{
+				cout << "Predecessor is node " << node->data << endl;
+			}
+		}
+	}
+
 	void printLevel(int level)
 	{
 		Node* temp = _root;

@@ -35,7 +35,7 @@ _HEAD	= $(D_INC)/iterator.hpp			\
 		  $(D_MAP)/map.hpp				\
 		  \
 		  $(D_TREE)/rbtree.hpp			\
-		  $(D_TREE)/rbtree_iterator.hpp		\
+		  $(D_TREE)/rbtreeIterator.hpp		\
 
 HEAD	= $(_HEAD)
 

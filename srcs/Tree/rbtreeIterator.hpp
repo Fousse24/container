@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   rbtree_iterator.hpp                                 :+:      :+:    :+:   */
+/*   rbtreeIterator.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RBTREE_ITERATOR_HPP
-#define RBTREE_ITERATOR_HPP
+#ifndef rbtreeIterator_HPP
+#define rbtreeIterator_HPP
 
 #include <iterator>
 #include <limits>
@@ -27,7 +27,7 @@ namespace ft
 {
 
 template <class M>
-class rbtree_iterator : public ft::iterator<std::bidirectional_iterator_tag, typename M::value_type
+class rbtreeIterator : public ft::iterator<std::bidirectional_iterator_tag, typename M::value_type
 							,typename M::pointer, typename M::reference, typename M::difference_type>
 {
 public:
@@ -38,32 +38,35 @@ public:
 	typedef typename M::difference_type 				difference_type;
 	typedef typename M::size_type						size_type;
 	
-	typedef rbtree<value_type>			t_rbtree;
-	typedef typename t_rbtree::node		node_type;
-	typedef typename t_rbtree::node*	node_pointer;
+	typedef RBTree<value_type>			t_rbtree;
+	typedef typename t_rbtree::Node		node_type;
+	typedef typename t_rbtree::Node*	node_pointer;
+
+	friend class rbtreeIterator;
 
 protected:
 	t_rbtree*		rbtree;
 	node_pointer	_node;
 
 public:
-	rbtree_iterator<M>() : rbtree(NULL), _node(node_pointer()) {  };
+	rbtreeIterator<M>() : rbtree(NULL), _node(node_pointer()) {  };
 
-	rbtree_iterator<M>( t_rbtree* t) { rbtree = t; };
-	rbtree_iterator<M>( t_rbtree* t, node_pointer n ) { rbtree = t; _node = n; };
+	rbtreeIterator<M>( t_rbtree* t) { rbtree = t; };
+	rbtreeIterator<M>( t_rbtree* t, node_pointer n ) { rbtree = t; _node = n; };
 
-	rbtree_iterator<M>(const rbtree_iterator<M>& it) { *this = it; };
+	rbtreeIterator<M>(const rbtreeIterator<M>& it) { *this = it; };
 
 	template <class T>
-	rbtree_iterator<M>( const rbtree_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const M>, bool>::type = 0) 
+	rbtreeIterator<M>( const rbtreeIterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const M>, bool>::type = 0) 
 	{ 
+		// TODO ?
 		this->_node = it.get_node(); 
 		this->rbtree = it.rbtree;
 	}
 	
-	~rbtree_iterator<M>() {  };
+	~rbtreeIterator<M>() {  };
 
-	rbtree_iterator<M>& operator=( const rbtree_iterator<M>& it )
+	rbtreeIterator<M>& operator=( const rbtreeIterator<M>& it )
 	{
 		this->_node = it._node;
 		this->rbtree = it.rbtree;
@@ -75,65 +78,65 @@ public:
 	reference		operator*() const		{ return *base(); };
 	pointer			operator->() const		{ return base(); };
 
-	rbtree_iterator	begin(t_rbtree* t)
+	rbtreeIterator	begin(t_rbtree* t)
 	{
 		rbtree = t;
 		_node = t->min(t->getRoot());
 		return (*this);
 	}
 
-	rbtree_iterator	end(t_rbtree* t)
+	rbtreeIterator	end(t_rbtree* t)
 	{
 		rbtree = t;
 		_node = t->getEnd();
 		return (*this);
 	}
 
-	rbtree_iterator<M>& operator++()
+	rbtreeIterator<M>& operator++()
 	{ 
 		_increment();
 		return *this;
 	};
 
-	rbtree_iterator<M>& operator--()
+	rbtreeIterator<M>& operator--()
 	{ 
 		_decrement();
 		return *this;
 	};
 	
-	rbtree_iterator<M> operator++( int )
+	rbtreeIterator<M> operator++( int )
 	{
-		rbtree_iterator<M> ori = *this;
+		rbtreeIterator<M> ori = *this;
 		++(*this);
 		return ori;
 	};
 
-	rbtree_iterator<M> operator--( int )
+	rbtreeIterator<M> operator--( int )
 	{
-		rbtree_iterator<M> ori = *this;
+		rbtreeIterator<M> ori = *this;
 		--(*this);
 		return ori;
 	};
 
 
-	bool operator==(const rbtree_iterator<M>& it) const
+	bool operator==(const rbtreeIterator<M>& it) const
 	{
 		if (_node == it._node)
 			return true;  
 		return false;
 	};
-	bool operator!=(const rbtree_iterator<M>& it) const { return (!operator==(it)); };
+	bool operator!=(const rbtreeIterator<M>& it) const { return (!operator==(it)); };
 
 	// const overloads
 	template <class T>
-	bool operator==(const rbtree_iterator<T>& it) const
+	bool operator==(const rbtreeIterator<T>& it) const
 	{
 		// if (_node == it._node) // WARNING
 		// 	return true;  
 		return false;
 	};
 	template <class T>
-	bool operator!=(const rbtree_iterator<T>& it) const { return (!operator==(it)); };
+	bool operator!=(const rbtreeIterator<T>& it) const { return (!operator==(it)); };
 	// end const
 
 protected:
