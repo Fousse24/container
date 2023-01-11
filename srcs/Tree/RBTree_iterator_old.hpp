@@ -22,7 +22,6 @@
 #include "iterator.hpp"
 #include "enable_if.hpp"
 #include "rbtree.hpp"
-#include "rbnode.hpp"
 
 namespace ft
 {
@@ -165,12 +164,11 @@ protected:
 	}
 };
 
-template <class M, class Compare = std::less<typename M::value_type>, class Allocator = std::allocator<typename M::value_type > >
+template <class M>
 class RBTree_iterator : public ft::iterator<std::bidirectional_iterator_tag, typename M::value_type
 							,typename M::pointer, typename M::reference, typename M::difference_type>
 {
 public:
-	typedef Allocator                               	allocator_type;
 	typedef typename M::value_type						value_type;
 	typedef typename M::pointer							pointer;
 	typedef typename M::reference						reference;
@@ -179,18 +177,24 @@ public:
 	typedef typename M::size_type						size_type;
 	typedef typename M::value_compare					key_compare;
 	
-	typedef typename ft::RBNode<value_type, allocator_type>*			node_pointer;
-	typedef typename ft::RBNode<const value_type, allocator_type>*	const_node_pointer;
+	typedef RBTree<value_type, key_compare>				rbtree_type;
+	typedef RBTree<const value_type, key_compare>		const_rbtree_type;
+	typedef typename rbtree_type::Node					node_type;
+	typedef typename rbtree_type::Node*					node_pointer;
+	typedef typename const_rbtree_type::Node			const_node_type;
+	typedef typename const_rbtree_type::Node*			const_node_pointer;
 
 protected:
+	rbtree_type*	_rbtree;
 	node_pointer	_node;
 
 public:
-	RBTree_iterator<M>() : _node(node_pointer()) {  };
+	RBTree_iterator<M>() : _rbtree(NULL), _node(node_pointer()) {  };
 
-	RBTree_iterator<M>( node_pointer n ) { _node = n; };
+	RBTree_iterator<M>( rbtree_type* t) { _rbtree = t; };
+	RBTree_iterator<M>( rbtree_type* t, node_pointer n ) { _rbtree = t; _node = n; };
 
-	RBTree_iterator<M>( const_node_pointer n ) { _node = n; };
+	RBTree_iterator<M>( const_rbtree_type* t, const_node_pointer n ) { _rbtree = t; _node = n; };
 
 	RBTree_iterator<M>(const RBTree_iterator<M>& it) { *this = it; };
 
@@ -200,13 +204,22 @@ public:
 		// TODO ?
 		this->_node = it->get_node(); 
 		this->_rbtree = &it->_rbtree;
-	};
+	}
 
+	template <class T>
+	RBTree_iterator<M>( const RBTree_iterator<T>& it, node_pointer n, typename ft::enable_if<ft::is_not_same<T, const M>, bool>::type = 0) 
+	{ 
+		// TODO ?
+		this->_node = n; 
+		this->_rbtree = &it->_rbtree;
+	}
+	
 	~RBTree_iterator<M>() {  };
 
 	RBTree_iterator<M>& operator=( const RBTree_iterator<M>& it )
 	{
 		this->_node = it._node;
+		this->_rbtree = it._rbtree;
 		return *this;
 	}
 
@@ -215,19 +228,19 @@ public:
 	reference		operator*() const		{ return *base(); };
 	pointer			operator->() const		{ return base(); };
 
-	// RBTree_iterator<M>	begin(rbtree_type* t)
-	// {
-	// 	_rbtree = t;
-	// 	_node = _rbtree->begin();
-	// 	return (*this);
-	// }
+	RBTree_iterator<M>	begin(rbtree_type* t)
+	{
+		_rbtree = t;
+		_node = _rbtree->begin();
+		return (*this);
+	}
 
-	// RBTree_iterator<M>	end(rbtree_type* t)
-	// {
-	// 	_rbtree = t;
-	// 	_node = _rbtree->end();
-	// 	return (*this);
-	// }
+	RBTree_iterator<M>	end(rbtree_type* t)
+	{
+		_rbtree = t;
+		_node = _rbtree->end();
+		return (*this);
+	}
 
 	RBTree_iterator<M>& operator++()
 	{ 
@@ -280,29 +293,12 @@ protected:
 
 	void _increment( void )
 	{
-		if (_node == _node->sentinel->right) // sentinel's right is the max
-			_node = _node->sentinel->parent;
-		else if (_node == _node->sentinel->parent) // sentinel's parent is the end
-			return;
-		else
-		{
-			if (_node->right && _node->right->parent == _node)
-			{
-				_node = _node->right;
-			}
-			else
-			{
-				while (_node->parent && _node->parent->right == _node)
-					_node = _node->parent;
-				_node = _node->parent;
-			}
-		}
-		
+		_node = _rbtree->inorderSucc(_node);
 	}
 
 	void _decrement( void )
 	{
-		// _node = _rbtree->inorderPre(_node);
+		_node = _rbtree->inorderPre(_node);
 	}
 };
 
