@@ -1,6 +1,6 @@
 
 # Compilation
-CC		= clang++
+CC		= c++
 CFLAGS	=  -Werror -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++98 #-Werror
 C_OBJ	= $(CC) $(CFLAGS) $(INC) -c $< -o $@
 C_MAIN	= $(CC) $(CFLAGS) $(INC) $(OBJ) $(MAIN) -o $(NAME)
@@ -35,7 +35,7 @@ _HEAD	= $(D_INC)/iterator.hpp			\
 		  $(D_MAP)/map.hpp				\
 		  \
 		  $(D_TREE)/rbtree.hpp			\
-		  $(D_TREE)/rbtreeIterator.hpp		\
+		  $(D_TREE)/RBTree_iterator.hpp		\
 
 HEAD	= $(_HEAD)
 

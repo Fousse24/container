@@ -9,6 +9,8 @@
 #include <iomanip>
 #include <string>
 
+#include "rbnode.hpp"
+
 using std::cout;
 using std::string;
 using std::endl;
@@ -67,42 +69,13 @@ namespace ft {
 template <class Key, class Compare = std::less<Key>, class Allocator = std::allocator<Key> >
 class RBTree {
 
-	typedef Allocator	allocator_type;
-	typedef Compare		key_compare;
+	typedef Allocator							allocator_type;
+	typedef Compare								key_compare;
+	typedef ft::RBNode<Key, allocator_type>		Node;
 
 /* ATTRIBUTES */
 private:
 	allocator_type	_alloc;
-
-public:
-	struct Node 
-	{
-		Key data;
-		Node* left;
-		Node* right;
-		Node* parent;
-		bool red;
-
-		Node(Allocator alloc)
-		{
-			alloc.construct(&data);
-			left = NULL;
-			right = NULL;
-			parent = NULL;
-			red = true;
-		}
-
-		Node(const Key & data)
-		{
-			this->data = data;
-			left = NULL;
-			right = NULL;
-			parent = NULL;
-			red = true;
-		}
-	};
-
-private:
 	Node*			_root;
 	Node*			_end;
 	Node*			_NIL;
@@ -141,15 +114,17 @@ private:
 		Node* node = new Node(data);
 		node->left = _NIL;
 		node->right = _NIL;
+		node->sentinel = _sentinel;
 		node->red = red;
 		return node;
 	}
 
 	Node* _createNode(bool red)
 	{
-		Node* node = new Node(_alloc);
+		Node* node = new Node();
 		node->left = _NIL;
 		node->right = _NIL;
+		node->sentinel = _sentinel;
 		node->red = red;
 		return node;
 	}

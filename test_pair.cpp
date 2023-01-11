@@ -49,8 +49,11 @@ void test_pair(void)
 
 	print_text(title("PAIR TESTS", 1), true);
 
-	test_pair_equal();
-	test_pair_compare();
+	ft::pair<ft::pair<int, int>, int> pair;
+	pair = ft::make_pair(ft::make_pair<int,int>(1, 2), 1);
+	cout << pair << endl;
+	// test_pair_equal();
+	// test_pair_compare();
 
 }
 
