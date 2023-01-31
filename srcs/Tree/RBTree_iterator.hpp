@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RBTree_iterator.hpp                                 :+:      :+:    :+:   */
+/*   rbtree_iterator.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -21,68 +21,51 @@
 #include "iterator_traits.hpp"
 #include "iterator.hpp"
 #include "enable_if.hpp"
-#include "rbtree.hpp"
 #include "rbnode.hpp"
 
 namespace ft
 {
 
-template <class M>
-class RBTree_const_iterator : public ft::iterator<std::bidirectional_iterator_tag, typename M::value_type
-							,typename M::pointer, typename M::reference, typename M::difference_type>
+template <class N>
+class RBTree_iterator : public ft::iterator<std::bidirectional_iterator_tag, typename N::value_type
+							,typename N::pointer, typename N::reference, typename N::difference_type>
 {
 public:
-	typedef typename M::value_type						value_type;
-	typedef typename M::pointer							pointer;
-	typedef typename M::reference						reference;
+	typedef typename N::value_type						value_type;
+	typedef typename N::pointer							pointer;
+	typedef typename N::reference						reference;
 	typedef typename std::bidirectional_iterator_tag	iterator_category;
-	typedef typename M::difference_type 				difference_type;
-	typedef typename M::size_type						size_type;
-	typedef typename M::value_compare					key_compare;
+	typedef typename N::difference_type 				difference_type;
+	typedef typename N::size_type						size_type;
+	// typedef typename N::value_compare					key_compare;
 	
-	typedef RBTree<value_type, key_compare>				rbtree_type;
-	typedef RBTree<const value_type, key_compare>		const_rbtree_type;
-	typedef typename rbtree_type::Node					node_type;
-	typedef typename rbtree_type::Node*					node_pointer;
-	typedef typename const_rbtree_type::Node			const_node_type;
-	typedef typename const_rbtree_type::Node*			const_node_pointer;
+	typedef N*			node_pointer;
+	typedef const N*	const_node_pointer;
 
 protected:
-	rbtree_type*	_rbtree;
 	node_pointer	_node;
 
 public:
-	RBTree_const_iterator<M>() : _rbtree(NULL), _node(node_pointer()) {  };
+	RBTree_iterator() : _node(node_pointer()) {  };
 
-	RBTree_const_iterator<M>( rbtree_type* t) { _rbtree = t; };
-	RBTree_const_iterator<M>( rbtree_type* t, node_pointer n ) { _rbtree = t; _node = n; };
+	RBTree_iterator( node_pointer n ) { _node = n; };
 
-	RBTree_const_iterator<M>( const_rbtree_type* t, const_node_pointer n ) { _rbtree = t; _node = n; };
+	RBTree_iterator( const_node_pointer n ) { _node = n; };
 
-	RBTree_const_iterator<M>(const RBTree_const_iterator<M>& it) { *this = it; };
-
-	template <class T>
-	RBTree_const_iterator<M>( const RBTree_const_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const M>, bool>::type = 0) 
-	{ 
-		// TODO ?
-		this->_node = it->get_node(); 
-		this->_rbtree = &it->_rbtree;
-	}
+	RBTree_iterator(const RBTree_iterator<N>& it) { *this = it; };
 
 	template <class T>
-	RBTree_const_iterator<M>( const RBTree_const_iterator<T>& it, node_pointer n, typename ft::enable_if<ft::is_not_same<T, const M>, bool>::type = 0) 
+	RBTree_iterator( const RBTree_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const N>, bool>::type = 0) 
 	{ 
 		// TODO ?
-		this->_node = n; 
-		this->_rbtree = &it->_rbtree;
-	}
-	
-	~RBTree_const_iterator<M>() {  };
+		this->_node = it.get_node(); 
+	};
 
-	RBTree_const_iterator<M>& operator=( const RBTree_const_iterator<M>& it )
+	~RBTree_iterator() {  };
+
+	RBTree_iterator& operator=( const RBTree_iterator<N>& it )
 	{
 		this->_node = it._node;
-		this->_rbtree = it._rbtree;
 		return *this;
 	}
 
@@ -91,120 +74,106 @@ public:
 	reference		operator*() const		{ return *base(); };
 	pointer			operator->() const		{ return base(); };
 
-	RBTree_const_iterator<M>	begin(rbtree_type* t)
-	{
-		_rbtree = t;
-		_node = _rbtree->begin();
-		return (*this);
-	}
-
-	RBTree_const_iterator<M>	end(rbtree_type* t)
-	{
-		_rbtree = t;
-		_node = _rbtree->end();
-		return (*this);
-	}
-
-	RBTree_const_iterator<M>& operator++()
+	RBTree_iterator<N>& operator++()
 	{ 
-		_increment();
+		_node = _node->next();	
+		// _increment();
 		return *this;
 	};
 
-	RBTree_const_iterator<M>& operator--()
+	RBTree_iterator<N>& operator--()
 	{ 
-		_decrement();
+		_node = _node->prev();
+		// _decrement();
 		return *this;
 	};
 	
-	RBTree_const_iterator<M> operator++( int )
+	RBTree_iterator<N> operator++( int )
 	{
-		RBTree_const_iterator<M> ori = *this;
+		RBTree_iterator<N> ori = *this;
 		++(*this);
 		return ori;
 	};
 
-	RBTree_const_iterator<M> operator--( int )
+	RBTree_iterator<N> operator--( int )
 	{
-		RBTree_const_iterator<M> ori = *this;
+		RBTree_iterator<N> ori = *this;
 		--(*this);
 		return ori;
 	};
 
 
-	bool operator==(const RBTree_const_iterator<M>& it) const
+	bool operator==(const RBTree_iterator<N>& it) const
 	{
 		if (_node == it._node)
 			return true;  
 		return false;
 	};
-	bool operator!=(const RBTree_const_iterator<M>& it) const { return (!operator==(it)); };
+	bool operator!=(const RBTree_iterator<N>& it) const { return (!operator==(it)); };
 
 	// const overloads
 	template <class T>
-	bool operator==(const RBTree_const_iterator<M>& it) const
+	bool operator==(const RBTree_iterator<T>& it) const
 	{
 		if (_node == it._node) // TODO
 			return true;  
 		return false;
 	};
 	template <class T>
-	bool operator!=(const RBTree_const_iterator<M>& it) const { return (!operator==(it)); };
+	bool operator!=(const RBTree_iterator<T>& it) const { return (!operator==(it)); };
 	// end const
 
 protected:
 
-	void _increment( void )
-	{
-		_node = _rbtree->inorderSucc(_node);
-	}
+	// void _increment( void )
+	// {
+	// 	_node = _node->next();		
+	// }
 
-	void _decrement( void )
-	{
-		_node = _rbtree->inorderPre(_node);
-	}
+	// void _decrement( void )
+	// {
+	// 	_node = _node->prev();
+	// }
 };
 
-template <class M, class Compare = std::less<typename M::value_type>, class Allocator = std::allocator<typename M::value_type > >
-class RBTree_iterator : public ft::iterator<std::bidirectional_iterator_tag, typename M::value_type
-							,typename M::pointer, typename M::reference, typename M::difference_type>
+template <class N>
+class RBTree_const_iterator : public ft::iterator<std::bidirectional_iterator_tag, typename N::value_type
+							,typename N::pointer, typename N::reference, typename N::difference_type>
 {
 public:
-	typedef Allocator                               	allocator_type;
-	typedef typename M::value_type						value_type;
-	typedef typename M::pointer							pointer;
-	typedef typename M::reference						reference;
+	typedef typename N::value_type						value_type;
+	typedef typename N::pointer							pointer;
+	typedef typename N::reference						reference;
 	typedef typename std::bidirectional_iterator_tag	iterator_category;
-	typedef typename M::difference_type 				difference_type;
-	typedef typename M::size_type						size_type;
-	typedef typename M::value_compare					key_compare;
+	typedef typename N::difference_type 				difference_type;
+	typedef typename N::size_type						size_type;
+	// typedef typename N::value_compare					key_compare;
 	
-	typedef typename ft::RBNode<value_type, allocator_type>*			node_pointer;
-	typedef typename ft::RBNode<const value_type, allocator_type>*	const_node_pointer;
+	typedef N*			node_pointer;
+	typedef const N*	const_node_pointer;
 
 protected:
 	node_pointer	_node;
 
 public:
-	RBTree_iterator<M>() : _node(node_pointer()) {  };
+	RBTree_const_iterator() : _node(node_pointer()) {  };
 
-	RBTree_iterator<M>( node_pointer n ) { _node = n; };
+	RBTree_const_iterator( node_pointer n ) { _node = n; };
 
-	RBTree_iterator<M>( const_node_pointer n ) { _node = n; };
+	RBTree_const_iterator( const_node_pointer n ) { _node = n; };
 
-	RBTree_iterator<M>(const RBTree_iterator<M>& it) { *this = it; };
+	RBTree_const_iterator(const RBTree_const_iterator<N>& it) { *this = it; };
 
 	template <class T>
-	RBTree_iterator<M>( const RBTree_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const M>, bool>::type = 0) 
+	RBTree_const_iterator( const RBTree_const_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const N>, bool>::type = 0) 
 	{ 
 		// TODO ?
 		this->_node = it->get_node(); 
-		this->_rbtree = &it->_rbtree;
 	};
 
-	~RBTree_iterator<M>() {  };
+	~RBTree_const_iterator() {  };
 
-	RBTree_iterator<M>& operator=( const RBTree_iterator<M>& it )
+	RBTree_const_iterator& operator=( const RBTree_const_iterator<N>& it )
 	{
 		this->_node = it._node;
 		return *this;
@@ -215,95 +184,67 @@ public:
 	reference		operator*() const		{ return *base(); };
 	pointer			operator->() const		{ return base(); };
 
-	// RBTree_iterator<M>	begin(rbtree_type* t)
-	// {
-	// 	_rbtree = t;
-	// 	_node = _rbtree->begin();
-	// 	return (*this);
-	// }
 
-	// RBTree_iterator<M>	end(rbtree_type* t)
-	// {
-	// 	_rbtree = t;
-	// 	_node = _rbtree->end();
-	// 	return (*this);
-	// }
-
-	RBTree_iterator<M>& operator++()
+	RBTree_const_iterator<N>& operator++()
 	{ 
-		_increment();
+		_node = _node->next();	
+		// _increment();
 		return *this;
 	};
 
-	RBTree_iterator<M>& operator--()
+	RBTree_const_iterator<N>& operator--()
 	{ 
-		_decrement();
+		_node = _node->prev();
+		// _decrement();
 		return *this;
 	};
 	
-	RBTree_iterator<M> operator++( int )
+	RBTree_const_iterator<N> operator++( int )
 	{
-		RBTree_iterator<M> ori = *this;
+		RBTree_const_iterator<N> ori = *this;
 		++(*this);
 		return ori;
 	};
 
-	RBTree_iterator<M> operator--( int )
+	RBTree_const_iterator<N> operator--( int )
 	{
-		RBTree_iterator<M> ori = *this;
+		RBTree_const_iterator<N> ori = *this;
 		--(*this);
 		return ori;
 	};
 
 
-	bool operator==(const RBTree_iterator<M>& it) const
+	bool operator==(const RBTree_const_iterator<N>& it) const
 	{
 		if (_node == it._node)
 			return true;  
 		return false;
 	};
-	bool operator!=(const RBTree_iterator<M>& it) const { return (!operator==(it)); };
+	bool operator!=(const RBTree_const_iterator<N>& it) const { return (!operator==(it)); };
 
 	// const overloads
 	template <class T>
-	bool operator==(const RBTree_iterator<M>& it) const
+	bool operator==(const RBTree_const_iterator<N>& it) const
 	{
 		if (_node == it._node) // TODO
 			return true;  
 		return false;
 	};
 	template <class T>
-	bool operator!=(const RBTree_iterator<M>& it) const { return (!operator==(it)); };
+	bool operator!=(const RBTree_const_iterator<N>& it) const { return (!operator==(it)); };
 	// end const
 
 protected:
 
-	void _increment( void )
-	{
-		if (_node == _node->sentinel->right) // sentinel's right is the max
-			_node = _node->sentinel->parent;
-		else if (_node == _node->sentinel->parent) // sentinel's parent is the end
-			return;
-		else
-		{
-			if (_node->right && _node->right->parent == _node)
-			{
-				_node = _node->right;
-			}
-			else
-			{
-				while (_node->parent && _node->parent->right == _node)
-					_node = _node->parent;
-				_node = _node->parent;
-			}
-		}
-		
-	}
+	// void _increment( void )
+	// {
+	// 	_node = _node->next();		
+	// }
 
-	void _decrement( void )
-	{
-		// _node = _rbtree->inorderPre(_node);
-	}
+	// void _decrement( void )
+	// {
+	// 	_node = _node->prev();
+	// }
 };
 
 }

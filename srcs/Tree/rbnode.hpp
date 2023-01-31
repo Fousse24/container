@@ -7,68 +7,28 @@
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
-#include <string>
-
-
-/*
- * ATTRIBUTES
- *
- * CONSTRUCTORS
- *
- * PRIVATE FUNCTIONS
- *		_createNode
- *		_setRoot
- *		_deleteRoot
- *		_insertRight
- *		_insertLeft
- *		_rotateRight
- *		_rotateLeft
- *		_unlinkFromParent
- *		_insert
- *		_rbInsertFix
- *		_delete
- *		_rbDeleteFix
- *		_deleteLeaf
- *		_updateSentinel
- *		_transplantData
- *		_recolor
- *		_swapColor
- *		_giveParent
- *		_getFarNiece
- *		_getCloseNiece
- *		_getSibling
- *
- * PUBLIC FUNCTIONS
- *		getRoot
- *		insert
- *		deleteNode
- *		findNode
- *		inorderPre
- *		inorderSucc
- *		isNil
- *		min
- *		max
- *		begin
- *		end
- *		getHeight
- *		printTree
- *		printSuccessor
- *		printPredecessor
- *		printLevel
- *		displayLevel
- */
+#include "ft_lib.hpp"
 
 namespace ft {
 
-template <class Key, class Allocator = std::allocator<Key> >
+template <class T, class Compare = std::less<T>, class Allocator = std::allocator<T> >
 class RBNode {
-
-	typedef Allocator	allocator_type;
+public:
+	typedef Allocator                               		allocator_type;
+	typedef Compare											key_compare;
+	typedef typename allocator_type::value_type       		value_type;
+	typedef typename allocator_type::size_type      		size_type;
+	typedef typename allocator_type::difference_type		difference_type;
+	typedef typename allocator_type::reference      		reference;
+	typedef typename allocator_type::const_reference		const_reference;
+	typedef typename allocator_type::pointer        		pointer;
+	typedef typename allocator_type::const_pointer			const_pointer;
 
 private:
 	allocator_type	_alloc;
+	key_compare comp_;
 public:
-	Key data;
+	T data;
 	RBNode* left;
 	RBNode* right;
 	RBNode* parent;
@@ -85,7 +45,7 @@ public:
 		red = true;
 	}
 
-	RBNode(const Key & data): data(data)
+	RBNode(const T & data): data(data)
 	{
 		// this->data = data;
 		left = NULL;
@@ -95,11 +55,105 @@ public:
 		red = true;
 	}
 
+	RBNode( const RBNode& rhs )
+	{
+		*this = rhs;
+	}
+
 	~RBNode()
 	{
 		_alloc.destroy(&data);
 	}
+
+	RBNode& operator=( const RBNode& rhs )
+	{
+		data = rhs.data;
+		left = rhs.left;
+		right = rhs.right;
+		parent = rhs.parent;
+		sentinel = rhs.sentinel;
+		red = rhs.red;
+		return *this;
+	}
+
+	RBNode* next( void )
+	{
+		RBNode* save;
+
+		if (this == this->sentinel->right) // sentinel's right is the max
+			return this->sentinel->parent;
+		else if (this == this->sentinel->parent) // sentinel's parent is the end
+			return this;
+		else
+		{
+			// if you have a right child, return right child
+			if (this->right && this->right->parent == this)
+			{
+				return this->right;
+			}
+			else
+			{
+				// while you are a right child, iterate on the parent
+				save = this;
+				while (save->parent && save->parent->right == save)
+					save = save->parent;
+				return save->parent;
+			}
+		}
+		
+	}
+
+	RBNode* prev( void )
+	{
+		RBNode* save;
+
+		if (this == this->sentinel->left) // sentinel's left is the max
+			return this->sentinel->parent;
+		else if (this == this->sentinel->parent) // sentinel's parent is the end
+			return this;
+		else
+		{
+			// if you have a left child, return left child
+			if (this->left && this->left->parent == this)
+			{
+				return this->left;
+			}
+			else
+			{
+				// while you are a left child, iterate on the parent
+				save = this;
+				while (save->parent && save->parent->left == save)
+					save = save->parent;
+				return save->parent;
+			}
+		}
+	}
 };
-};
+
+template< class T, class Compare, class Alloc >
+bool operator==( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
+{ return (lhs.data == rhs.data); }
+
+template< class T, class Compare, class Alloc >
+bool operator<( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
+{ return (Compare(lhs.data, rhs.data)); }
+
+template< class T, class Compare, class Alloc >
+bool operator!=( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
+{ return !(lhs == rhs); }
+
+template< class T, class Compare, class Alloc >
+bool operator>( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
+{ return !(lhs < rhs) && lhs != rhs; }
+
+template< class T, class Compare, Compare, class Alloc >
+bool operator>=( const ft::RBNode<T, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
+{ return !(lhs < rhs); }
+
+template< class T, class Compare, Compare, class Alloc >
+bool operator<=( const ft::RBNode<T, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
+{ return !(lhs > rhs); }
+
+}
 
 #endif

@@ -9,7 +9,9 @@
 #include <iomanip>
 #include <string>
 
+#include "rbtree_iterator.hpp"
 #include "rbnode.hpp"
+#include "pair.hpp"
 
 using std::cout;
 using std::string;
@@ -66,12 +68,28 @@ using std::setw;
 
 namespace ft {
 
-template <class Key, class Compare = std::less<Key>, class Allocator = std::allocator<Key> >
+template <class T, class Compare = std::less<T>, class Allocator = std::allocator<T> >
 class RBTree {
 
-	typedef Allocator							allocator_type;
-	typedef Compare								key_compare;
-	typedef ft::RBNode<Key, allocator_type>		Node;
+public:
+	typedef Allocator                               	allocator_type;
+	typedef Compare										key_compare;
+	typedef T											value_type;
+	typedef typename allocator_type::reference      	reference;
+	typedef typename allocator_type::const_reference	const_reference;
+	typedef typename allocator_type::pointer        	pointer;
+	typedef typename allocator_type::const_pointer		const_pointer;
+	typedef typename allocator_type::size_type      	size_type;
+	typedef typename allocator_type::difference_type	difference_type;
+
+	typedef ft::RBNode<T, allocator_type>				Node;
+
+	typedef ft::RBTree_iterator<Node> 					iterator;
+	typedef ft::RBTree_const_iterator<Node>				const_iterator;
+	typedef ft::reverse_iterator<iterator>				reverse_iterator;
+	typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
+
+	
 
 /* ATTRIBUTES */
 private:
@@ -80,15 +98,17 @@ private:
 	Node*			_end;
 	Node*			_NIL;
 	Node*			_sentinel;
-	key_compare		compare;
+	key_compare		_comp;
+	size_type		_size;
 
 /*************************************************/
 
 
 /* CONSTRUCTORS & DESTRUCTOR */
 public:
-	RBTree()
+	RBTree() : _comp()
 	{
+		_size = 0;
 		_alloc = allocator_type();
 		_end = _createNode(false);
 		_NIL = _createNode(false);
@@ -109,7 +129,7 @@ public:
 
 /* PRIVATE FUNCTIONS */
 private:
-	Node* _createNode(const Key & data, bool red)
+	Node* _createNode(const T & data, bool red)
 	{
 		Node* node = new Node(data);
 		node->left = _NIL;
@@ -225,7 +245,7 @@ private:
 	{
 		if (node->data == root->data)
 			return root;
-		if (compare(node->data, root->data))
+		if (value_comp()(node->data, root->data))
 		{
 			if (isNil(root->left))
 			{
@@ -236,7 +256,7 @@ private:
 				return _insert(root->left, node);
 			}
 		}
-		else if (!compare(node->data, root->data))
+		else if (!value_comp()(node->data, root->data))
 		{
 			if (isNil(root->right))
 			{
@@ -307,7 +327,8 @@ private:
 				_rbInsertFix(grandP);
 			}
 		}
-	_root->red = false;
+		_size++;
+		_root->red = false;
 	}
 
 	// BST deletion, FIX if deleted node was black
@@ -346,6 +367,7 @@ private:
 		if (!node->red)
 			_rbDeleteFix(node);
 		_deleteLeaf(node);
+		_size--;
 		return ;
 		/**/
 	}
@@ -527,7 +549,7 @@ public:
 		return _root;
 	}
 
-	Node* insert( const Key & data )
+	Node* insert( const T & data )
 	{
 		Node* node = _createNode(data, true);
 
@@ -544,7 +566,7 @@ public:
 		return node;
 	}
 
-	void deleteNode( const Key & data )
+	void deleteNode( const T & data )
 	{
 		Node* node = findNode(_root, data);
 		
@@ -555,12 +577,22 @@ public:
 		_updateSentinel();
 	}
 
-	Node* findNode(Node* root, const Key & data ) {
+	key_compare& value_comp()
+    {
+        return _comp;
+    }
+
+    const key_compare& value_comp() const
+    {
+        return _comp;
+    }
+
+	Node* findNode(Node* root, const T & data ) {
 		if (isNil(root))
 			return root;
-		if (root->data == data)
+		if (!value_comp()(root->data, data) && !value_comp()(data, root->data))
 			return root;
-		if (compare(root->data, data))
+		if (value_comp()(root->data, data))
 			return findNode(root->right, data);
 		else
 			return findNode(root->left, data);
@@ -633,16 +665,116 @@ public:
 		return root;
 	}
 
-	Node* begin()
-	{
-		return _sentinel->left;
-	}
+	allocator_type get_allocator() const { return Allocator(); };
+	
+	// iterator	
+	iterator		begin()			{ return iterator(min(_root)); };
+	const_iterator	begin() const	{ return const_iterator(min(_root)); };
 
-	Node* end()
-	{
-		return _end;
-	}
+	iterator		end() 			{ return iterator(_end); };
+	const_iterator	end() const 	{ return const_iterator(_end);};
+	
+	reverse_iterator       rbegin()			{ return reverse_iterator(_sentinel->right); };
+	const_reverse_iterator rbegin() const 	{ return const_reverse_iterator(_sentinel->right); };
+	reverse_iterator       rend() 			{ return reverse_iterator(_sentinel->left); };
+	const_reverse_iterator rend() const 	{ return const_reverse_iterator(_sentinel->left); };
+	// iterator end
 
+	/* Capacity */
+	bool 		empty() const	{ return (_size <= 0 ? true : false); };
+	size_type	size() const { return _size; };
+	size_type	max_size() const { return std::min(TO_SIZE(std::numeric_limits<difference_type>::max()), _alloc.max_size()) ; };
+
+	/* Capacity end */
+
+
+	/* Modifier */
+	void clear()
+	{
+		// iterator end_ = end();
+		// iterator begin_ = begin();
+		
+		// if (!_tree || begin_ == end_)
+		// 	return ;
+
+		// for (; begin_ < end_; begin_++)
+		// {
+		// 	_allocator.destroy(begin_.base());	
+		// }
+		// _size = 0;
+	};
+
+	// ft::pair<iterator, bool> insert(const value_type& t)
+	// {
+	// 	t_node*	node;
+		
+	// 	node = _tree.findNode(_tree.getRoot(), t);
+	// 	if (node)
+	// 		return ft::make_pair(iterator(&_tree, node), false);
+			
+	// 	node = _tree.insert(t);
+	// 	if (!node)
+	// 		return ft::make_pair(iterator(&_tree, node), false);
+	// 	_size++;
+	// 	return ft::make_pair(iterator(&_tree, node), true);
+		
+	// };
+
+	// iterator insert( iterator, const value_type& value ) // WARNING
+	// {
+	// 	return (insert(value).first);
+	
+	// }
+
+	// template<class Iter>
+	// void insert(Iter first, Iter last) // change to input only
+	// {
+	// 	while (first != last)
+	// 	{
+	// 		insert(*first);
+	// 		++first;
+	// 	}
+	// 	return ;
+	// };
+	
+	// void erase(iterator pos)
+	// {
+	// 	erase((*pos).first);
+	// };
+
+	// size_type	erase(const key_type& key)
+	// {
+	// 	int	deleted;
+
+	// 	deleted = _tree.deleteNode(ft::make_pair(key, mapped_type()));
+	// 	_size -= deleted;
+	// 	return (size_type)deleted;
+	// }
+
+	// void erase(iterator first, iterator last)
+	// {
+	// 	while (first != last)
+	// 	{
+	// 		erase((*first).first);
+	// 		++first;
+	// 	}
+	// };
+
+	// void swap(map & other)
+	// {
+	// 	Node*		save;
+	// 	size_type	size_;
+
+	// 	save = other._tree.getRoot();
+	// 	size_ = other.size();
+
+	// 	other._size = _size;
+	// 	other._tree._setRoot(_tree.getRoot());
+
+	// 	_size = size_;
+	// 	_tree._setRoot(save);
+	// }
+	
 	int getHeight(const Node* root, int height)
 	{
 		int leftH = 0;
@@ -676,7 +808,7 @@ public:
 		cout << "___" << endl;
 	}
 
-	void printSuccessor( Key & data )
+	void printSuccessor( value_type & data )
 	{
 		Node* node = findNode(_root, data);
 
@@ -698,7 +830,7 @@ public:
 		}
 	}
 
-	void printPredecessor( Key & data )
+	void printPredecessor( value_type & data )
 	{
 		Node* node = findNode(_root, data);
 
@@ -768,7 +900,44 @@ public:
 	}
 
 	/*************************************************/
+
 };
 
+template< class T, class Alloc >
+bool operator==( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>& rhs)
+{
+	if (lhs.size() != rhs.size())
+		return false;
+	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 }
+
+template< class T, class Alloc >
+bool operator!=( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>& rhs)
+{ return !(lhs == rhs); }
+
+template< class T, class Alloc >
+bool operator>( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>&rhs)
+{ return !(lhs < rhs) && lhs != rhs; }
+
+template< class T, class Alloc >
+bool operator<( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>&rhs)
+{ return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end())); }
+
+template< class T, class Alloc >
+bool operator>=( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>&rhs)
+{ return !(lhs < rhs); }
+
+template< class T, class Alloc >
+bool operator<=( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>&rhs)
+{ return !(lhs > rhs); }
+
+// template< class T, class Alloc>
+// void swap(map<T, Alloc> & lhs, map<T, Alloc> & rhs)
+// 	{
+// 		lhs.swap(rhs);
+// 	}
+
+}  
+
+
 #endif

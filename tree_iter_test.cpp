@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <iostream>
-#include "srcs/Tree/RBTree_iterator.hpp"
+#include "srcs/Tree/rbtree_iterator.hpp"
 #include "srcs/Tree/rbtree.hpp"
 
 using std::cout;
@@ -19,7 +19,11 @@ using std::endl;
 
 
 int main() {
+	ft::RBTree_iterator<class M>
 	ft::RBTree<int> bst;
+
+
 	bst.insert(4);
 	bst.insert(7);
 	bst.insert(3);
+
