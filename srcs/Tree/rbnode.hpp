@@ -80,12 +80,12 @@ public:
 	{
 		RBNode* save;
 
-		if (this == this->sentinel->right) // sentinel's right is the max
-			return this->sentinel->parent;
-		else if (this == this->sentinel->parent) // sentinel's parent is the end
-			return this;
-		else
-		{
+		// if (this == this->sentinel->right) // sentinel's right is the max
+		// 	return this->sentinel->parent;
+		// else if (this == this->sentinel->parent) // sentinel's parent is the end
+		// 	return this;
+		// else
+		// {
 			// if you have a right child, return right child
 			if (this->right && this->right->parent == this)
 			{
@@ -99,7 +99,7 @@ public:
 					save = save->parent;
 				return save->parent;
 			}
-		}
+		// }
 		
 	}
 
@@ -153,6 +153,13 @@ bool operator>=( const ft::RBNode<T, Alloc>& lhs, const ft::RBNode<T, Compare, A
 template< class T, class Compare, Compare, class Alloc >
 bool operator<=( const ft::RBNode<T, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
 { return !(lhs > rhs); }
+
+template< class T >
+std::ostream & operator<<( std::ostream & os, const ft::RBNode<T>& rhs ) 
+{ 
+	os << rhs.data;
+	return os;
+}
 
 }
 

@@ -37,16 +37,14 @@ void	print_map(map<T1, T2>& m)
 	typename map<T1, T2>::iterator it;
 
 	cout << "Tree key values in order:" << endl;
-	for (it = m.end(); it != m.begin(); --it)
-		cout << " " << *it << endl; // YOU ARE HERE
-	for (it = m.begin(); it != m.end(); it++)
-		cout << " " << *it << endl;
-	// m._tree.print_tree();
+	// for (it = m.end(); it != m.begin(); --it)
+	// 	cout << " " << *it << endl; // YOU ARE HERE
+	// for (it = m.begin(); it != m.end(); it++)
+	// 	cout << " " << *it << endl;
 	it = m.begin();
-
 	for (; it != m.end(); it++)
 		cout << "Key: " << (*it).first + " | Value: " << (*it).second << endl;
-	cout << "Key: " << (*m.begin()).first + " | Value: " << (*m.begin()).second << endl;
+	// cout << "Key: " << (*m.begin()).first + " | Value: " << (*m.begin()).second << endl;
 
 	
 }

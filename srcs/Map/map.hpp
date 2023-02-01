@@ -23,6 +23,7 @@
 #include "iterator_traits.hpp"
 // #include "map_iterator.hpp"
 #include "rbtree_iterator.hpp"
+#include "rbnode.hpp"
 #include "enable_if.hpp"
 #include "pair.hpp"
 #include "ft_lib.hpp"
@@ -140,13 +141,13 @@ public:
 		}
 	};
 
-	typedef RBTree<value_type, value_compare, Allocator>					tree_type;
+	typedef RBTree<value_type, value_compare, Allocator>	tree_type;
 	typedef typename tree_type::Node						node_type;
 	typedef node_type*										node_ptr;
-	typedef ft::RBTree_iterator<node_type> 					iterator;
-	typedef ft::RBTree_const_iterator<node_type>			const_iterator;
-	typedef ft::reverse_iterator<iterator>					reverse_iterator;
-	typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
+	typedef typename tree_type::iterator 					iterator;
+	typedef typename tree_type::const_iterator				const_iterator;
+	typedef typename tree_type::reverse_iterator			reverse_iterator;
+	typedef typename tree_type::const_reverse_iterator		const_reverse_iterator;
 
 
 	// class value_compare : public std::binary_function<value_type, value_type, bool>

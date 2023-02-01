@@ -589,7 +589,7 @@ public:
 
 	Node* findNode(Node* root, const T & data ) {
 		if (isNil(root))
-			return root;
+			return NULL;
 		if (!value_comp()(root->data, data) && !value_comp()(data, root->data))
 			return root;
 		if (value_comp()(root->data, data))
@@ -774,38 +774,17 @@ public:
 	// 	_size = size_;
 	// 	_tree._setRoot(save);
 	// }
-	
-	int getHeight(const Node* root, int height)
-	{
-		int leftH = 0;
-		int rightH = 0;
-
-		if (isNil(root))
-		{
-			return height - 1;
-		} 
-		else {
-			leftH = getHeight(root->left, height + 1);
-			rightH = getHeight(root->right, height + 1);
-			if (leftH > rightH || leftH == rightH) 
-			{
-				return leftH;
-			} 
-			else 
-			{
-				return rightH;
-			}
-		}
-	}
 
 	void printTree()
 	{
-		for (int level = 0; level <= getHeight(_root, 0); level++)
+		Node*	node;
+		cout << "Printing tree in order" << endl;
+		node = _sentinel->left;
+		while (!isNil(node))
 		{
-			printLevel(level);
-			cout << endl;
+			cout << node->data << endl;
+			node = inorderSucc(node);
 		}
-		cout << "___" << endl;
 	}
 
 	void printSuccessor( value_type & data )
@@ -852,53 +831,6 @@ public:
 		}
 	}
 
-	void printLevel(int level)
-	{
-		Node* temp = _root;
-		int depth = pow(2, getHeight(_root, 0) - level + 2);
-
-		cout << setw(depth) << "";
-		displayLevel(temp, level, depth);
-	}
-		
-	void displayLevel(Node* node, int level, int depth)
-	{
-		int disp = 2 * depth;
-		if (level == 0)
-		{
-			if (isNil(node))
-			{
-				cout << " x ";
-				cout << setw(disp - 3) << "";
-				return;
-			}
-			else 
-			{
-				int result = ((node->data <= 1) ? 1 : log10(node->data) + 1);
-				if (node->red)
-					cout << "\033[1;31m";
-				else
-					cout << "\033[1;37m";
-				cout << " " << node->data << " ";
-				cout << setw(disp - result-2) << "";
-				cout << "\033[0m";
-			}
-		}
-		else
-		{
-			if (isNil(node) && level >= 1)
-			{
-				displayLevel(NULL, level - 1, depth);
-				displayLevel(NULL, level - 1, depth);
-			}
-			else
-			{
-				displayLevel(node->left, level - 1, depth);
-				displayLevel(node->right, level - 1, depth);
-			}
-		}
-	}
-
 	/*************************************************/
 
 };
@@ -941,3 +873,128 @@ bool operator<=( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>&rhs
 
 
 #endif
+
+
+// int getHeight(const Node* root, int height)
+// 	{
+// 		int leftH = 0;
+// 		int rightH = 0;
+
+// 		if (isNil(root))
+// 		{
+// 			return height - 1;
+// 		} 
+// 		else {
+// 			leftH = getHeight(root->left, height + 1);
+// 			rightH = getHeight(root->right, height + 1);
+// 			if (leftH > rightH || leftH == rightH) 
+// 			{
+// 				return leftH;
+// 			} 
+// 			else 
+// 			{
+// 				return rightH;
+// 			}
+// 		}
+// 	}
+
+// 	void printTree()
+// 	{
+// 		for (int level = 0; level <= getHeight(_root, 0); level++)
+// 		{
+// 			printLevel(level);
+// 			cout << endl;
+// 		}
+// 		cout << "___" << endl;
+// 	}
+
+// 	void printSuccessor( value_type & data )
+// 	{
+// 		Node* node = findNode(_root, data);
+
+// 		if (isNil(node))
+// 		{
+// 			cout << "Couldn't find node of data " << data << endl;
+// 		}
+// 		else
+// 		{
+// 			node = inorderSucc(node);
+// 			if (node == _end)
+// 			{
+// 				cout << "Successor is the end" << endl;
+// 			}
+// 			else
+// 			{
+// 				cout << "Successor is node " << node->data << endl;
+// 			}
+// 		}
+// 	}
+
+// 	void printPredecessor( value_type & data )
+// 	{
+// 		Node* node = findNode(_root, data);
+
+// 		if (isNil(node))
+// 		{
+// 			cout << "Couldn't find node of data " << data << endl;
+// 		}
+// 		else
+// 		{
+// 			node = inorderPre(node);
+// 			if (node == _end)
+// 			{
+// 				cout << "Predecessor is the end" << endl;
+// 			}
+// 			else
+// 			{
+// 				cout << "Predecessor is node " << node->data << endl;
+// 			}
+// 		}
+// 	}
+
+// 	void printLevel(int level)
+// 	{
+// 		Node* temp = _root;
+// 		int depth = pow(2, getHeight(_root, 0) - level + 2);
+
+// 		cout << setw(depth) << "";
+// 		displayLevel(temp, level, depth);
+// 	}
+		
+// 	void displayLevel(Node* node, int level, int depth)
+// 	{
+// 		int disp = 2 * depth;
+// 		if (level == 0)
+// 		{
+// 			if (isNil(node))
+// 			{
+// 				cout << " x ";
+// 				cout << setw(disp - 3) << "";
+// 				return;
+// 			}
+// 			else 
+// 			{
+// 				int result = ((node->data <= 1) ? 1 : log10(node->data) + 1);
+// 				if (node->red)
+// 					cout << "\033[1;31m";
+// 				else
+// 					cout << "\033[1;37m";
+// 				cout << " " << node->data << " ";
+// 				cout << setw(disp - result-2) << "";
+// 				cout << "\033[0m";
+// 			}
+// 		}
+// 		else
+// 		{
+// 			if (isNil(node) && level >= 1)
+// 			{
+// 				displayLevel(NULL, level - 1, depth);
+// 				displayLevel(NULL, level - 1, depth);
+// 			}
+// 			else
+// 			{
+// 				displayLevel(node->left, level - 1, depth);
+// 				displayLevel(node->right, level - 1, depth);
+// 			}
+// 		}
+// 	}

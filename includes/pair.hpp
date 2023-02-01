@@ -32,18 +32,20 @@ public:
 	pair( const pair<U1, U2> & p ) : first(p.first), second(p.second) {  };
 	~pair() {  };
 
+	pair& operator=( const pair & rhs )
+	{
+		first = rhs.first;
+		second = rhs.second;
+		std::cout << first << " " << second << std::endl;
+		return *this;
+	}
+
 	template<class U1, class U2>
 	pair& operator=( const pair<U1, U2> & rhs )
 	{
 		first = rhs.first;
 		second = rhs.second;
-		return *this;
-	}
-
-	pair& operator=( const pair & rhs )
-	{
-		first = rhs.first;
-		second = rhs.second;
+		std::cout << first << " " << second << std::endl;
 		return *this;
 	}
 

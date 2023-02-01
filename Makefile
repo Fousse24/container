@@ -22,7 +22,7 @@ INC		= -I$(D_INC) -I$(D_VECT) -I$(D_MAP) -I$(D_TREE)
 
 
 # Files
-MAIN	= test_map.cpp
+MAIN	= tree_iter_test.cpp
 
 _HEAD	= $(D_INC)/iterator.hpp			\
 		  $(D_INC)/iterator_traits.hpp	\

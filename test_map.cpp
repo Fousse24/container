@@ -65,7 +65,7 @@ int main() {
 	cout << "12 insert" << endl;
 	map.insert(ft::make_pair(string("12"), 36));
 
-print_map(map);
+	print_map(map);
 
 	// map.insert(ft::make_pair(string("13"), 21));
 	// cout << "2 insert" << endl;
