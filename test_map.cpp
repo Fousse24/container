@@ -16,6 +16,7 @@
 
 #include "includes/pair.hpp"
 #include "srcs/Map/map.hpp"
+#include "srcs/Tree/rbtree.hpp"
 #include "includes/test.hpp"
 
 using std::cout;
@@ -24,48 +25,80 @@ using std::string;
 
 
 int main() {
+	ft::RBTree<ft::pair<string, int> > tree;
 	ft::map<string, int> map;
 	// std::map<string, int> map_std;
 	ft::pair<string, int> pair;
-	pair = ft::make_pair(string("first"), 1);
-	cout << "1 insert" << endl;
-	map.insert(pair);
-	cout << "2 insert" << endl;
-	map.insert(ft::make_pair(string("second"), 2));
-	cout << "3 insert" << endl;
-	map.insert(ft::make_pair(string("third"), 3));
-	cout << "4 insert" << endl;
-	map.insert(ft::make_pair(string("fourth"), 4));
-	cout << "5 insert" << endl;
-	map.insert(ft::make_pair(string("fifth"), 5));
-	cout << "6 insert" << endl;
-	map.insert(ft::make_pair(string("sixth"), 6));
 
-	map.insert(ft::make_pair(string("1"), 21));
-	cout << "2 insert" << endl;
-	map.insert(ft::make_pair(string("2"), 12));
-	cout << "3 insert" << endl;
-	map.insert(ft::make_pair(string("3"), 43));
-	cout << "4 insert" << endl;
-	map.insert(ft::make_pair(string("4"), 34));
-	cout << "5 insert" << endl;
-	map.insert(ft::make_pair(string("5"), 15));
-	cout << "6 insert" << endl;
-	map.insert(ft::make_pair(string("6"), 26));
-	cout << "7 insert" << endl;
-	map.insert(ft::make_pair(string("7"), 1));
-	cout << "8 insert" << endl;
-	map.insert(ft::make_pair(string("8"), 2));
-	cout << "9 insert" << endl;
-	map.insert(ft::make_pair(string("9"), 4));
-	cout << "10 insert" << endl;
-	map.insert(ft::make_pair(string("10"), 3));
-	cout << "11 insert" << endl;
-	map.insert(ft::make_pair(string("11"), 441));
-	cout << "12 insert" << endl;
-	map.insert(ft::make_pair(string("12"), 36));
+	
+	map.insert(ft::make_pair(string("10"), 21));
+	print_map(map);
+	map.insert(ft::make_pair(string("5"), 12));
+	print_map(map);
+	map.insert(ft::make_pair(string("-2"), 34));
+	print_map(map);
+	map.insert(ft::make_pair(string("15"), 43));
+	print_map(map);
+	map.insert(ft::make_pair(string("7"), 34));
+	print_map(map);
+	map.insert(ft::make_pair(string("12"), 15));
+	print_map(map);
+	map.insert(ft::make_pair(string("3"), 26));
+	map.insert(ft::make_pair(string("17"), 1));
+	map.insert(ft::make_pair(string("6"), 2));
+	map.insert(ft::make_pair(string("16"), 4));
+	map.insert(ft::make_pair(string("-1"), 3));
+	map.insert(ft::make_pair(string("13"), 441));
+	map.insert(ft::make_pair(string("11"), 36));
 
 	print_map(map);
+
+	tree.insert(ft::make_pair(string("10"), 21));
+	tree.printTree();
+	tree.insert(ft::make_pair(string("5"), 12));
+	tree.printTree();
+	tree.insert(ft::make_pair(string("-2"), 34));
+	tree.printTree();
+	tree.insert(ft::make_pair(string("15"), 43));
+	tree.printTree();
+	tree.insert(ft::make_pair(string("7"), 34));
+	tree.printTree();
+	tree.insert(ft::make_pair(string("12"), 15));
+	tree.printTree();
+	tree.insert(ft::make_pair(string("3"), 26));
+	tree.insert(ft::make_pair(string("17"), 1));
+	tree.insert(ft::make_pair(string("6"), 2));
+	tree.insert(ft::make_pair(string("16"), 4));
+	tree.insert(ft::make_pair(string("-1"), 3));
+	tree.insert(ft::make_pair(string("13"), 441));
+	tree.insert(ft::make_pair(string("11"), 36));
+
+	tree.printTree();
+
+
+	ft::map<int, int> map_int;
+	map_int.insert(ft::make_pair(10, 21));
+	print_map(map_int);
+	map_int.insert(ft::make_pair(5, 12));
+	print_map(map_int);
+	map_int.insert(ft::make_pair(-2, 34));
+	print_map(map_int);
+	map_int.insert(ft::make_pair(15, 43));
+	print_map(map_int);
+	map_int.insert(ft::make_pair(7, 34));
+	print_map(map_int);
+	map_int.insert(ft::make_pair(12, 15));
+	print_map(map_int);
+	map_int.insert(ft::make_pair(3, 26));
+	print_map(map_int);
+	// map_int.insert(ft::make_pair(string("17"), 1));
+	// map_int.insert(ft::make_pair(string("6"), 2));
+	// map_int.insert(ft::make_pair(string("16"), 4));
+	// map_int.insert(ft::make_pair(string("-1"), 3));
+	// map_int.insert(ft::make_pair(string("13"), 441));
+	// map_int.insert(ft::make_pair(string("11"), 36));
+
+	
 
 	// map.insert(ft::make_pair(string("13"), 21));
 	// cout << "2 insert" << endl;

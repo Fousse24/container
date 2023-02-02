@@ -43,7 +43,7 @@ void	print_map(map<T1, T2>& m)
 	// 	cout << " " << *it << endl;
 	it = m.begin();
 	for (; it != m.end(); it++)
-		cout << "Key: " << (*it).first + " | Value: " << (*it).second << endl;
+		cout << *it << endl;
 	// cout << "Key: " << (*m.begin()).first + " | Value: " << (*m.begin()).second << endl;
 
 	

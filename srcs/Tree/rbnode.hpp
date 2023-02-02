@@ -80,26 +80,26 @@ public:
 	{
 		RBNode* save;
 
-		// if (this == this->sentinel->right) // sentinel's right is the max
-		// 	return this->sentinel->parent;
-		// else if (this == this->sentinel->parent) // sentinel's parent is the end
-		// 	return this;
-		// else
-		// {
-			// if you have a right child, return right child
-			if (this->right && this->right->parent == this)
-			{
-				return this->right;
-			}
-			else
-			{
-				// while you are a right child, iterate on the parent
-				save = this;
-				while (save->parent && save->parent->right == save)
-					save = save->parent;
-				return save->parent;
-			}
-		// }
+		if (this == this->sentinel->right) // sentinel's right is the max
+			return this->sentinel->parent;
+		else if (this == this->sentinel->parent) // sentinel's parent is the end
+			return this;
+		// if you have a right child, return right child
+		if (this->right && this->right->parent == this)
+		{
+			save = this->right;
+			while (save->left && save->left->parent == this)
+				save = save->left;
+			return save;
+		}
+		else
+		{
+			// while you are a right child, iterate on the parent
+			save = this;
+			while (save->parent && save->parent->right == save)
+				save = save->parent;
+			return save->parent;
+		}
 		
 	}
 

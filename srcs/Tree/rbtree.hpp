@@ -84,8 +84,8 @@ public:
 
 	typedef ft::RBNode<T, key_compare, allocator_type>				Node;
 
-	typedef ft::RBTree_iterator<Node> 					iterator;
-	typedef ft::RBTree_const_iterator<Node>				const_iterator;
+	typedef ft::rbtree_iterator<Node> 					iterator;
+	typedef ft::rbtree_const_iterator<Node>				const_iterator;
 	typedef ft::reverse_iterator<iterator>				reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
@@ -106,13 +106,14 @@ private:
 
 /* CONSTRUCTORS & DESTRUCTOR */
 public:
-	RBTree() : _comp()
+	RBTree() : _comp(key_compare())
 	{
 		_size = 0;
 		_alloc = allocator_type();
 		_end = _createNode(false);
-		_NIL = _createNode(false);
 		_sentinel = _createNode(false);
+		_sentinel->parent = _end;
+		_NIL = _createNode(false);
 		_setRoot(_end);
 	}
 
@@ -598,6 +599,18 @@ public:
 			return findNode(root->left, data);
 	}
 
+	template<class value>
+	Node* findNode(Node* root, const value & data ) {
+		if (isNil(root))
+			return NULL;
+		if (!value_comp()(root->data, data) && !value_comp()(data, root->data))
+			return root;
+		if (value_comp()(root->data, data))
+			return findNode(root->right, data);
+		else
+			return findNode(root->left, data);
+	}
+
 	// TODO
 	Node* inorderPre( Node* node )
 	{
@@ -780,11 +793,15 @@ public:
 		Node*	node;
 		cout << "Printing tree in order" << endl;
 		node = _sentinel->left;
-		while (!isNil(node))
-		{
-			cout << node->data << endl;
-			node = inorderSucc(node);
-		}
+		// while (!isNil(node))
+		// {
+		// 	cout << node->data << endl;
+		// 	node = inorderSucc(node);
+		// }
+
+		iterator	it;
+		for(it = this->begin(); it != this->end(); it++)
+			cout << *it << endl;
 	}
 
 	void printSuccessor( value_type & data )

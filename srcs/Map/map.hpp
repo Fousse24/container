@@ -38,55 +38,6 @@
 namespace ft
 {
 
-template <typename Key, typename T, typename Compare>
-class map_value_compare : public std::binary_function<Key, Key, bool>
-{
-public:
-    typedef Key first_argument_type;
-    typedef Key second_argument_type;
-    typedef bool result_type;
-
-public:
-    map_value_compare()
-        : comp_()
-    {
-    }
-
-    map_value_compare(const Compare& c)
-        : comp_(c)
-    {
-    }
-
-public:
-    const Compare& key_comp() const
-    {
-        return comp_;
-    }
-
-    bool operator()(const T& x, const T& y) const
-    {
-        return key_comp()(x.first, y.first);
-    }
-
-    bool operator()(const Key& x, const T& y) const
-    {
-        return key_comp()(x, y.first);
-    }
-
-    bool operator()(const T& x, const Key& y) const
-    {
-        return key_comp()(x.first, y);
-    }
-
-    void swap(map_value_compare& other)
-    {
-        std::swap(comp_, other.comp_);
-    }
-
-protected:
-    Compare comp_;
-};
-
 template <class Key, class T, class Compare = std::less<Key>, class Allocator = std::allocator<ft::pair<const Key, T> > >
 class map
 {	
@@ -103,13 +54,13 @@ public:
 	typedef typename allocator_type::pointer        		pointer;
 	typedef typename allocator_type::const_pointer			const_pointer;
 
-	class value_compare : public std::binary_function<Key, Key, bool>
+	class value_compare : public std::binary_function<value_type, value_type, bool>
 	{   
 		friend class map;
 	public:
 		Compare comp_;
-		value_compare () : comp_() {}
-		value_compare (Compare c) : comp_(c) {}  // constructed with map's comparison object
+		value_compare () {}
+		// value_compare (Compare c) : comp_(c) {}  // constructed with map's comparison object
 		
 		typedef bool		result_type;
 		typedef key_type	first_arg_type;
@@ -134,53 +85,15 @@ public:
 		{
 			return key_comp()(x.first, y);
 		}
-
-		void swap(value_compare& other)
-		{
-			std::swap(comp_, other.comp_);
-		}
 	};
 
-	typedef RBTree<value_type, value_compare(key_compare), Allocator>	tree_type;
+	typedef RBTree<value_type, value_compare, Allocator>	tree_type;
 	typedef typename tree_type::Node						node_type;
 	typedef node_type*										node_ptr;
 	typedef typename tree_type::iterator 					iterator;
 	typedef typename tree_type::const_iterator				const_iterator;
 	typedef typename tree_type::reverse_iterator			reverse_iterator;
 	typedef typename tree_type::const_reverse_iterator		const_reverse_iterator;
-
-
-	// class value_compare : public std::binary_function<value_type, value_type, bool>
-	// {
-	// 	friend class map;
-	// public:
-	// 	bool operator()(const value_type& left, const value_type& right) const 
-	// 	{
-	// 		return comp(left.first, right.first);
-	// 	};
-	// protected:
-	// 	Compare comp;
-	// 	value_compare(Compare pred) : comp(pred) {};
-	// };
-
-	// class value_compare : std::binary_function<Key, T, bool> // À REVOIR
-	// {
-	// public:
-	// 	bool operator()( const reference lhs, const reference rhs ) const 
-	// 	{  
-	// 		return _comp(lhs < rhs);
-	// 	};
-
-	// 	bool operator()( const value_type lhs, const value_type rhs ) const 
-	// 	{  
-	// 		return _comp(lhs < rhs);
-	// 	};
-	// 	~value_compare() {  };
-	// protected:
-	// 	Compare	_comp;
-	// 	value_compare( Compare c ) : _comp(c) {
-	// 	};
-	// };
 
 private: // WARNING private
 	tree_type		_tree;
@@ -244,9 +157,9 @@ public:
 	const_iterator	end() const 	{ return const_iterator(_tree.end());};
 	
 	reverse_iterator       rbegin()			{ return _tree.rbegin(); };
-	const_reverse_iterator rbegin() const 	{ return const_reverse_iterator(_tree.rbegin()); };
-	reverse_iterator       rend() 			{ return reverse_iterator(_tree.rend()); };
-	const_reverse_iterator rend() const 	{ return const_reverse_iterator(_tree.rend()); };
+	const_reverse_iterator rbegin() const 	{ return _tree.rbegin(); };
+	reverse_iterator       rend() 			{ return _tree.rend(); };
+	const_reverse_iterator rend() const 	{ return _tree.rend(); };
 	// iterator end
 
 
@@ -259,7 +172,7 @@ public:
 		{
 			throw std::exception();
 		}
-		return node->data.first;
+		return node->data;
 	};
 	
 	const_reference operator[](const Key& key) const // Must not check bounds
@@ -270,7 +183,7 @@ public:
 		{
 			throw std::exception();
 		}
-		return node->data.first;
+		return node->data;
 	};
 
 	reference       at(const Key& key) // Should not check negative??
