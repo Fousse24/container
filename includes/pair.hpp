@@ -36,7 +36,6 @@ public:
 	{
 		first = rhs.first;
 		second = rhs.second;
-		std::cout << first << " " << second << std::endl;
 		return *this;
 	}
 
@@ -45,7 +44,6 @@ public:
 	{
 		first = rhs.first;
 		second = rhs.second;
-		std::cout << first << " " << second << std::endl;
 		return *this;
 	}
 

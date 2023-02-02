@@ -18,6 +18,17 @@
 using std::cout;
 using std::endl;
 
+template<class T> 
+struct	comp_pair
+{
+	bool operator()(const T &lhs, const T &rhs) const 
+	{
+		if (lhs.first < rhs.first)
+			return true;
+		return false;
+	}
+};
+
 template<class T>
 void print(const T & value)
 {
@@ -40,22 +51,18 @@ int main() {
 	// }
 	std::for_each(bst.begin(), bst.end(), print<int> );
 
-	ft::RBTree<ft::pair<string, int> > bst_pair;
-	ft::RBTree<ft::pair<string, int> >::iterator	iter_pair;
+	ft::RBTree<ft::pair<string, int>, comp_pair<ft::pair<string, int> > > bst_pair;
+	ft::RBTree<ft::pair<string, int>, comp_pair<ft::pair<string, int> > >::iterator	iter_pair;
 	
 
 
-	bst_pair.insert(ft::make_pair(string("hello"), 2));
-	bst_pair.printTree();
-	bst_pair.insert(ft::make_pair(string("ello"), 3));
-	bst_pair.printTree();
-	bst_pair.insert(ft::make_pair(string("llo"), 1));
-	bst_pair.printTree();
-	iter_pair = bst_pair.begin();
-	for (; iter_pair != bst_pair.end(); iter_pair++)
-	{
-		cout << *iter_pair << endl;
-	}
+	bst_pair.insert(ft::make_pair(string("c"), 2));
+	// bst_pair.printTree();
+	bst_pair.insert(ft::make_pair(string("e"), 3));
+	// bst_pair.printTree();
+	bst_pair.insert(ft::make_pair(string("a"), 1));
+	// bst_pair.printTree();
+	bst_pair.deleteNode(ft::make_pair(string("c"), 2));
 	std::for_each(bst_pair.begin(), bst_pair.end(), print<ft::pair<string, int> > );
 }
 

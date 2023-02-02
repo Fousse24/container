@@ -132,11 +132,15 @@ public:
 
 template< class T, class Compare, class Alloc >
 bool operator==( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
-{ return (lhs.data == rhs.data); }
+{ return (!comp_(lhs.data, rhs.data) && !comp_(rhs.data, lhs.data)); }
+
+// template< class T, class Compare, class Alloc >
+// bool operator==( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
+// { return (lhs.data == rhs.data); }
 
 template< class T, class Compare, class Alloc >
 bool operator<( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
-{ return (Compare(lhs.data, rhs.data)); }
+{ return (comp_(lhs.data, rhs.data)); }
 
 template< class T, class Compare, class Alloc >
 bool operator!=( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )

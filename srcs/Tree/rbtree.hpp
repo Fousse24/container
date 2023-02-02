@@ -82,7 +82,7 @@ public:
 	typedef typename allocator_type::size_type      	size_type;
 	typedef typename allocator_type::difference_type	difference_type;
 
-	typedef ft::RBNode<T, allocator_type>				Node;
+	typedef ft::RBNode<T, key_compare, allocator_type>				Node;
 
 	typedef ft::RBTree_iterator<Node> 					iterator;
 	typedef ft::RBTree_const_iterator<Node>				const_iterator;

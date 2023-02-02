@@ -43,9 +43,11 @@ public:
 	typedef const N*	const_node_pointer;
 
 protected:
-	node_pointer	_node;
+	
 
 public:
+	node_pointer	_node;
+
 	RBTree_iterator() : _node(node_pointer()) {  };
 
 	RBTree_iterator( node_pointer n ) { _node = n; };
@@ -58,7 +60,8 @@ public:
 	RBTree_iterator( const RBTree_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const N>, bool>::type = 0) 
 	{ 
 		// TODO ?
-		this->_node = it.get_node(); 
+		*this = it;
+		// this->_node = it.get_node(); 
 	};
 
 	~RBTree_iterator() {  };

@@ -141,7 +141,7 @@ public:
 		}
 	};
 
-	typedef RBTree<value_type, value_compare, Allocator>	tree_type;
+	typedef RBTree<value_type, value_compare(key_compare), Allocator>	tree_type;
 	typedef typename tree_type::Node						node_type;
 	typedef node_type*										node_ptr;
 	typedef typename tree_type::iterator 					iterator;
