@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vector.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/07/19 14:28:19 by sfournie         ###   ########.fr       */
+/*   Updated: 2023/02/03 14:01:39 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,13 +62,13 @@ public:
 	{
 		_allocator = Allocator();
 		_init_vector();
-	};
+	}
 
 	explicit vector(const Allocator& alloc)
 	{
 		_allocator = alloc;
 		_init_vector();
-	};
+	}
 
 	explicit vector( size_type count, const T value = value_type(),
                  	const Allocator& alloc = Allocator())
@@ -77,13 +77,13 @@ public:
 		_allocator = alloc;
 		_init_vector();
 		assign(count, value);
-	};
+	}
 	
 	vector( const vector& vect )
 	{ 
 		_init_vector();
 		*this = vect;
-	};
+	}
 
 	template <class Iter>
 	 	vector<T>(Iter first, Iter last, const allocator_type& = allocator_type(),
@@ -91,22 +91,22 @@ public:
 	{
 		_init_vector();
 		assign(first, last);
-	};
+	}
 
-	~vector() { if (_vector) { _full_clear(); } };
+	~vector() { if (_vector) { _full_clear(); } }
 
 	vector& operator=(const vector& v)
 	{
 		this->assign(v.begin(), v.end());
 		return *this;
-	};
+	}
 
 	template <class Iter>
 	void assign(Iter first, Iter last, typename ft::enable_if<ft::is_not_integral<Iter>, bool>::type = 0)
 	{
 		clear();
 		insert(begin(), first, last);
-	};
+	}
 
 	void assign(size_type n, const value_type u)
 	{
@@ -114,22 +114,22 @@ public:
 			return ;
 		clear();
 		insert(begin(), n, u);
-	};
+	}
 	
-	allocator_type get_allocator() const { return Allocator(); };
+	allocator_type get_allocator() const { return Allocator(); }
 	
 
 	// iterator	
-	iterator		begin() { return iterator(_vector);};
-	const_iterator	begin() const { return const_iterator(_vector); };
+	iterator		begin() { return iterator(_vector);}
+	const_iterator	begin() const { return const_iterator(_vector); }
 
-	iterator		end() { return iterator(_vector + _size); };
-	const_iterator	end() const { return const_iterator(_vector + _size);};
+	iterator		end() { return iterator(_vector + _size); }
+	const_iterator	end() const { return const_iterator(_vector + _size);}
 	
-	reverse_iterator       rbegin() { return reverse_iterator(end() - 1); };
-	const_reverse_iterator rbegin() const { return const_reverse_iterator(end() - 1); };
-	reverse_iterator       rend() { return reverse_iterator(begin() - 1); };
-	const_reverse_iterator rend() const { return const_reverse_iterator(begin() - 1); };
+	reverse_iterator       rbegin() { return reverse_iterator(end() - 1); }
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(end() - 1); }
+	reverse_iterator       rend() { return reverse_iterator(begin() - 1); }
+	const_reverse_iterator rend() const { return const_reverse_iterator(begin() - 1); }
 	// iterator end
 
 
@@ -137,39 +137,39 @@ public:
 	reference       operator[](size_type n) // Must not check bounds
 	{
 		return this->_vector[n];
-	};
+	}
 	const_reference operator[](size_type n) const // Must not check bounds
 	{
 		return this->_vector[n];
-	};
+	}
 
 	reference       at(size_type n) // Should not check negative??
 	{
 		_is_in_bound(n, true);
 		return _vector[n];
-	};
+	}
 	
 	const_reference at(size_type n) const 
 	{
 		_is_in_bound(n, true);
 		return _vector[n];
-	};
+	}
 
-	reference       front() { return *_vector; };
-	const_reference front() const { return *_vector; };
-	reference       back() { return _vector[_size - 1]; };
-	const_reference back() const { return _vector[_size - 1]; };
+	reference       front() { return *_vector; }
+	const_reference front() const { return *_vector; }
+	reference       back() { return _vector[_size - 1]; }
+	const_reference back() const { return _vector[_size - 1]; }
 
-	pointer       data() { return _vector; };
-	const_pointer data() const { return _vector; };
+	pointer       data() { return _vector; }
+	const_pointer data() const { return _vector; }
 	/* Element access end */
 
 
 	/* Capacity */
-	bool 		empty() const	{ return (_size <= 0 ? true : false); };
-	size_type	size() const { return _size; };
-	size_type	max_size() const { return std::min(TO_SIZE(std::numeric_limits<difference_type>::max()), _allocator.max_size()) ; };
-	size_type	capacity() const { return _capacity; };
+	bool 		empty() const	{ return (_size <= 0 ? true : false); }
+	size_type	size() const { return _size; }
+	size_type	max_size() const { return std::min(TO_SIZE(std::numeric_limits<difference_type>::max()), _allocator.max_size()) ; }
+	size_type	capacity() const { return _capacity; }
 
 	void reserve(size_type n) // Not done
 	{
@@ -195,7 +195,7 @@ public:
 			_size = i;
 			_capacity = n;
 		}	
-	};
+	}
 	/* Capacity end */
 
 
@@ -213,7 +213,7 @@ public:
 			_allocator.destroy(begin_.base());	
 		}
 		_size = 0;
-	};
+	}
 
 	iterator insert(iterator pos, const value_type& t)
 	{
@@ -222,7 +222,7 @@ public:
 
 		return begin() + TO_DIFF(i);
 		
-	};
+	}
 
 	void insert(iterator pos, size_type n, const value_type& t)
 	{
@@ -241,7 +241,7 @@ public:
 		}
 		_size += n;
 		return ;
-	};
+	}
 	
 	template<class Iter>
 	void insert(iterator pos, Iter first, Iter last, typename ft::enable_if<ft::is_not_integral<Iter>, bool>::type = 0) // change to input only
@@ -250,14 +250,14 @@ public:
 
 		_insert(pos, first, last, category());
 		return ;
-	};
+	}
 
 	iterator erase(iterator pos)
 	{
 		_shift_to_left(pos + 1, 1);
 		_size--;
 		return pos;
-	};
+	}
 	
 	iterator erase(iterator first, iterator last)
 	{
@@ -270,12 +270,12 @@ public:
 		_size -= TO_SIZE(len);
 		return last;
 		
-	};
+	}
 
 	void push_back(const value_type& t)
 	{
 		insert(end(), t);
-	};
+	}
 
 	void pop_back()
 	{
@@ -283,7 +283,7 @@ public:
 			return ;
 		_allocator.destroy((end() - 1).base());
 		_size--;
-	};	
+	}	
 
 	void resize(size_type sz, value_type value = value_type()) // Not done
 	{
@@ -295,7 +295,7 @@ public:
 			_allocator.destroy(&_vector[--_size]);
 		if (_size < sz)
 			insert(end(), sz - _size, value);
-	};
+	}
 
 	void swap(vector & other)
 	{
@@ -328,7 +328,7 @@ private:
 			++first;
 		}
 		return ;
-	};
+	}
 
 	template<class Iter>
 	void _insert(iterator pos, Iter first, Iter last, std::forward_iterator_tag)
@@ -345,7 +345,7 @@ private:
 			_allocator.construct((pos++).base(), *(first++));
 		}
 		return ;
-	};
+	}
 
 	bool	_is_in_bound(size_type n, bool ex = true) const
 	{
@@ -354,14 +354,14 @@ private:
 		if (ex)
 			throw std::out_of_range("out of bound");
 		return false;
-	};
+	}
 
 	bool	_test_max_size(size_type n)
 	{
 		if (n > max_size())
 			throw std::length_error("out of bound");
 		return true;
-	};
+	}
 
 	void	_init_vector(void)
 	{
@@ -376,7 +376,7 @@ private:
 		_allocator.deallocate(_vector, _capacity);
 		_vector = NULL;
 		_capacity = 0;
-	};
+	}
 
 	void	_shift_to_end(iterator pos, size_type distance) // FIX THIS SHIT
 	{
@@ -397,7 +397,7 @@ private:
 			rhs--;
 			lhs--;
 		}
-	};
+	}
 
 	void	_shift_to_left(iterator pos, size_type distance)
 	{
@@ -411,7 +411,7 @@ private:
 		}
 		for (; lhs < end_; lhs++)
 			_allocator.destroy(lhs.base());
-	};
+	}
 
 	void	_reallocate_if_not_null(size_type size, const void * hint = 0)
 	{
@@ -423,7 +423,7 @@ private:
 			_vector = _allocator.allocate(size, hint);	
 			_capacity = size;
 		}
-	};
+	}
 
 	size_type	_get_iterator_i(iterator pos)
 	{
@@ -432,7 +432,7 @@ private:
 		if (pos == end())
 			return _size;
 		return TO_SIZE(pos.base() - begin().base());
-	};
+	}
 
 	// Return the equivalent iterator of a re-allocator_type::allocated vector
 	iterator	_revalidate_iter(iterator pos, size_type n, void (vector::*f)(size_type))
@@ -440,7 +440,7 @@ private:
 		size_type i = _get_iterator_i(pos);
 		(this->*f)(n);
 		return begin() + TO_DIFF(i);
-	};
+	}
 
 	template <class Iter>
 	size_type _get_range_len( const Iter & first, const Iter & last )
@@ -452,7 +452,7 @@ private:
 		for (; it != last; i++)
 			it++;
 		return i;
-	};
+	}
 };
 
 template< class T, class Alloc >

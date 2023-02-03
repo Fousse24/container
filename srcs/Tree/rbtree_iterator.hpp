@@ -48,13 +48,13 @@ protected:
 public:
 	node_pointer	_node;
 
-	rbtree_iterator() : _node(node_pointer()) {  };
+	rbtree_iterator() : _node(node_pointer()) {  }
 
-	rbtree_iterator( node_pointer n ) { _node = n; };
+	rbtree_iterator( node_pointer n ) { _node = n; }
 
-	rbtree_iterator( const_node_pointer n ) { _node = n; };
+	rbtree_iterator( const_node_pointer n ) { _node = n; }
 
-	rbtree_iterator(const rbtree_iterator<N>& it) { *this = it; };
+	rbtree_iterator(const rbtree_iterator<N>& it) { *this = it; }
 
 	template <class T>
 	rbtree_iterator( const rbtree_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const N>, bool>::type = 0) 
@@ -62,9 +62,9 @@ public:
 		// TODO ?
 		*this = it;
 		// this->_node = it.get_node(); 
-	};
+	}
 
-	~rbtree_iterator() {  };
+	~rbtree_iterator() {  }
 
 	rbtree_iterator& operator=( const rbtree_iterator<N>& it )
 	{
@@ -72,38 +72,38 @@ public:
 		return *this;
 	}
 
-	pointer			base() const			{ return &_node->data; };
-	node_pointer	get_node() const		{ return _node; };
-	reference		operator*() const		{ return *base(); };
-	pointer			operator->() const		{ return base(); };
+	pointer			base() const			{ return &_node->data; }
+	node_pointer	get_node() const		{ return _node; }
+	reference		operator*() const		{ return *base(); }
+	pointer			operator->() const		{ return base(); }
 
 	rbtree_iterator<N>& operator++()
 	{ 
 		_node = _node->next();	
 		// _increment();
 		return *this;
-	};
+	}
 
 	rbtree_iterator<N>& operator--()
 	{ 
 		_node = _node->prev();
 		// _decrement();
 		return *this;
-	};
+	}
 	
 	rbtree_iterator<N> operator++( int )
 	{
 		rbtree_iterator<N> ori = *this;
 		++(*this);
 		return ori;
-	};
+	}
 
 	rbtree_iterator<N> operator--( int )
 	{
 		rbtree_iterator<N> ori = *this;
 		--(*this);
 		return ori;
-	};
+	}
 
 
 	bool operator==(const rbtree_iterator<N>& it) const
@@ -111,8 +111,8 @@ public:
 		if (_node == it._node)
 			return true;  
 		return false;
-	};
-	bool operator!=(const rbtree_iterator<N>& it) const { return (!operator==(it)); };
+	}
+	bool operator!=(const rbtree_iterator<N>& it) const { return (!operator==(it)); }
 
 	// const overloads
 	template <class T>
@@ -121,9 +121,9 @@ public:
 		if (_node == it._node) // TODO
 			return true;  
 		return false;
-	};
+	}
 	template <class T>
-	bool operator!=(const rbtree_iterator<T>& it) const { return (!operator==(it)); };
+	bool operator!=(const rbtree_iterator<T>& it) const { return (!operator==(it)); }
 	// end const
 
 protected:
@@ -156,28 +156,25 @@ public:
 	typedef const N*	const_node_pointer;
 
 protected:
-	
-
-public:
 	node_pointer	_node;
 
-	rbtree_const_iterator() : _node(node_pointer()) {  };
+public:
+	rbtree_const_iterator() : _node(node_pointer()) {  }
 
-	rbtree_const_iterator( node_pointer n ) { _node = n; };
+	rbtree_const_iterator( node_pointer n ) { _node = n; }
 
-	rbtree_const_iterator( const_node_pointer n ) { _node = n; };
+	rbtree_const_iterator( const_node_pointer n ) { _node = n; }
 
-	rbtree_const_iterator(const rbtree_const_iterator<N>& it) { *this = it; };
+	rbtree_const_iterator(const rbtree_const_iterator<N>& it) { *this = it; }
 
 	template <class T>
 	rbtree_const_iterator( const rbtree_const_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const N>, bool>::type = 0) 
 	{ 
 		// TODO ?
-		*this = it;
-		// this->_node = it.get_node(); 
-	};
+		this->_node = it->get_node(); 
+	}
 
-	~rbtree_const_iterator() {  };
+	~rbtree_const_iterator() {  }
 
 	rbtree_const_iterator& operator=( const rbtree_const_iterator<N>& it )
 	{
@@ -185,38 +182,39 @@ public:
 		return *this;
 	}
 
-	pointer			base() const			{ return &_node->data; };
-	node_pointer	get_node() const		{ return _node; };
-	reference		operator*() const		{ return *base(); };
-	pointer			operator->() const		{ return base(); };
+	pointer			base() const			{ return &_node->data; }
+	node_pointer	get_node() const		{ return _node; }
+	reference		operator*() const		{ return *base(); }
+	pointer			operator->() const		{ return base(); }
+
 
 	rbtree_const_iterator<N>& operator++()
 	{ 
 		_node = _node->next();	
 		// _increment();
 		return *this;
-	};
+	}
 
 	rbtree_const_iterator<N>& operator--()
 	{ 
 		_node = _node->prev();
 		// _decrement();
 		return *this;
-	};
+	}
 	
 	rbtree_const_iterator<N> operator++( int )
 	{
 		rbtree_const_iterator<N> ori = *this;
 		++(*this);
 		return ori;
-	};
+	}
 
 	rbtree_const_iterator<N> operator--( int )
 	{
 		rbtree_const_iterator<N> ori = *this;
 		--(*this);
 		return ori;
-	};
+	}
 
 
 	bool operator==(const rbtree_const_iterator<N>& it) const
@@ -224,19 +222,19 @@ public:
 		if (_node == it._node)
 			return true;  
 		return false;
-	};
-	bool operator!=(const rbtree_const_iterator<N>& it) const { return (!operator==(it)); };
+	}
+	bool operator!=(const rbtree_const_iterator<N>& it) const { return (!operator==(it)); }
 
 	// const overloads
 	template <class T>
-	bool operator==(const rbtree_const_iterator<T>& it) const
+	bool operator==(const rbtree_const_iterator<N>& it) const
 	{
 		if (_node == it._node) // TODO
 			return true;  
 		return false;
-	};
+	}
 	template <class T>
-	bool operator!=(const rbtree_const_iterator<T>& it) const { return (!operator==(it)); };
+	bool operator!=(const rbtree_const_iterator<N>& it) const { return (!operator==(it)); }
 	// end const
 
 protected:

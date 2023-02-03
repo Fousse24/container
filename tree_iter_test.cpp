@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   tree_test.cpp                                      :+:      :+:    :+:   */
+/*   tree_iter_test.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/20 17:47:33 by sfournie          #+#    #+#             */
-/*   Updated: 2022/09/01 11:10:57 by sfournie         ###   ########.fr       */
+/*   Updated: 2023/02/03 14:10:53 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@ void print(const T & value)
 }
 
 int main() {
-	ft::RBTree<int> bst;
-	ft::RBTree<int>::iterator	iter;
+	ft::rbtree<int> bst;
+	ft::rbtree<int>::iterator	iter;
 	
 
 
@@ -51,8 +51,8 @@ int main() {
 	// }
 	std::for_each(bst.begin(), bst.end(), print<int> );
 
-	ft::RBTree<ft::pair<string, int>, comp_pair<ft::pair<string, int> > > bst_pair;
-	ft::RBTree<ft::pair<string, int>, comp_pair<ft::pair<string, int> > >::iterator	iter_pair;
+	ft::rbtree<ft::pair<string, int>, comp_pair<ft::pair<string, int> > > bst_pair;
+	ft::rbtree<ft::pair<string, int>, comp_pair<ft::pair<string, int> > >::iterator	iter_pair;
 	
 
 
@@ -67,8 +67,8 @@ int main() {
 }
 
 // int main() {
-// 	ft::RBTree<ft::pair<string, int> > bst;
-// 	ft::RBTree<ft::pair<string, int> >::iterator	iter;
+// 	ft::rbtree<ft::pair<string, int> > bst;
+// 	ft::rbtree<ft::pair<string, int> >::iterator	iter;
 	
 
 

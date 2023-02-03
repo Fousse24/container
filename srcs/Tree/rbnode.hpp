@@ -45,9 +45,9 @@ public:
 		red = true;
 	}
 
-	RBNode(const T & data): data(data)
+	RBNode(const T & value)
 	{
-		// this->data = data;
+		_alloc.construct(&data, value);
 		left = NULL;
 		right = NULL;
 		parent = NULL;
@@ -80,15 +80,15 @@ public:
 	{
 		RBNode* save;
 
-		if (this == this->sentinel->right) // sentinel's right is the max
-			return this->sentinel->parent;
-		else if (this == this->sentinel->parent) // sentinel's parent is the end
-			return this;
+		// if (this == this->sentinel->right) // sentinel's right is the max
+		// 	return this->sentinel->parent;
+		// else if (this == this->sentinel->parent) // sentinel's parent is the end
+		// 	return this;
 		// if you have a right child, return right child
 		if (this->right && this->right->parent == this)
 		{
 			save = this->right;
-			while (save->left && save->left->parent == this)
+			while (save->left && save->left->parent == save)
 				save = save->left;
 			return save;
 		}
@@ -107,25 +107,20 @@ public:
 	{
 		RBNode* save;
 
-		if (this == this->sentinel->left) // sentinel's left is the max
-			return this->sentinel->parent;
-		else if (this == this->sentinel->parent) // sentinel's parent is the end
-			return this;
+		if (this->left && this->left->parent == this)
+		{
+			save = this->left;
+			while (save->right && save->right->parent == save)
+				save = save->left;
+			return save;
+		}
 		else
 		{
-			// if you have a left child, return left child
-			if (this->left && this->left->parent == this)
-			{
-				return this->left;
-			}
-			else
-			{
-				// while you are a left child, iterate on the parent
-				save = this;
-				while (save->parent && save->parent->left == save)
-					save = save->parent;
-				return save->parent;
-			}
+			// while you are a left child, iterate on the parent
+			save = this;
+			while (save->parent && save->parent->left == save)
+				save = save->parent;
+			return save->parent;
 		}
 	}
 };

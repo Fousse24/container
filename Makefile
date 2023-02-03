@@ -1,7 +1,7 @@
 
 # Compilation
 CC		= c++
-CFLAGS	=  -Werror -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++98 #-Werror
+CFLAGS	=  -Werror -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++11 #-Werror
 C_OBJ	= $(CC) $(CFLAGS) $(INC) -c $< -o $@
 C_MAIN	= $(CC) $(CFLAGS) $(INC) $(OBJ) $(MAIN) -o $(NAME)
 
@@ -76,6 +76,6 @@ exe		: test
 test	: _test $(NAME)
 
 _test	:
-		$(eval CFLAGS= -g -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++98)
+		$(eval CFLAGS= -g -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++11)
 
 .PHONY	: all clean fclean re test exe

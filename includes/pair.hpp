@@ -26,15 +26,15 @@ public:
 	typedef T1 first_type;
 	typedef T2 second_type;
 
-	pair() : first(first_type()), second(second_type()) {  };
-	pair( const first_type & x, const second_type & y ) : first(x), second(y) {  };
+	pair() : first(first_type()), second(second_type()) {  }
+	pair( const first_type & x, const second_type & y ) : first(x), second(y) {  }
 	template <class U1, class U2>
-	pair( const pair<U1, U2> & p ) : first(p.first), second(p.second) {  };
-	~pair() {  };
+	pair( const pair<U1, U2> & p ) : first(p.first), second(p.second) {  }
+	~pair() {  }
 
 	pair& operator=( const pair & rhs )
 	{
-		first = rhs.first;
+		*((std::remove_const<T1>*)&first) = rhs.first;
 		second = rhs.second;
 		return *this;
 	}
@@ -46,6 +46,7 @@ public:
 		second = rhs.second;
 		return *this;
 	}
+
 
 	first_type	first;
 	second_type	second;

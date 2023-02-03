@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   tree_test.cpp                                      :+:      :+:    :+:   */
+/*   rbtree_int_print_tree.cpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/20 17:47:33 by sfournie          #+#    #+#             */
-/*   Updated: 2022/09/13 11:43:57 by sfournie         ###   ########.fr       */
+/*   Updated: 2023/02/03 14:10:53 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ using std::endl;
 
 
 int main() {
-	RBTree bst;
+	rbtree bst;
 	int input = -1;
 
 	while (input)

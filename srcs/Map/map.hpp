@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   map.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/09/01 16:36:25 by sfournie         ###   ########.fr       */
+/*   Updated: 2023/02/03 16:09:49 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ public:
 		}
 	};
 
-	typedef RBTree<value_type, value_compare, Allocator>	tree_type;
+	typedef rbtree<value_type, value_compare, Allocator>	tree_type;
 	typedef typename tree_type::Node						node_type;
 	typedef node_type*										node_ptr;
 	typedef typename tree_type::iterator 					iterator;
@@ -105,13 +105,13 @@ public:
 	{
 		_init_map();
 		_allocator = Allocator();
-	};
+	}
 
 	explicit map(const Allocator& alloc)
 	{
 		_init_map();
 		_allocator = alloc;
-	};
+	}
 
 	explicit map( size_type count, const T value = value_type(),
                  	const Allocator& alloc = Allocator())
@@ -120,23 +120,23 @@ public:
 		_allocator = alloc;
 		_init_map();
 		assign(count, value);
-	};
+	}
 	
 	map( const map& other )
 	{ 
 		// _init_map();
 		*this = other;
-	};
+	}
 
 	template <class Iter>
-	 	map<T>(Iter first, Iter last, const allocator_type& = allocator_type(),
+	map(Iter first, Iter last, const allocator_type& = allocator_type(),
 				typename ft::enable_if<ft::is_not_integral<Iter>, bool>::type = 0)
 	{
 		_init_map();
 		assign(first, last);
-	};
+	}
 
-	~map() { clear(); };
+	~map() { clear(); }
 
 	map& operator=(const map& rhs)
 	{
@@ -144,22 +144,22 @@ public:
 		// for (map::iterator it = rhs.begin(); it != rhs.end(); it++)
 		this->insert(rhs.begin(), rhs.end());
 		return *this;
-	};
+	}
 	
-	allocator_type get_allocator() const { return Allocator(); };
+	allocator_type get_allocator() const { return Allocator(); }
 	
 
 	// iterator	
-	iterator		begin()			{ return _tree.begin(); };
-	const_iterator	begin() const	{ return const_iterator(_tree.begin()); };
+	iterator		begin()			{ return _tree.begin(); }
+	const_iterator	begin() const	{ return const_iterator(_tree.begin()); }
 
-	iterator		end() 			{ return _tree.end(); };
-	const_iterator	end() const 	{ return const_iterator(_tree.end());};
+	iterator		end() 			{ return _tree.end(); }
+	const_iterator	end() const 	{ return const_iterator(_tree.end());}
 	
-	reverse_iterator       rbegin()			{ return _tree.rbegin(); };
-	const_reverse_iterator rbegin() const 	{ return _tree.rbegin(); };
-	reverse_iterator       rend() 			{ return _tree.rend(); };
-	const_reverse_iterator rend() const 	{ return _tree.rend(); };
+	reverse_iterator       rbegin()			{ return _tree.rbegin(); }
+	const_reverse_iterator rbegin() const 	{ return _tree.rbegin(); }
+	reverse_iterator       rend() 			{ return _tree.rend(); }
+	const_reverse_iterator rend() const 	{ return _tree.rend(); }
 	// iterator end
 
 
@@ -184,7 +184,7 @@ public:
 			throw std::exception();
 		}
 		return node->data;
-	};
+	}
 
 	reference       at(const Key& key) // Should not check negative??
 	{
@@ -194,7 +194,7 @@ public:
 		if (!node)
 			throw std::out_of_range("is not in map");
 		return node->key;
-	};
+	}
 	
 	const_reference at(const Key& key) const 
 	{
@@ -204,15 +204,15 @@ public:
 		if (!node)
 			throw std::out_of_range("is not in map");
 		return node->key;
-	};
+	}
 
 	/* Element access end */
 
 
 	/* Capacity */
-	bool 		empty() const	{ return (_size <= 0 ? true : false); };
-	size_type	size() const { return _size; };
-	size_type	max_size() const { return std::min(TO_SIZE(std::numeric_limits<difference_type>::max()), _allocator.max_size()) ; };
+	bool 		empty() const	{ return (_size <= 0 ? true : false); }
+	size_type	size() const { return _size; }
+	size_type	max_size() const { return std::min(TO_SIZE(std::numeric_limits<difference_type>::max()), _allocator.max_size()) ; }
 
 	/* Capacity end */
 
@@ -231,7 +231,7 @@ public:
 		// 	_allocator.destroy(begin_.base());	
 		// }
 		// _size = 0;
-	};
+	}
 
 	ft::pair<iterator, bool> insert(const value_type& t)
 	{
@@ -247,7 +247,7 @@ public:
 		_size++;
 		return ft::make_pair(iterator(node), true);
 		
-	};
+	}
 
 	iterator insert( iterator, const value_type& value ) // WARNING
 	{
@@ -255,21 +255,21 @@ public:
 	
 	}
 
-	template<class Iter>
-	void insert(Iter first, Iter last) // change to input only
-	{
-		while (first != last)
-		{
-			insert(*first);
-			++first;
-		}
-		return ;
-	};
+	// template<class Iter>
+	// void insert(Iter first, Iter last) // change to input only
+	// {
+	// 	while (first != last)
+	// 	{
+	// 		insert(*first);
+	// 		++first;
+	// 	}
+	// 	return ;
+	// }
 	
 	void erase(iterator pos)
 	{
 		erase((*pos).first);
-	};
+	}
 
 	size_type	erase(const key_type& key)
 	{
@@ -287,7 +287,7 @@ public:
 			erase((*first).first);
 			++first;
 		}
-	};
+	}
 
 	void swap(map & other)
 	{
@@ -311,7 +311,7 @@ private:
 		if (n > max_size())
 			throw std::length_error("out of bound");
 		return true;
-	};
+	}
 
 	void	_init_map(void)
 	{

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test_map.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/20 17:47:33 by sfournie          #+#    #+#             */
-/*   Updated: 2022/09/01 17:19:40 by sfournie         ###   ########.fr       */
+/*   Updated: 2023/02/03 14:48:45 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ using std::string;
 
 
 int main() {
-	ft::RBTree<ft::pair<string, int> > tree;
+	ft::rbtree<ft::pair<string, int> > tree;
 	ft::map<string, int> map;
 	// std::map<string, int> map_std;
 	ft::pair<string, int> pair;
@@ -91,12 +91,8 @@ int main() {
 	print_map(map_int);
 	map_int.insert(ft::make_pair(3, 26));
 	print_map(map_int);
-	// map_int.insert(ft::make_pair(string("17"), 1));
-	// map_int.insert(ft::make_pair(string("6"), 2));
-	// map_int.insert(ft::make_pair(string("16"), 4));
-	// map_int.insert(ft::make_pair(string("-1"), 3));
-	// map_int.insert(ft::make_pair(string("13"), 441));
-	// map_int.insert(ft::make_pair(string("11"), 36));
+	map_int.erase(3);
+	print_map(map_int);
 
 	
 

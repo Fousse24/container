@@ -16,7 +16,7 @@ using std::endl;
 namespace ft {
 
 template <class Key, class Compare = std::less<Key>, class Allocator = std::allocator<Key> >
-class RBTree {
+class rbtree {
 
 	typedef Allocator	allocator_type;
 	typedef Compare		key_compare;
@@ -65,7 +65,7 @@ private:
 
 /* CONSTRUCTORS & DESTRUCTOR */
 public:
-	RBTree()
+	rbtree()
 	{
 		_alloc = allocator_type();
 		_end = _createNode(false);
@@ -74,7 +74,7 @@ public:
 		_setRoot(_end);
 	}
 
-	~RBTree()
+	~rbtree()
 	{
 		delete _end;
 		delete _NIL;

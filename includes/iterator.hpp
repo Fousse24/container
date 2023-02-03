@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   iterator.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2022/08/29 13:58:52 by sfournie         ###   ########.fr       */
+/*   Updated: 2023/02/03 13:57:36 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,14 +43,14 @@ public:
 	typedef typename ft::iterator_traits<Iter>::reference			reference;
 	typedef typename ft::iterator_traits<Iter>::difference_type		difference_type;
 
-	reverse_iterator<Iter>() {  };
+	reverse_iterator<Iter>() {  }
 
 	reverse_iterator<Iter>(Iter type) { current = type; }
 
 	template< class U >
-	reverse_iterator<Iter>(const reverse_iterator<U>& it) { *this = it; };
+	reverse_iterator<Iter>(const reverse_iterator<U>& it) { *this = it; }
 	
-	~reverse_iterator<Iter>() {  };
+	~reverse_iterator<Iter>() {  }
 
 	template< class U > 
 	reverse_iterator<Iter>& operator=( const reverse_iterator<U>& it )
@@ -59,46 +59,46 @@ public:
 		return *this;
 	}
 
-	iterator_type	base() const	{ return current; };
-	reference operator*() const		{ return *current; };
-	pointer operator->() const		{ return &(operator*()); };
+	iterator_type	base() const	{ return current; }
+	reference operator*() const		{ return *current; }
+	pointer operator->() const		{ return &(operator*()); }
 
 	value_type operator[](difference_type i)
 	{
 		return (base()[-i]);
-	};
+	}
 
-	reverse_iterator<Iter>& operator++()	{ current--; return *this; };
-	reverse_iterator<Iter>& operator--()	{ current++; return *this; };
+	reverse_iterator<Iter>& operator++()	{ current--; return *this; }
+	reverse_iterator<Iter>& operator--()	{ current++; return *this; }
 
 	reverse_iterator<Iter> operator++( int )
 	{
 		reverse_iterator<Iter> ori = *this;
 		++(*this);
 		return ori;
-	};
+	}
 
 	reverse_iterator<Iter> operator--( int )
 	{
 		reverse_iterator<Iter> ori = *this;
 		--(*this);
 		return ori;
-	};
+	}
 
 	reverse_iterator<Iter> operator+(difference_type n)	
-	{ return reverse_iterator<Iter>(base() - n); };
+	{ return reverse_iterator<Iter>(base() - n); }
 	
 	 reverse_iterator<Iter> operator-(difference_type n)	
-	{ return reverse_iterator<Iter>(base() + n); };
+	{ return reverse_iterator<Iter>(base() + n); }
 
 	difference_type operator-(const reverse_iterator<Iter> & it)	
-	{ return it.base() - base(); };
+	{ return it.base() - base(); }
 
 	reverse_iterator<Iter>& operator+=(difference_type n)
-	{ current -= n; return *this; };
+	{ current -= n; return *this; }
 	
 	reverse_iterator<Iter>& operator-=(difference_type n)
-	{ current += n; return *this; };
+	{ current += n; return *this; }
 
 protected:
 	iterator_type	current;

@@ -69,7 +69,7 @@ using std::setw;
 namespace ft {
 
 template <class T, class Compare = std::less<T>, class Allocator = std::allocator<T> >
-class RBTree {
+class rbtree {
 
 public:
 	typedef Allocator                               	allocator_type;
@@ -106,7 +106,7 @@ private:
 
 /* CONSTRUCTORS & DESTRUCTOR */
 public:
-	RBTree() : _comp(key_compare())
+	rbtree() : _comp(key_compare())
 	{
 		_size = 0;
 		_alloc = allocator_type();
@@ -117,7 +117,7 @@ public:
 		_setRoot(_end);
 	}
 
-	~RBTree()
+	~rbtree()
 	{
 		delete _end;
 		delete _NIL;
@@ -380,7 +380,6 @@ private:
 		Node* farNiece;
 		bool doubleBlack = false;
 
-		printTree();
 		if (!node->red)
 		{
 			/* DOUBLE BLACK */
@@ -463,6 +462,8 @@ private:
 		_sentinel->left = min(_root);
 		_sentinel->right = max(_root);
 		_sentinel->parent = _end;
+		_NIL->parent = _end;
+		_end->right = _NIL;
 	}
 
 	// Replace <dst>'s data with <src>'s
@@ -567,16 +568,26 @@ public:
 		return node;
 	}
 
-	void deleteNode( const T & data )
+	int deleteNode( const T & data )
 	{
 		Node* node = findNode(_root, data);
 		
 		if (isNil(node))
-			return;
+			return 0;
 
 		_delete(node);
 		_updateSentinel();
+		return 1;
 	}
+
+	// void deleteNode( Node * node )
+	// {		
+	// 	if (isNil(node))
+	// 		return;
+
+	// 	_delete(node);
+	// 	_updateSentinel();
+	// }
 
 	key_compare& value_comp()
     {
@@ -678,25 +689,25 @@ public:
 		return root;
 	}
 
-	allocator_type get_allocator() const { return Allocator(); };
+	allocator_type get_allocator() const { return Allocator(); }
 	
 	// iterator	
-	iterator		begin()			{ return iterator(min(_root)); };
-	const_iterator	begin() const	{ return const_iterator(min(_root)); };
+	iterator		begin()			{ return iterator(min(_root)); }
+	const_iterator	begin() const	{ return const_iterator(min(_root)); }
 
-	iterator		end() 			{ return iterator(_end); };
-	const_iterator	end() const 	{ return const_iterator(_end);};
+	iterator		end() 			{ return iterator(_end); }
+	const_iterator	end() const 	{ return const_iterator(_end);}
 	
-	reverse_iterator       rbegin()			{ return reverse_iterator(_sentinel->right); };
-	const_reverse_iterator rbegin() const 	{ return const_reverse_iterator(_sentinel->right); };
-	reverse_iterator       rend() 			{ return reverse_iterator(_sentinel->left); };
-	const_reverse_iterator rend() const 	{ return const_reverse_iterator(_sentinel->left); };
+	reverse_iterator       rbegin()			{ return reverse_iterator(_sentinel->right); }
+	const_reverse_iterator rbegin() const 	{ return const_reverse_iterator(_sentinel->right); }
+	reverse_iterator       rend() 			{ return reverse_iterator(_sentinel->left); }
+	const_reverse_iterator rend() const 	{ return const_reverse_iterator(_sentinel->left); }
 	// iterator end
 
 	/* Capacity */
-	bool 		empty() const	{ return (_size <= 0 ? true : false); };
-	size_type	size() const { return _size; };
-	size_type	max_size() const { return std::min(TO_SIZE(std::numeric_limits<difference_type>::max()), _alloc.max_size()) ; };
+	bool 		empty() const	{ return (_size <= 0 ? true : false); }
+	size_type	size() const { return _size; }
+	size_type	max_size() const { return std::min(TO_SIZE(std::numeric_limits<difference_type>::max()), _alloc.max_size()) ; }
 
 	/* Capacity end */
 
@@ -715,7 +726,7 @@ public:
 		// 	_allocator.destroy(begin_.base());	
 		// }
 		// _size = 0;
-	};
+	}
 
 	// ft::pair<iterator, bool> insert(const value_type& t)
 	// {
@@ -731,7 +742,7 @@ public:
 	// 	_size++;
 	// 	return ft::make_pair(iterator(&_tree, node), true);
 		
-	// };
+	// }
 
 	// iterator insert( iterator, const value_type& value ) // WARNING
 	// {
@@ -748,12 +759,12 @@ public:
 	// 		++first;
 	// 	}
 	// 	return ;
-	// };
+	// }
 	
 	// void erase(iterator pos)
 	// {
 	// 	erase((*pos).first);
-	// };
+	// }
 
 	// size_type	erase(const key_type& key)
 	// {
@@ -771,7 +782,7 @@ public:
 	// 		erase((*first).first);
 	// 		++first;
 	// 	}
-	// };
+	// }
 
 	// void swap(map & other)
 	// {
@@ -790,9 +801,9 @@ public:
 
 	void printTree()
 	{
-		Node*	node;
+		// Node*	node;
 		cout << "Printing tree in order" << endl;
-		node = _sentinel->left;
+		// node = _sentinel->left;
 		// while (!isNil(node))
 		// {
 		// 	cout << node->data << endl;
@@ -853,7 +864,7 @@ public:
 };
 
 template< class T, class Alloc >
-bool operator==( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>& rhs)
+bool operator==( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>& rhs)
 {
 	if (lhs.size() != rhs.size())
 		return false;
@@ -861,23 +872,23 @@ bool operator==( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>& rh
 }
 
 template< class T, class Alloc >
-bool operator!=( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>& rhs)
+bool operator!=( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>& rhs)
 { return !(lhs == rhs); }
 
 template< class T, class Alloc >
-bool operator>( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>&rhs)
+bool operator>( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>&rhs)
 { return !(lhs < rhs) && lhs != rhs; }
 
 template< class T, class Alloc >
-bool operator<( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>&rhs)
+bool operator<( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>&rhs)
 { return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end())); }
 
 template< class T, class Alloc >
-bool operator>=( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>&rhs)
+bool operator>=( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>&rhs)
 { return !(lhs < rhs); }
 
 template< class T, class Alloc >
-bool operator<=( const ft::RBTree<T, Alloc>& lhs, const ft::RBTree<T, Alloc>&rhs)
+bool operator<=( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>&rhs)
 { return !(lhs > rhs); }
 
 // template< class T, class Alloc>

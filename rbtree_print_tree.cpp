@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   tree_test.cpp                                      :+:      :+:    :+:   */
+/*   rbtree_print_tree.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfournie <sfournie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/20 17:47:33 by sfournie          #+#    #+#             */
-/*   Updated: 2022/09/13 11:43:57 by sfournie         ###   ########.fr       */
+/*   Updated: 2023/02/03 14:10:53 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void showCommands()
 	cout << "Quit:          q" << endl;
 }
 
-void insert( string input, ft::RBTree<int> & tree )
+void insert( string input, ft::rbtree<int> & tree )
 {
 	try
 	{
@@ -43,7 +43,7 @@ void insert( string input, ft::RBTree<int> & tree )
 	}
 }
 
-void deletion( string input, ft::RBTree<int> & tree )
+void deletion( string input, ft::rbtree<int> & tree )
 {
 	try
 	{
@@ -56,7 +56,7 @@ void deletion( string input, ft::RBTree<int> & tree )
 	}
 }
 
-void print( string input, ft::RBTree<int> & tree )
+void print( string input, ft::rbtree<int> & tree )
 {
 	try
 	{
@@ -90,7 +90,7 @@ bool validateEntry( string input )
 }
 
 int main() {
-	ft::RBTree<int> bst;
+	ft::rbtree<int> bst;
 	string input = "";
 
 	// bst.insert(11);
