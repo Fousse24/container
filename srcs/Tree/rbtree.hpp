@@ -49,7 +49,7 @@ using std::setw;
  * PUBLIC FUNCTIONS
  *		getRoot
  *		insert
- *		deleteNode
+ *		erase
  *		findNode
  *		inorderPre
  *		inorderSucc
@@ -244,9 +244,9 @@ private:
 
 	Node* _insert( Node* root, Node* node )
 	{
-		if (node->data == root->data)
+		if (*node->data == *root->data)
 			return root;
-		if (value_comp()(node->data, root->data))
+		if (value_comp()(*node->data, *root->data))
 		{
 			if (isNil(root->left))
 			{
@@ -257,7 +257,7 @@ private:
 				return _insert(root->left, node);
 			}
 		}
-		else if (!value_comp()(node->data, root->data))
+		else if (!value_comp()(*node->data, *root->data))
 		{
 			if (isNil(root->right))
 			{
@@ -349,7 +349,7 @@ private:
 					replacement = node->left;
 				else if (isNil(node->left))
 					replacement = node->right;
-				node = _transplantData(replacement, node);
+				node = _swapData(replacement, node);
 				return _delete(replacement);
 				/**/
 			}
@@ -357,7 +357,7 @@ private:
 			{ 
 				/* 2 children */
 				replacement = inorderSucc(node);				
-				node = _transplantData(replacement, node);
+				node = _swapData(replacement, node);
 				return _delete(replacement);
 				/**/
 			}
@@ -470,7 +470,19 @@ private:
 	Node* _transplantData( Node* src, Node* dst )
 	{
 		// TODO delete dst->data somehow
+
 		dst->data = src->data;
+		return dst;
+	}
+
+	Node* _swapData( Node* src, Node* dst )
+	{
+		// TODO delete dst->data somehow
+		T* save;
+
+		save = dst->data;
+		dst->data = src->data;
+		src->data = save;
 		return dst;
 	}
 
@@ -551,35 +563,6 @@ public:
 		return _root;
 	}
 
-	Node* insert( const T & data )
-	{
-		Node* node = _createNode(data, true);
-
-		// if tree is empty, new node becomes root
-		if (isNil(_root) || _root == _end) 
-		{
-			_setRoot(node);
-		}
-		else
-		{
-			node = _insert(_root, node);
-		}
-		_updateSentinel();
-		return node;
-	}
-
-	int deleteNode( const T & data )
-	{
-		Node* node = findNode(_root, data);
-		
-		if (isNil(node))
-			return 0;
-
-		_delete(node);
-		_updateSentinel();
-		return 1;
-	}
-
 	// void deleteNode( Node * node )
 	// {		
 	// 	if (isNil(node))
@@ -602,9 +585,9 @@ public:
 	Node* findNode(Node* root, const T & data ) {
 		if (isNil(root))
 			return NULL;
-		if (!value_comp()(root->data, data) && !value_comp()(data, root->data))
+		if (!value_comp()(*root->data, data) && !value_comp()(data, *root->data))
 			return root;
-		if (value_comp()(root->data, data))
+		if (value_comp()(*root->data, data))
 			return findNode(root->right, data);
 		else
 			return findNode(root->left, data);
@@ -614,9 +597,9 @@ public:
 	Node* findNode(Node* root, const value & data ) {
 		if (isNil(root))
 			return NULL;
-		if (!value_comp()(root->data, data) && !value_comp()(data, root->data))
+		if (!value_comp()(*root->data, data) && !value_comp()(data, *root->data))
 			return root;
-		if (value_comp()(root->data, data))
+		if (value_comp()(*root->data, data))
 			return findNode(root->right, data);
 		else
 			return findNode(root->left, data);
@@ -715,34 +698,79 @@ public:
 	/* Modifier */
 	void clear()
 	{
-		// iterator end_ = end();
-		// iterator begin_ = begin();
+		Node*		save;
+		iterator	end_ = end();
+		iterator	begin_ = begin();
 		
-		// if (!_tree || begin_ == end_)
-		// 	return ;
+		if (begin_ == end_)
+			return ;
 
-		// for (; begin_ < end_; begin_++)
-		// {
-		// 	_allocator.destroy(begin_.base());	
-		// }
-		// _size = 0;
+		for (; begin_ != end_;)
+		{
+			save = begin_.get_node();
+			begin_++;
+			delete (save);
+		}
+		_sentinel->left = _end;
+		_sentinel->right = _end;
+		_root = _end;
+		_size = 0;
 	}
 
-	// ft::pair<iterator, bool> insert(const value_type& t)
-	// {
-	// 	t_node*	node;
+	Node* insert( const T & data )
+	{
+		Node* node = _createNode(data, true);
+
+		// if tree is empty, new node becomes root
+		if (isNil(_root) || _root == _end) 
+		{
+			_setRoot(node);
+		}
+		else
+		{
+			node = _insert(_root, node);
+		}
+		if (!isNil(node))
+			_size++;
+		_updateSentinel();
+		return node;
+	}
+
+	bool erase( const T & data )
+	{
+		Node* node = findNode(_root, data);
 		
-	// 	node = _tree.findNode(_tree.getRoot(), t);
-	// 	if (node)
-	// 		return ft::make_pair(iterator(&_tree, node), false);
-			
-	// 	node = _tree.insert(t);
-	// 	if (!node)
-	// 		return ft::make_pair(iterator(&_tree, node), false);
-	// 	_size++;
-	// 	return ft::make_pair(iterator(&_tree, node), true);
-		
-	// }
+		if (isNil(node))
+			return false;
+
+		_delete(node);
+		_updateSentinel();
+		return true;
+	}
+
+	void swap(rbtree & other)
+	{
+		Node*		save_sentinel;
+		Node*		save_end;
+		Node*		save_root;
+		size_type	save_size;
+
+		save_root = other._tree.getRoot();
+		save_end = other._tree._end;
+		save_sentinel = other._tree._sentinel;
+		save_size = other.size();
+
+		other._size = _size;
+		other._tree._setRoot(getRoot());
+		other._sentinel = _sentinel;
+		other._end = _end;
+
+		_size = save_size;
+		_setRoot(save_root);
+		_sentinel = save_sentinel;
+		_end = save_end;
+	}
+
 
 	// iterator insert( iterator, const value_type& value ) // WARNING
 	// {
@@ -784,20 +812,7 @@ public:
 	// 	}
 	// }
 
-	// void swap(map & other)
-	// {
-	// 	Node*		save;
-	// 	size_type	size_;
-
-	// 	save = other._tree.getRoot();
-	// 	size_ = other.size();
-
-	// 	other._size = _size;
-	// 	other._tree._setRoot(_tree.getRoot());
-
-	// 	_size = size_;
-	// 	_tree._setRoot(save);
-	// }
+	
 
 	void printTree()
 	{
@@ -832,7 +847,7 @@ public:
 			}
 			else
 			{
-				cout << "Successor is node " << node->data << endl;
+				cout << "Successor is node " << *node->data << endl;
 			}
 		}
 	}
@@ -854,7 +869,7 @@ public:
 			}
 			else
 			{
-				cout << "Predecessor is node " << node->data << endl;
+				cout << "Predecessor is node " << *node->data << endl;
 			}
 		}
 	}
@@ -901,128 +916,3 @@ bool operator<=( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>&rhs
 
 
 #endif
-
-
-// int getHeight(const Node* root, int height)
-// 	{
-// 		int leftH = 0;
-// 		int rightH = 0;
-
-// 		if (isNil(root))
-// 		{
-// 			return height - 1;
-// 		} 
-// 		else {
-// 			leftH = getHeight(root->left, height + 1);
-// 			rightH = getHeight(root->right, height + 1);
-// 			if (leftH > rightH || leftH == rightH) 
-// 			{
-// 				return leftH;
-// 			} 
-// 			else 
-// 			{
-// 				return rightH;
-// 			}
-// 		}
-// 	}
-
-// 	void printTree()
-// 	{
-// 		for (int level = 0; level <= getHeight(_root, 0); level++)
-// 		{
-// 			printLevel(level);
-// 			cout << endl;
-// 		}
-// 		cout << "___" << endl;
-// 	}
-
-// 	void printSuccessor( value_type & data )
-// 	{
-// 		Node* node = findNode(_root, data);
-
-// 		if (isNil(node))
-// 		{
-// 			cout << "Couldn't find node of data " << data << endl;
-// 		}
-// 		else
-// 		{
-// 			node = inorderSucc(node);
-// 			if (node == _end)
-// 			{
-// 				cout << "Successor is the end" << endl;
-// 			}
-// 			else
-// 			{
-// 				cout << "Successor is node " << node->data << endl;
-// 			}
-// 		}
-// 	}
-
-// 	void printPredecessor( value_type & data )
-// 	{
-// 		Node* node = findNode(_root, data);
-
-// 		if (isNil(node))
-// 		{
-// 			cout << "Couldn't find node of data " << data << endl;
-// 		}
-// 		else
-// 		{
-// 			node = inorderPre(node);
-// 			if (node == _end)
-// 			{
-// 				cout << "Predecessor is the end" << endl;
-// 			}
-// 			else
-// 			{
-// 				cout << "Predecessor is node " << node->data << endl;
-// 			}
-// 		}
-// 	}
-
-// 	void printLevel(int level)
-// 	{
-// 		Node* temp = _root;
-// 		int depth = pow(2, getHeight(_root, 0) - level + 2);
-
-// 		cout << setw(depth) << "";
-// 		displayLevel(temp, level, depth);
-// 	}
-		
-// 	void displayLevel(Node* node, int level, int depth)
-// 	{
-// 		int disp = 2 * depth;
-// 		if (level == 0)
-// 		{
-// 			if (isNil(node))
-// 			{
-// 				cout << " x ";
-// 				cout << setw(disp - 3) << "";
-// 				return;
-// 			}
-// 			else 
-// 			{
-// 				int result = ((node->data <= 1) ? 1 : log10(node->data) + 1);
-// 				if (node->red)
-// 					cout << "\033[1;31m";
-// 				else
-// 					cout << "\033[1;37m";
-// 				cout << " " << node->data << " ";
-// 				cout << setw(disp - result-2) << "";
-// 				cout << "\033[0m";
-// 			}
-// 		}
-// 		else
-// 		{
-// 			if (isNil(node) && level >= 1)
-// 			{
-// 				displayLevel(NULL, level - 1, depth);
-// 				displayLevel(NULL, level - 1, depth);
-// 			}
-// 			else
-// 			{
-// 				displayLevel(node->left, level - 1, depth);
-// 				displayLevel(node->right, level - 1, depth);
-// 			}
-// 		}
-// 	}

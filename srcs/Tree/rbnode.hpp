@@ -28,7 +28,7 @@ private:
 	allocator_type	_alloc;
 	key_compare comp_;
 public:
-	T data;
+	T* data;
 	RBNode* left;
 	RBNode* right;
 	RBNode* parent;
@@ -37,7 +37,8 @@ public:
 
 	RBNode()
 	{
-		_alloc.construct(&data);
+		data = _alloc.allocate(sizeof(data));
+		_alloc.construct(data);
 		left = NULL;
 		right = NULL;
 		parent = NULL;
@@ -47,7 +48,8 @@ public:
 
 	RBNode(const T & value)
 	{
-		_alloc.construct(&data, value);
+		data = _alloc.allocate(sizeof(data));
+		_alloc.construct(data, value);
 		left = NULL;
 		right = NULL;
 		parent = NULL;
@@ -57,17 +59,21 @@ public:
 
 	RBNode( const RBNode& rhs )
 	{
+		data = _alloc.allocate(sizeof(data));
+		_alloc.construct(data);
 		*this = rhs;
 	}
 
 	~RBNode()
 	{
-		_alloc.destroy(&data);
+		_alloc.destroy(data);
+		_alloc.deallocate(data, sizeof(data));
 	}
 
 	RBNode& operator=( const RBNode& rhs )
 	{
-		data = rhs.data;
+		_alloc.destroy(data);
+		_alloc.construct(data, rhs.data);
 		left = rhs.left;
 		right = rhs.right;
 		parent = rhs.parent;

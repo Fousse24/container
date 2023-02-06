@@ -72,7 +72,7 @@ public:
 		return *this;
 	}
 
-	pointer			base() const			{ return &_node->data; }
+	pointer			base() const			{ return _node->data; }
 	node_pointer	get_node() const		{ return _node; }
 	reference		operator*() const		{ return *base(); }
 	pointer			operator->() const		{ return base(); }
@@ -182,7 +182,7 @@ public:
 		return *this;
 	}
 
-	pointer			base() const			{ return &_node->data; }
+	pointer			base() const			{ return _node->data; }
 	node_pointer	get_node() const		{ return _node; }
 	reference		operator*() const		{ return *base(); }
 	pointer			operator->() const		{ return base(); }

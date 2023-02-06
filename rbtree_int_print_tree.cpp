@@ -123,7 +123,7 @@ int main() {
 		cout << "delete number: ";
 		cin >> input;
 		if (input) {
-			bst.deleteNode(input);
+			bst.erase(input);
 			bst.printTree();
 		}
 	}

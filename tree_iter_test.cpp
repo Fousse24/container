@@ -62,7 +62,7 @@ int main() {
 	// bst_pair.printTree();
 	bst_pair.insert(ft::make_pair(string("a"), 1));
 	// bst_pair.printTree();
-	bst_pair.deleteNode(ft::make_pair(string("c"), 2));
+	bst_pair.erase(ft::make_pair(string("c"), 2));
 	std::for_each(bst_pair.begin(), bst_pair.end(), print<ft::pair<string, int> > );
 }
 

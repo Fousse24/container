@@ -15,6 +15,7 @@ D_INC	= includes
 D_VECT	= $(D_SRC)/Vector
 D_MAP	= $(D_SRC)/Map
 D_TREE	= $(D_SRC)/Tree
+D_TEST	= $(D_SRC)/Tester
 D_OBJ	= objs
 
 # Includes
@@ -23,6 +24,7 @@ INC		= -I$(D_INC) -I$(D_VECT) -I$(D_MAP) -I$(D_TREE)
 
 # Files
 MAIN	= test_map.cpp
+MAP_M	= $(D_TEST)/test_map.cpp
 
 _HEAD	= $(D_INC)/iterator.hpp			\
 		  $(D_INC)/iterator_traits.hpp	\
@@ -37,6 +39,9 @@ _HEAD	= $(D_INC)/iterator.hpp			\
 		  $(D_TREE)/rbtree.hpp			\
 		  $(D_TREE)/rbtree_iterator.hpp	\
 		  $(D_TREE)/rbnode.hpp	\
+		  \
+		#   $(D_TEST)/test_map.cpp		\
+
 
 
 HEAD	= $(_HEAD)
@@ -74,6 +79,11 @@ exe		: test
 		# $(shell ./$(NAME))
 
 test	: _test $(NAME)
+
+map		: fclean _test _map $(NAME)
+
+_map	: 
+		$(eval MAIN= $(MAP_M))
 
 _test	:
 		$(eval CFLAGS= -g -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++11)

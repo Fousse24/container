@@ -97,7 +97,6 @@ public:
 
 private: // WARNING private
 	tree_type		_tree;
-	size_type		_size;
 	Allocator		_allocator;
 
 public:
@@ -170,9 +169,9 @@ public:
 
 		if (_tree.isNil(node))
 		{
-			throw std::exception();
+			node = _tree.insert(value_type(key, mapped_type()));
 		}
-		return node->data;
+		return *node->data;
 	};
 	
 	const_reference operator[](const Key& key) const // Must not check bounds
@@ -181,9 +180,9 @@ public:
 
 		if (_tree.isNil(node))
 		{
-			throw std::exception();
+			node = _tree.insert(value_type(key, mapped_type()));
 		}
-		return node->data;
+		return *node->data;
 	}
 
 	reference       at(const Key& key) // Should not check negative??
@@ -193,7 +192,7 @@ public:
 		node = _tree.findNode(_tree.getRoot(), key);
 		if (!node)
 			throw std::out_of_range("is not in map");
-		return node->key;
+		return *node->data;
 	}
 	
 	const_reference at(const Key& key) const 
@@ -203,15 +202,15 @@ public:
 		node = _tree.findNode(_tree.getRoot(), key);
 		if (!node)
 			throw std::out_of_range("is not in map");
-		return node->key;
+		return *node->data;
 	}
 
 	/* Element access end */
 
 
 	/* Capacity */
-	bool 		empty() const	{ return (_size <= 0 ? true : false); }
-	size_type	size() const { return _size; }
+	bool 		empty() const	{ return (_tree.empty()); }
+	size_type	size() const { return _tree.size(); }
 	size_type	max_size() const { return std::min(TO_SIZE(std::numeric_limits<difference_type>::max()), _allocator.max_size()) ; }
 
 	/* Capacity end */
@@ -220,17 +219,7 @@ public:
 	/* Modifier */
 	void clear()
 	{
-		// iterator end_ = end();
-		// iterator begin_ = begin();
-		
-		// if (!_tree || begin_ == end_)
-		// 	return ;
-
-		// for (; begin_ < end_; begin_++)
-		// {
-		// 	_allocator.destroy(begin_.base());	
-		// }
-		// _size = 0;
+		_tree.clear();
 	}
 
 	ft::pair<iterator, bool> insert(const value_type& t)
@@ -244,7 +233,7 @@ public:
 		node = _tree.insert(t);
 		if (!node)
 			return ft::make_pair(iterator(node), false);
-		_size++;
+
 		return ft::make_pair(iterator(node), true);
 		
 	}
@@ -273,11 +262,10 @@ public:
 
 	size_type	erase(const key_type& key)
 	{
-		int	deleted;
+		bool	deleted;
 
-		deleted = _tree.deleteNode(ft::make_pair(key, mapped_type()));
-		_size -= deleted;
-		return (size_type)deleted;
+		deleted = _tree.erase(ft::make_pair(key, mapped_type()));
+		return deleted ? 1 : 0;
 	}
 
 	void erase(iterator first, iterator last)
@@ -289,20 +277,20 @@ public:
 		}
 	}
 
-	void swap(map & other)
-	{
-		node_ptr		save;
-		size_type	size_;
+	// void swap(map & other)
+	// {
+	// 	node_ptr		save;
+	// 	size_type	size_;
 
-		save = other._tree.getRoot();
-		size_ = other.size();
+	// 	save = other._tree.getRoot();
+	// 	size_ = other.size();
 
-		other._size = _size;
-		other._tree._setRoot(_tree.getRoot());
+	// 	other._size = _size;
+	// 	other._tree._setRoot(_tree.getRoot());
 
-		_size = size_;
-		_tree._setRoot(save);
-	}
+	// 	_size = size_;
+	// 	_tree._setRoot(save);
+	// }
 	
 private:
 
@@ -315,7 +303,7 @@ private:
 
 	void	_init_map(void)
 	{
-		_size = 0;
+		// _size = 0;
 		// _tree = t_tree();
 	}
 };

@@ -1,1 +1,7 @@
 .vscode
+.DS_Store
+a.out
+a.out*
+container
+*.dSYM
+ft_containers-terminator
