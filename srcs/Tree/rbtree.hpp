@@ -37,7 +37,6 @@ using std::setw;
  *		_delete
  *		_rbDeleteFix
  *		_deleteLeaf
- *		_updateSentinel
  *		_transplantData
  *		_recolor
  *		_swapColor
@@ -97,7 +96,6 @@ private:
 	Node*			_root;
 	Node*			_end;
 	Node*			_NIL;
-	Node*			_sentinel;
 	key_compare		_comp;
 	size_type		_size;
 
@@ -111,8 +109,6 @@ public:
 		_size = 0;
 		_alloc = allocator_type();
 		_end = _createNode(false);
-		_sentinel = _createNode(false);
-		_sentinel->parent = _end;
 		_NIL = _createNode(false);
 		_setRoot(_end);
 	}
@@ -121,7 +117,6 @@ public:
 	{
 		delete _end;
 		delete _NIL;
-		delete _sentinel;
 		_deleteTree(_root);
 	}
 
@@ -135,7 +130,6 @@ private:
 		Node* node = new Node(data);
 		node->left = _NIL;
 		node->right = _NIL;
-		node->sentinel = _sentinel;
 		node->red = red;
 		return node;
 	}
@@ -145,7 +139,6 @@ private:
 		Node* node = new Node();
 		node->left = _NIL;
 		node->right = _NIL;
-		node->sentinel = _sentinel;
 		node->red = red;
 		return node;
 	}
@@ -183,6 +176,7 @@ private:
 		if (isNil(parent) || isNil(child))
 			return;
 
+		_size++;
 		parent->right = child;
 		child->parent = parent;
 	}
@@ -192,6 +186,7 @@ private:
 		if (isNil(parent) || isNil(child))
 			return;
 
+		_size++;
 		parent->left = child;
 		child->parent = parent;
 	}
@@ -328,7 +323,6 @@ private:
 				_rbInsertFix(grandP);
 			}
 		}
-		_size++;
 		_root->red = false;
 	}
 
@@ -457,11 +451,8 @@ private:
 		return wasRed;	
 	}
 
-	void _updateSentinel( )
+	void _fixTree( )
 	{
-		_sentinel->left = min(_root);
-		_sentinel->right = max(_root);
-		_sentinel->parent = _end;
 		_NIL->parent = _end;
 		_end->right = _NIL;
 	}
@@ -604,48 +595,92 @@ public:
 		else
 			return findNode(root->left, data);
 	}
+	
 
 	// TODO
 	Node* inorderPre( Node* node )
 	{
-		if (isNil(node))
-			return node;
-		if (!isNil(node->left))
-			return max(node->left);
-		if (node == _sentinel->left)
-			return _end;
-		if (node == _end)
-			return _sentinel->right;
+
+		Node* save;
+
+		if (this->left && this->left->parent == this)
+		{
+			save = this->left;
+			while (save->right && save->right->parent == save)
+				save = save->left;
+			return save;
+		}
 		else
 		{
-			// While the node is a left child, keep going.
-			while (!isNil(node->parent) && node == node->parent->left)
-			{
-				node = node->parent;
-			}
-			return node->parent;
+			// while you are a left child, iterate on the parent
+			save = this;
+			while (save->parent && save->parent->left == save)
+				save = save->parent;
+			return save->parent;
 		}
 	}
+
+	// Node* inorderPre( Node* node )
+	// {
+	// 	if (isNil(node))
+	// 		return node;
+	// 	if (!isNil(node->left))
+	// 		return max(node->left);
+	// 	if (node == _sentinel->left)
+	// 		return _end;
+	// 	if (node == _end)
+	// 		return _sentinel->right;
+	// 	else
+	// 	{
+	// 		// While the node is a left child, keep going.
+	// 		while (!isNil(node->parent) && node == node->parent->left)
+	// 		{
+	// 			node = node->parent;
+	// 		}
+	// 		return node->parent;
+	// 	}
+	// }
 
 	// TODO
 	Node* inorderSucc( Node* node )
 	{
-		if (isNil(node))
-			return node;
-		if (!isNil(node->right))
-			return min(node->right);
-		if (node == _sentinel->right)
-			return _end;
+		Node* save;
+
+		if (node->right && node->right->parent == node)
+		{
+			save = node->right;
+			while (save->left && save->left->parent == save)
+				save = save->left;
+			return save;
+		}
 		else
 		{
-			// While the node is a right child, keep going.
-			while (!isNil(node->parent) && node == node->parent->right)
-			{
-				node = node->parent;
-			}
-			return node->parent;
+			// while you are a right child, iterate on the parent
+			save = node;
+			while (save->parent && save->parent->right == save)
+				save = save->parent;
+			return save->parent;
 		}
 	}
+
+	// Node* inorderSucc( Node* node )
+	// {
+	// 	if (isNil(node))
+	// 		return node;
+	// 	if (!isNil(node->right))
+	// 		return min(node->right);
+	// 	if (node == _sentinel->right)
+	// 		return _end;
+	// 	else
+	// 	{
+	// 		// While the node is a right child, keep going.
+	// 		while (!isNil(node->parent) && node == node->parent->right)
+	// 		{
+	// 			node = node->parent;
+	// 		}
+	// 		return node->parent;
+	// 	}
+	// }
 
 	bool isNil( const Node* node )
 	{
@@ -681,10 +716,10 @@ public:
 	iterator		end() 			{ return iterator(_end); }
 	const_iterator	end() const 	{ return const_iterator(_end);}
 	
-	reverse_iterator       rbegin()			{ return reverse_iterator(_sentinel->right); }
-	const_reverse_iterator rbegin() const 	{ return const_reverse_iterator(_sentinel->right); }
-	reverse_iterator       rend() 			{ return reverse_iterator(_sentinel->left); }
-	const_reverse_iterator rend() const 	{ return const_reverse_iterator(_sentinel->left); }
+	reverse_iterator       rbegin()			{ return reverse_iterator(max(_root)); }
+	const_reverse_iterator rbegin() const 	{ return const_reverse_iterator(max(_root)); }
+	reverse_iterator       rend() 			{ return reverse_iterator(_end); }
+	const_reverse_iterator rend() const 	{ return const_reverse_iterator(_end); }
 	// iterator end
 
 	/* Capacity */
@@ -711,8 +746,6 @@ public:
 			begin_++;
 			delete (save);
 		}
-		_sentinel->left = _end;
-		_sentinel->right = _end;
 		_root = _end;
 		_size = 0;
 	}
@@ -725,14 +758,13 @@ public:
 		if (isNil(_root) || _root == _end) 
 		{
 			_setRoot(node);
+			_size++;
 		}
 		else
 		{
 			node = _insert(_root, node);
 		}
-		if (!isNil(node))
-			_size++;
-		_updateSentinel();
+		_fixTree();
 		return node;
 	}
 
@@ -744,33 +776,72 @@ public:
 			return false;
 
 		_delete(node);
-		_updateSentinel();
+		_fixTree();
 		return true;
 	}
 
 	void swap(rbtree & other)
 	{
-		Node*		save_sentinel;
 		Node*		save_end;
 		Node*		save_root;
 		size_type	save_size;
 
-		save_root = other._tree.getRoot();
 		save_end = other._tree._end;
-		save_sentinel = other._tree._sentinel;
+		save_root = other._tree.getRoot();
 		save_size = other.size();
 
-		other._size = _size;
-		other._tree._setRoot(getRoot());
-		other._sentinel = _sentinel;
 		other._end = _end;
+		other._tree._setRoot(getRoot());
+		other._size = _size;
 
-		_size = save_size;
-		_setRoot(save_root);
-		_sentinel = save_sentinel;
+		
 		_end = save_end;
+		_setRoot(save_root);
+		_size = save_size;
+		
 	}
 
+	size_type count( const T & data )
+	{
+		if (findNode(_root, data) != end())
+			return 1;
+		return 0;
+	}
+
+
+	iterator find( const T & data )
+	{
+		Node* node = findNode(_root, data);
+
+		if (isNil(node))
+			return end();
+		return iterator(node);
+	}
+
+	const_iterator find( const T & data ) const 
+	{
+		Node* node = findNode(_root, data);
+
+		if (isNil(node))
+			return end();
+		return const_iterator(node);
+	}
+
+	ft::pair<iterator, iterator> equal_range( const T & data ) const 
+	{
+		Node* 		node = _root;
+		iterator	not_less = end();
+		iterator	greater = end();
+
+		if (isNil(root))
+			return NULL;
+		if (!value_comp()(*root->data, data) && !value_comp()(data, *root->data))
+			return root;
+		if (value_comp()(*root->data, data))
+			return findNode(root->right, data);
+		else
+			return findNode(root->left, data);
+	}
 
 	// iterator insert( iterator, const value_type& value ) // WARNING
 	// {

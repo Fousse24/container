@@ -32,7 +32,6 @@ public:
 	RBNode* left;
 	RBNode* right;
 	RBNode* parent;
-	RBNode* sentinel;
 	bool red;
 
 	RBNode()
@@ -42,7 +41,6 @@ public:
 		left = NULL;
 		right = NULL;
 		parent = NULL;
-		sentinel = NULL;
 		red = true;
 	}
 
@@ -53,7 +51,6 @@ public:
 		left = NULL;
 		right = NULL;
 		parent = NULL;
-		sentinel = NULL;
 		red = true;
 	}
 
@@ -77,7 +74,6 @@ public:
 		left = rhs.left;
 		right = rhs.right;
 		parent = rhs.parent;
-		sentinel = rhs.sentinel;
 		red = rhs.red;
 		return *this;
 	}
@@ -126,7 +122,10 @@ public:
 			save = this;
 			while (save->parent && save->parent->left == save)
 				save = save->parent;
-			return save->parent;
+			if (save->parent)
+				return save->parent;
+			else
+				return save;
 		}
 	}
 };
