@@ -239,8 +239,13 @@ private:
 
 	Node* _insert( Node* root, Node* node )
 	{
-		if (*node->data == *root->data)
-			return root;
+		if (isNil(_root) || _root == _end) 
+		{
+			_setRoot(node);
+			_size++;
+			return node;
+		}
+
 		if (value_comp()(*node->data, *root->data))
 		{
 			if (isNil(root->left))
@@ -252,7 +257,7 @@ private:
 				return _insert(root->left, node);
 			}
 		}
-		else if (!value_comp()(*node->data, *root->data))
+		else if (value_comp()(*root->data, *node->data))
 		{
 			if (isNil(root->right))
 			{
@@ -263,6 +268,8 @@ private:
 				return _insert(root->right, node);
 			}
 		}
+		else
+			return root;
 		_rbInsertFix(node);
 		return node;
 	}
@@ -554,6 +561,11 @@ public:
 		return _root;
 	}
 
+	Node* getRoot( ) const
+	{
+		return _root;
+	}
+
 	key_compare& value_comp()
     {
         return _comp;
@@ -579,6 +591,17 @@ public:
 	Node* findNode(Node* root, const value & data ) {
 		if (isNil(root))
 			return NULL;
+		if (value_comp()(*root->data, data))
+			return findNode(root->right, data);
+		else if (value_comp()(data, *root->data))
+			return findNode(root->left, data);
+		else
+			return root;
+	}
+
+	Node* findNode(Node* root, const T & data ) const {
+		if (isNil(root))
+			return NULL;
 		if (!value_comp()(*root->data, data) && !value_comp()(data, *root->data))
 			return root;
 		if (value_comp()(*root->data, data))
@@ -586,17 +609,28 @@ public:
 		else
 			return findNode(root->left, data);
 	}
+
+	template<class value>
+	Node* findNode(Node* root, const value & data ) const {
+		if (isNil(root))
+			return NULL;
+		if (value_comp()(*root->data, data))
+			return findNode(root->right, data);
+		else if (value_comp()(data, *root->data))
+			return findNode(root->left, data);
+		else
+			return root;
+	}
 	
 
 	// TODO
 	Node* inorderPre( Node* node )
 	{
-
 		Node* save;
 
-		if (this->left && this->left->parent == this)
+		if (node->left && node->left->parent == node)
 		{
-			save = this->left;
+			save = node->left;
 			while (save->right && save->right->parent == save)
 				save = save->left;
 			return save;
@@ -604,7 +638,7 @@ public:
 		else
 		{
 			// while you are a left child, iterate on the parent
-			save = this;
+			save = node;
 			while (save->parent && save->parent->left == save)
 				save = save->parent;
 			return save->parent;
@@ -632,7 +666,49 @@ public:
 		}
 	}
 
-	bool isNil( const Node* node )
+	Node* inorderPre( Node* node ) const
+	{
+		Node* save;
+
+		if (node->left && node->left->parent == node)
+		{
+			save = node->left;
+			while (save->right && save->right->parent == save)
+				save = save->left;
+			return save;
+		}
+		else
+		{
+			// while you are a left child, iterate on the parent
+			save = node;
+			while (save->parent && save->parent->left == save)
+				save = save->parent;
+			return save->parent;
+		}
+	}
+
+	Node* inorderSucc( Node* node ) const
+	{
+		Node* save;
+
+		if (node->right && node->right->parent == node)
+		{
+			save = node->right;
+			while (save->left && save->left->parent == save)
+				save = save->left;
+			return save;
+		}
+		else
+		{
+			// while you are a right child, iterate on the parent
+			save = node;
+			while (save->parent && save->parent->right == save)
+				save = save->parent;
+			return save->parent;
+		}
+	}
+
+	bool isNil( const Node* node ) const
 	{
 		if (node == NULL || node == _NIL || node == _end)
 			return true;
@@ -648,7 +724,25 @@ public:
 		return root;
 	}
 
+	Node* min( Node* root) const
+	{
+		while (!isNil(root) && !isNil(root->left))
+		{
+			root = root->left;
+		}
+		return root;
+	}
+
 	Node* max( Node* root)
+	{
+		while (!isNil(root) && !isNil(root->right))
+		{
+			root = root->right;
+		}
+		return root;
+	}
+
+	Node* max( Node* root) const
 	{
 		while (!isNil(root) && !isNil(root->right))
 		{
@@ -700,22 +794,21 @@ public:
 		_size = 0;
 	}
 
-	Node* insert( const T & data )
+	ft::pair<iterator, bool> insert( const T & data )
 	{
 		Node* node = _createNode(data, true);
-
-		// if tree is empty, new node becomes root
-		if (isNil(_root) || _root == _end) 
+		Node* save;
+		
+		save = node;
+		node = _insert(_root, node);
+		if (save != node)
 		{
-			_setRoot(node);
-			_size++;
+			delete save;
+			return ft::make_pair(iterator(node), false);
 		}
-		else
-		{
-			node = _insert(_root, node);
-		}
+			
 		_fixTree();
-		return node;
+		return ft::make_pair(iterator(node), true);
 	}
 
 	bool erase( const T & data )
@@ -753,7 +846,7 @@ public:
 
 	size_type count( const T & data )
 	{
-		if (findNode(_root, data) != end())
+		if (find(data) != end())
 			return 1;
 		return 0;
 	}

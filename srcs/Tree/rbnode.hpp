@@ -37,7 +37,7 @@ public:
 	RBNode()
 	{
 		data = _alloc.allocate(sizeof(data));
-		_alloc.construct(data);
+		_alloc.construct(data, T());
 		left = NULL;
 		right = NULL;
 		parent = NULL;
@@ -57,7 +57,7 @@ public:
 	RBNode( const RBNode& rhs )
 	{
 		data = _alloc.allocate(sizeof(data));
-		_alloc.construct(data);
+		_alloc.construct(data, T());
 		*this = rhs;
 	}
 

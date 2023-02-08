@@ -118,7 +118,7 @@ public:
 	template <class T>
 	bool operator==(const rbtree_iterator<T>& it) const
 	{
-		if (_node == it._node) // TODO
+		if (_node->data == it._node->data) // TODO
 			return true;  
 		return false;
 	}
@@ -182,6 +182,13 @@ public:
 		return *this;
 	}
 
+	template<class T>
+	rbtree_const_iterator& operator=( const T& it )
+	{
+		this->_node = it._node;
+		return *this;
+	}
+
 	pointer			base() const			{ return _node->data; }
 	node_pointer	get_node() const		{ return _node; }
 	reference		operator*() const		{ return *base(); }
@@ -217,19 +224,11 @@ public:
 	}
 
 
-	bool operator==(const rbtree_const_iterator<N>& it) const
-	{
-		if (_node == it._node)
-			return true;  
-		return false;
-	}
-	bool operator!=(const rbtree_const_iterator<N>& it) const { return (!operator==(it)); }
-
 	// const overloads
 	template <class T>
 	bool operator==(const rbtree_const_iterator<N>& it) const
 	{
-		if (_node == it._node) // TODO
+		if (_node->data == it._node->data) // TODO
 			return true;  
 		return false;
 	}
@@ -237,18 +236,54 @@ public:
 	bool operator!=(const rbtree_const_iterator<N>& it) const { return (!operator==(it)); }
 	// end const
 
-protected:
-
-	// void _increment( void )
-	// {
-	// 	_node = _node->next();		
-	// }
-
-	// void _decrement( void )
-	// {
-	// 	_node = _node->prev();
-	// }
 };
+
+template <class T>
+bool operator==(const rbtree_const_iterator<T>& lhs, const rbtree_const_iterator<T>& rhs)
+{
+	if (lhs.base() == rhs.base()) // TODO
+		return true;  
+	return false;
+}
+
+template <class T>
+bool operator!=(const rbtree_const_iterator<T>& lhs, const rbtree_const_iterator<T>& rhs)  { return (!(lhs == rhs)); }
+
+
+template <class T>
+bool operator==(const rbtree_iterator<T>& lhs, const rbtree_iterator<T>& rhs)
+{
+	if (lhs.base() == rhs.base()) // TODO
+		return true;  
+	return false;
+}
+
+template <class T>
+bool operator!=(const rbtree_iterator<T>& lhs, const rbtree_iterator<T>& rhs)  { return (!(lhs == rhs)); }
+
+
+template <class T>
+bool operator==(const rbtree_const_iterator<T>& lhs, const rbtree_iterator<T>& rhs)
+{
+	if (lhs.base() == rhs.base()) // TODO
+		return true;  
+	return false;
+}
+
+template <class T>
+bool operator!=(const rbtree_const_iterator<T>& lhs, const rbtree_iterator<T>& rhs)  { return (!(lhs == rhs)); }
+
+
+template <class T>
+bool operator==(const rbtree_iterator<T>& lhs, const rbtree_const_iterator<T>& rhs)
+{
+	if (lhs.base() == rhs.base()) // TODO
+		return true;  
+	return false;
+}
+
+template <class T>
+bool operator!=(const rbtree_iterator<T>& lhs, const rbtree_const_iterator<T>& rhs)  { return (!(lhs == rhs)); }
 
 }
 #endif

@@ -34,7 +34,7 @@ public:
 
 	pair& operator=( const pair & rhs )
 	{
-		*((std::remove_const<T1>*)&first) = rhs.first;
+		first = rhs.first;
 		second = rhs.second;
 		return *this;
 	}
@@ -84,8 +84,6 @@ template< class T1, class T2 >
 bool operator>=( const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
 { return (!(lhs < rhs)); }
 
-
-
 template< class T1, class T2 >
 std::ostream & operator<<( std::ostream & os, const ft::pair<T1, T2>& rhs ) 
 { 
@@ -94,7 +92,7 @@ std::ostream & operator<<( std::ostream & os, const ft::pair<T1, T2>& rhs )
 }
 
 template<class T1, class T2>
-pair<T1, T2>	make_pair(const T1& t1, const T2& t2)
+pair<T1, T2>	make_pair(T1 t1, T2 t2)
 {
 	return pair<T1, T2>(t1, t2);
 }

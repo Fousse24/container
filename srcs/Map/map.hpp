@@ -97,26 +97,32 @@ public:
 
 private: // WARNING private
 	tree_type		_tree;
-	Allocator		_allocator;
+	allocator_type	_allocator;
+	key_compare		_key_comp;
+
 
 public:
 	map()
 	{
 		_init_map();
-		_allocator = Allocator();
+		_allocator = allocator_type();
+		_key_comp = key_compare();
 	}
 
-	explicit map(const Allocator& alloc)
+	explicit map(const key_compare& key_comp, const allocator_type& alloc = allocator_type())
 	{
 		_init_map();
 		_allocator = alloc;
+		_key_comp = key_comp;
 	}
 
 	explicit map( size_type count, const T value = value_type(),
-                 	const Allocator& alloc = Allocator())
+                 	const key_compare& key_comp = key_compare(), 
+					const Allocator& alloc = Allocator())
 	{
 		_test_max_size(count);
 		_allocator = alloc;
+		_key_comp = key_comp;
 		_init_map();
 		assign(count, value);
 	}
@@ -128,11 +134,11 @@ public:
 	}
 
 	template <class Iter>
-	map(Iter first, Iter last, const allocator_type& = allocator_type(),
+	map(Iter first, Iter last, const key_compare& = key_compare(), const allocator_type& = allocator_type(),
 				typename ft::enable_if<ft::is_not_integral<Iter>, bool>::type = 0)
 	{
 		_init_map();
-		assign(first, last);
+		insert(first, last);
 	}
 
 	~map() { clear(); }
@@ -163,7 +169,7 @@ public:
 
 
 	/* Element access */
-	reference       operator[](const Key& key) // Must not check bounds
+	T&	operator[](const Key& key) // Must not check bounds
 	{
 		node_ptr node = _tree.findNode(_tree.getRoot(), ft::make_pair(key, mapped_type()));
 
@@ -171,10 +177,10 @@ public:
 		{
 			node = _tree.insert(value_type(key, mapped_type()));
 		}
-		return *node->data;
+		return node->data->second;
 	};
 	
-	const_reference operator[](const Key& key) const // Must not check bounds
+	const T&	operator[](const Key& key) const // Must not check bounds
 	{
 		node_ptr node = _tree.findNode(_tree.getRoot(), ft::make_pair(key, mapped_type()));
 
@@ -182,27 +188,27 @@ public:
 		{
 			node = _tree.insert(value_type(key, mapped_type()));
 		}
-		return *node->data;
+		return node->data->second;
 	}
 
-	reference       at(const Key& key) // Should not check negative??
+	T&       at(const Key& key) // Should not check negative??
 	{
 		node_ptr	node;
 
 		node = _tree.findNode(_tree.getRoot(), key);
 		if (!node)
 			throw std::out_of_range("is not in map");
-		return *node->data;
+		return node->data->second;
 	}
 	
-	const_reference at(const Key& key) const 
+	const T& at(const Key& key) const 
 	{
 		node_ptr	node;
 
 		node = _tree.findNode(_tree.getRoot(), key);
 		if (!node)
 			throw std::out_of_range("is not in map");
-		return *node->data;
+		return node->data->second;
 	}
 
 	/* Element access end */
@@ -224,17 +230,8 @@ public:
 
 	ft::pair<iterator, bool> insert(const value_type& t)
 	{
-		node_ptr	node;
-		
-		node = _tree.findNode(_tree.getRoot(), t);
-		if (node)
-			return ft::make_pair(iterator(node), false);
-			
-		node = _tree.insert(t);
-		if (!node)
-			return ft::make_pair(iterator(node), false);
 
-		return ft::make_pair(iterator(node), true);
+		return _tree.insert(t);
 		
 	}
 
@@ -244,16 +241,16 @@ public:
 	
 	}
 
-	// template<class Iter>
-	// void insert(Iter first, Iter last) // change to input only
-	// {
-	// 	while (first != last)
-	// 	{
-	// 		insert(*first);
-	// 		++first;
-	// 	}
-	// 	return ;
-	// }
+	template<class Iter>
+	void insert(Iter first, Iter last) // change to input only
+	{
+		while (first != last)
+		{
+			insert(*first);
+			++first;
+		}
+		return ;
+	}
 	
 	void erase(iterator pos)
 	{
@@ -292,34 +289,50 @@ public:
 	// 	_tree._setRoot(save);
 	// }
 	
-	ft::pair<iterator, iterator> equal_range( const T & data ) 
+	size_type count( const key_type& key )
 	{
-		return (_tree.equal_range(value_type(ft::make_pair(data, mapped_type()))));		
+		return _tree.count(ft::make_pair(key, mapped_type()));
 	}
 
-	ft::pair<const_iterator, const_iterator> equal_range( const T & data ) const 
+
+	iterator find( const key_type& key )
 	{
-		return (_tree.equal_range(value_type(ft::make_pair(data, mapped_type()))));	
+		return _tree.find(ft::make_pair(key, mapped_type()));
 	}
 
-	iterator lower_bound( const T & data ) 
+	const_iterator find( const key_type& key ) const 
 	{
-		return (_tree.lower_bound(value_type(ft::make_pair(data, mapped_type()))));	
+		return _tree.find(ft::make_pair(key, mapped_type()));
 	}
 
-	const_iterator lower_bound( const T & data ) const 
+	ft::pair<iterator, iterator> equal_range( const key_type & key ) 
 	{
-		return (_tree.lower_bound(value_type(ft::make_pair(data, mapped_type()))));
+		return (_tree.equal_range(value_type(ft::make_pair(key, mapped_type()))));		
 	}
 
-	iterator upper_bound( const Key & data ) 
+	ft::pair<const_iterator, const_iterator> equal_range( const key_type & key ) const 
 	{
-		return (_tree.upper_bound(value_type(ft::make_pair(data, mapped_type()))));
+		return (_tree.equal_range(value_type(ft::make_pair(key, mapped_type()))));	
 	}
 
-	const_iterator upper_bound( const Key & data ) const 
+	iterator lower_bound( const key_type & key ) 
 	{
-		return (_tree.upper_bound(value_type(ft::make_pair(data, mapped_type()))));
+		return (_tree.lower_bound(value_type(ft::make_pair(key, mapped_type()))));	
+	}
+
+	const_iterator lower_bound( const key_type & key ) const 
+	{
+		return (_tree.lower_bound(value_type(ft::make_pair(key, mapped_type()))));
+	}
+
+	iterator upper_bound( const key_type & key ) 
+	{
+		return (_tree.upper_bound(value_type(ft::make_pair(key, mapped_type()))));
+	}
+
+	const_iterator upper_bound( const key_type & key ) const 
+	{
+		return (_tree.upper_bound(value_type(ft::make_pair(key, mapped_type()))));
 	}
 
 	key_compare		key_comp() const { return value_compare().key_comp(); }
@@ -341,40 +354,40 @@ private:
 	}
 };
 
-template< class T, class Alloc >
-bool operator==( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>& rhs)
+template <class Key, class T, class Compare, class Allocator>
+bool operator==( const ft::map<Key, T, Compare, Allocator>& lhs, const ft::map<Key, T, Compare, Allocator>& rhs)
 {
 	if (lhs.size() != rhs.size())
 		return false;
 	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 }
 
-template< class T, class Alloc >
-bool operator!=( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>& rhs)
+template <class Key, class T, class Compare, class Allocator>
+bool operator!=( const ft::map<Key, T, Compare, Allocator>& lhs, const ft::map<Key, T, Compare, Allocator>& rhs)
 { return !(lhs == rhs); }
 
-template< class T, class Alloc >
-bool operator>( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>&rhs)
+template <class Key, class T, class Compare, class Allocator>
+bool operator>( const ft::map<Key, T, Compare, Allocator>& lhs, const ft::map<Key, T, Compare, Allocator>&rhs)
 { return !(lhs < rhs) && lhs != rhs; }
 
-template< class T, class Alloc >
-bool operator<( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>&rhs)
+template <class Key, class T, class Compare, class Allocator>
+bool operator<( const ft::map<Key, T, Compare, Allocator>& lhs, const ft::map<Key, T, Compare, Allocator>&rhs)
 { return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end())); }
 
-template< class T, class Alloc >
-bool operator>=( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>&rhs)
+template <class Key, class T, class Compare, class Allocator>
+bool operator>=( const ft::map<Key, T, Compare, Allocator>& lhs, const ft::map<Key, T, Compare, Allocator>&rhs)
 { return !(lhs < rhs); }
 
-template< class T, class Alloc >
-bool operator<=( const ft::map<T, Alloc>& lhs, const ft::map<T, Alloc>&rhs)
+template <class Key, class T, class Compare, class Allocator>
+bool operator<=( const ft::map<Key, T, Compare, Allocator>& lhs, const ft::map<Key, T, Compare, Allocator>&rhs)
 { return !(lhs > rhs); }
 
-template< class T, class Alloc>
-void swap(map<T, Alloc> & lhs, map<T, Alloc> & rhs)
+template <class Key, class T, class Compare, class Allocator>
+void swap(map<Key, T, Compare, Allocator> & lhs, map<Key, T, Compare, Allocator> & rhs)
 	{
 		lhs.swap(rhs);
 	}
-}  
+}   
 
 
 #endif

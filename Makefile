@@ -38,9 +38,11 @@ _HEAD	= $(D_INC)/iterator.hpp			\
 		  \
 		  $(D_TREE)/rbtree.hpp			\
 		  $(D_TREE)/rbtree_iterator.hpp	\
-		  $(D_TREE)/rbnode.hpp	\
+		  $(D_TREE)/rbnode.hpp			\
 		  \
-		#   $(D_TEST)/test_map.cpp		\
+		  $(D_TEST)/tester.hpp			\
+		  $(D_TEST)/tester_map.hpp		\
+
 
 
 

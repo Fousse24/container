@@ -13,17 +13,22 @@
 #include "map.hpp"
 #include "rbtree.hpp"
 #include "test.hpp"
+#include "tester_map.hpp"
 
 using std::cout;
 using std::string;
 using std::endl;
 using std::cin;
+using ft::tester_map;
 
 typedef ft::map<int, int>	FTMap;
 typedef std::map<int, int>	STDMap;
 
 typedef ft::pair<int, int>	FTPair;
 typedef std::pair<int, int>	STDPair;
+
+tester_map<FTMap, STDMap>	g_tester;	
+
 
 void showCommands()
 {
@@ -33,6 +38,7 @@ void showCommands()
 	cout << "Upper bound:   ub <number>" << endl;
 	cout << "Lower bound:   lb <number>" << endl;
 	cout << "Equal range:   eq <number>" << endl;
+	cout << "Benchmark:     b" << endl;
 	cout << "Print maps:    p" << endl;
 	// cout << "Print pre:     ps <number>" << endl;
 	// cout << "Print succ:    pp <number>" << endl;
@@ -141,6 +147,11 @@ void equalRange( string input, FTMap & ft_m, STDMap & std_m )
 	}
 }
 
+void	benchmark()
+{
+	g_tester.benchmark();
+}
+
 bool validateEntry( string input )
 {
 	if (input.length() <= 0)
@@ -154,6 +165,9 @@ int main() {
 	FTMap	ft_map;
 	STDMap	std_map;
 	string	input = "";
+	
+	g_tester.setFTC(&ft_map);
+	g_tester.setSTDC(&std_map);
 
 	showCommands();
 	while (input[0] != 'q')
@@ -192,6 +206,10 @@ int main() {
 		else if (input.find("c") == 0 && input.size() == 1)
 		{
 			clearMap(ft_map, std_map);
+		}
+		else if (input.find("b") == 0 && input.size() == 1)
+		{
+			benchmark();
 		}
 		else if (input.find("help", 0) == 0)
 		{
