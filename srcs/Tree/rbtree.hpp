@@ -554,15 +554,6 @@ public:
 		return _root;
 	}
 
-	// void deleteNode( Node * node )
-	// {		
-	// 	if (isNil(node))
-	// 		return;
-
-	// 	_delete(node);
-	// 	_updateSentinel();
-	// }
-
 	key_compare& value_comp()
     {
         return _comp;
@@ -620,28 +611,6 @@ public:
 		}
 	}
 
-	// Node* inorderPre( Node* node )
-	// {
-	// 	if (isNil(node))
-	// 		return node;
-	// 	if (!isNil(node->left))
-	// 		return max(node->left);
-	// 	if (node == _sentinel->left)
-	// 		return _end;
-	// 	if (node == _end)
-	// 		return _sentinel->right;
-	// 	else
-	// 	{
-	// 		// While the node is a left child, keep going.
-	// 		while (!isNil(node->parent) && node == node->parent->left)
-	// 		{
-	// 			node = node->parent;
-	// 		}
-	// 		return node->parent;
-	// 	}
-	// }
-
-	// TODO
 	Node* inorderSucc( Node* node )
 	{
 		Node* save;
@@ -662,25 +631,6 @@ public:
 			return save->parent;
 		}
 	}
-
-	// Node* inorderSucc( Node* node )
-	// {
-	// 	if (isNil(node))
-	// 		return node;
-	// 	if (!isNil(node->right))
-	// 		return min(node->right);
-	// 	if (node == _sentinel->right)
-	// 		return _end;
-	// 	else
-	// 	{
-	// 		// While the node is a right child, keep going.
-	// 		while (!isNil(node->parent) && node == node->parent->right)
-	// 		{
-	// 			node = node->parent;
-	// 		}
-	// 		return node->parent;
-	// 	}
-	// }
 
 	bool isNil( const Node* node )
 	{
@@ -827,20 +777,67 @@ public:
 		return const_iterator(node);
 	}
 
-	ft::pair<iterator, iterator> equal_range( const T & data ) const 
+	ft::pair<iterator, iterator> equal_range( const T & data ) 
 	{
-		Node* 		node = _root;
-		iterator	not_less = end();
-		iterator	greater = end();
+		return ft::make_pair<iterator, iterator>(lower_bound(data), upper_bound(data));		
+	}
 
-		if (isNil(root))
-			return NULL;
-		if (!value_comp()(*root->data, data) && !value_comp()(data, *root->data))
-			return root;
-		if (value_comp()(*root->data, data))
-			return findNode(root->right, data);
-		else
-			return findNode(root->left, data);
+	ft::pair<const_iterator, const_iterator> equal_range( const T & data ) const 
+	{
+		return ft::make_pair<const_iterator, const_iterator>(lower_bound(data), upper_bound(data));		
+	}
+
+	iterator lower_bound( const T & data ) 
+	{
+		Node* 		node = min(_root);
+
+		while (!isNil(node))
+		{
+			if (!value_comp()(*node->data, data))
+				return iterator(node);
+			node = inorderSucc(node);
+		}
+		return iterator(end());
+			
+	}
+
+	const_iterator lower_bound( const T & data ) const 
+	{
+		Node* 		node = min(_root);
+
+		while (!isNil(node))
+		{
+			if (!value_comp()(*node->data, data))
+				return const_iterator(node);
+			node = inorderSucc(node);
+		}
+		return const_iterator(end());	
+	}
+
+	iterator upper_bound( const T & data ) 
+	{
+		Node* 		node = min(_root);
+
+		while (!isNil(node))
+		{
+			if (value_comp()(data, *node->data))
+				return iterator(node);
+			node = inorderSucc(node);
+		}
+		return iterator(end());	
+	}
+
+	const_iterator upper_bound( const T & data ) const 
+	{
+		Node* 		node = min(_root);
+
+		while (!isNil(node))
+		{
+			if (value_comp()(data, *node->data))
+				return const_iterator(node);
+			node = inorderSucc(node);
+		}
+		return const_iterator(end());	
 	}
 
 	// iterator insert( iterator, const value_type& value ) // WARNING

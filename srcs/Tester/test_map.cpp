@@ -30,6 +30,9 @@ void showCommands()
 	cout << "Show commands: help " << endl;
 	cout << "Insertion:     i <number> <number> " << endl;
 	cout << "Deletion:      d <number> <number>" << endl;
+	cout << "Upper bound:   ub <number>" << endl;
+	cout << "Lower bound:   lb <number>" << endl;
+	cout << "Equal range:   eq <number>" << endl;
 	cout << "Print maps:    p" << endl;
 	// cout << "Print pre:     ps <number>" << endl;
 	// cout << "Print succ:    pp <number>" << endl;
@@ -96,6 +99,48 @@ void deletion( string input, FTMap & ft_m, STDMap & std_m )
 	}
 }
 
+void upperBound( string input, FTMap & ft_m, STDMap & std_m )
+{
+	try
+	{
+		cout << "FT ub  : " << (*(ft_m.upper_bound(stoi(input.substr(3))))).first << endl;
+		cout << "STD ub : " << (*(std_m.upper_bound(stoi(input.substr(3))))).first << endl;
+		
+	}
+	catch (std::exception e)
+	{
+		cout << "Invalid number: " << e.what() << endl;
+	}
+}
+
+void lowerBound( string input, FTMap & ft_m, STDMap & std_m )
+{
+	try
+	{
+		cout << "FT lb  : " << (*(ft_m.lower_bound(stoi(input.substr(3))))).first << endl;
+		cout << "STD lb : " << (*(std_m.lower_bound(stoi(input.substr(3))))).first << endl;
+		
+	}
+	catch (std::exception e)
+	{
+		cout << "Invalid number: " << e.what() << endl;
+	}
+}
+
+void equalRange( string input, FTMap & ft_m, STDMap & std_m )
+{
+	try
+	{
+		cout << "FT er  : " << (*(ft_m.equal_range(stoi(input.substr(3)))).first).first << endl;
+		cout << "STD er : " << (*(std_m.equal_range(stoi(input.substr(3)))).first).first << endl;
+		
+	}
+	catch (std::exception e)
+	{
+		cout << "Invalid number: " << e.what() << endl;
+	}
+}
+
 bool validateEntry( string input )
 {
 	if (input.length() <= 0)
@@ -120,23 +165,35 @@ int main() {
 			cout << "Invalid entry" << endl;
 			showCommands();
 		}
-		else if (input[0] == 'i') 
+		else if (input.find("i ") == 0) 
 		{
 			insert(input, ft_map, std_map);
 		}
-		else if (input[0] == 'd')
+		else if (input.find("d ") == 0) 
 		{
 			deletion(input, ft_map, std_map);
 		}
-		else if (input[0] == 'p')
+		else if (input.find("ub ") == 0) 
+		{
+			upperBound(input, ft_map, std_map);
+		}
+		else if (input.find("lb ") == 0) 
+		{
+			lowerBound(input, ft_map, std_map);
+		}
+		else if (input.find("er ") == 0) 
+		{
+			equalRange(input, ft_map, std_map);
+		}
+		else if (input.find("p") == 0 && input.size() == 1) 
 		{
 			printMap(ft_map, std_map);
 		}
-		else if (input[0] == 'c')
+		else if (input.find("c") == 0 && input.size() == 1)
 		{
 			clearMap(ft_map, std_map);
 		}
-		else if (input.find("help", 0) != string::npos)
+		else if (input.find("help", 0) == 0)
 		{
 			showCommands();
 		}

@@ -6,7 +6,7 @@
 /*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2023/02/03 16:09:49 by fousse           ###   ########.fr       */
+/*   Updated: 2023/02/07 16:18:25 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -292,6 +292,39 @@ public:
 	// 	_tree._setRoot(save);
 	// }
 	
+	ft::pair<iterator, iterator> equal_range( const T & data ) 
+	{
+		return (_tree.equal_range(value_type(ft::make_pair(data, mapped_type()))));		
+	}
+
+	ft::pair<const_iterator, const_iterator> equal_range( const T & data ) const 
+	{
+		return (_tree.equal_range(value_type(ft::make_pair(data, mapped_type()))));	
+	}
+
+	iterator lower_bound( const T & data ) 
+	{
+		return (_tree.lower_bound(value_type(ft::make_pair(data, mapped_type()))));	
+	}
+
+	const_iterator lower_bound( const T & data ) const 
+	{
+		return (_tree.lower_bound(value_type(ft::make_pair(data, mapped_type()))));
+	}
+
+	iterator upper_bound( const Key & data ) 
+	{
+		return (_tree.upper_bound(value_type(ft::make_pair(data, mapped_type()))));
+	}
+
+	const_iterator upper_bound( const Key & data ) const 
+	{
+		return (_tree.upper_bound(value_type(ft::make_pair(data, mapped_type()))));
+	}
+
+	key_compare		key_comp() const { return value_compare().key_comp(); }
+	value_compare	value_comp() const { return value_compare(); }
+
 private:
 
 	bool	_test_max_size(size_type n)
