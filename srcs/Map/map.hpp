@@ -171,25 +171,23 @@ public:
 	/* Element access */
 	T&	operator[](const Key& key) // Must not check bounds
 	{
-		node_ptr node = _tree.findNode(_tree.getRoot(), ft::make_pair(key, mapped_type()));
+		iterator	it;
 
-		if (_tree.isNil(node))
-		{
-			node = _tree.insert(value_type(key, mapped_type()));
-		}
-		return node->data->second;
+		it = _tree.insert(ft::make_pair(key, mapped_type())).first;
+		return (*it).second;
 	};
 	
-	const T&	operator[](const Key& key) const // Must not check bounds
-	{
-		node_ptr node = _tree.findNode(_tree.getRoot(), ft::make_pair(key, mapped_type()));
+	// const T&	operator[](const Key& key) const // Must not check bounds
+	// {
+	// 	value_type	pair = ft::make_pair(key, mapped_type());
+	// 	node_ptr	node = _tree.findNode(_tree.getRoot(), pair);
 
-		if (_tree.isNil(node))
-		{
-			node = _tree.insert(value_type(key, mapped_type()));
-		}
-		return node->data->second;
-	}
+	// 	if (_tree.isNil(node))
+	// 	{
+	// 		node = _tree.insert(pair);
+	// 	}
+	// 	return node->data->second;
+	// }
 
 	T&       at(const Key& key) // Should not check negative??
 	{
@@ -228,10 +226,10 @@ public:
 		_tree.clear();
 	}
 
-	ft::pair<iterator, bool> insert(const value_type& t)
+	ft::pair<iterator, bool> insert(const value_type& value)
 	{
 
-		return _tree.insert(t);
+		return _tree.insert(value);
 		
 	}
 
@@ -252,9 +250,13 @@ public:
 		return ;
 	}
 	
-	void erase(iterator pos)
+	iterator erase(iterator pos)
 	{
+		iterator	next(pos);
+
+		++next; 
 		erase((*pos).first);
+		return next;
 	}
 
 	size_type	erase(const key_type& key)
@@ -265,13 +267,13 @@ public:
 		return deleted ? 1 : 0;
 	}
 
-	void erase(iterator first, iterator last)
+	iterator erase(iterator first, iterator last)
 	{
 		while (first != last)
 		{
-			erase((*first).first);
-			++first;
+			first = erase(first);
 		}
+		return first;
 	}
 
 	// void swap(map & other)

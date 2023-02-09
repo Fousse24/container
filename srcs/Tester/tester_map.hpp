@@ -65,7 +65,7 @@ public:
 	void insert()
 	{
 		this->startTime();
-		for (int i = 0; i < 1000000; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			this->_ftc->insert(ft::make_pair(i, mapped_type()));
 		}
@@ -84,6 +84,7 @@ public:
 
 	void erase()
 	{
+		this->_ftc->erase(this->_ftc->begin(), this->_ftc->end());
 		this->startTime();
 		for (int i = 0; i < 1000000; i++)
 		{

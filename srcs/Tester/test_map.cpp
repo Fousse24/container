@@ -168,6 +168,7 @@ int main() {
 	
 	g_tester.setFTC(&ft_map);
 	g_tester.setSTDC(&std_map);
+	benchmark();
 
 	showCommands();
 	while (input[0] != 'q')

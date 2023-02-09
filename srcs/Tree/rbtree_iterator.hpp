@@ -165,7 +165,9 @@ public:
 
 	rbtree_const_iterator( const_node_pointer n ) { _node = n; }
 
-	rbtree_const_iterator(const rbtree_const_iterator<N>& it) { *this = it; }
+	rbtree_const_iterator(const rbtree_const_iterator& it) { *this = it; }
+
+	rbtree_const_iterator(const rbtree_iterator<N>& it) { *this = it; }
 
 	template <class T>
 	rbtree_const_iterator( const rbtree_const_iterator<T>& it, typename ft::enable_if<ft::is_not_same<T, const N>, bool>::type = 0) 
@@ -198,14 +200,12 @@ public:
 	rbtree_const_iterator<N>& operator++()
 	{ 
 		_node = _node->next();	
-		// _increment();
 		return *this;
 	}
 
 	rbtree_const_iterator<N>& operator--()
 	{ 
 		_node = _node->prev();
-		// _decrement();
 		return *this;
 	}
 	

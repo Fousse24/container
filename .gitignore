@@ -6,3 +6,4 @@ container
 *.dSYM
 ft_containers-terminator
 *.gch
+terminator
