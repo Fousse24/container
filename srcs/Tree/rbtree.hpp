@@ -115,9 +115,9 @@ public:
 
 	~rbtree()
 	{
+		_deleteTree(_root);
 		delete _end;
 		delete _NIL;
-		_deleteTree(_root);
 	}
 
 /*************************************************/
@@ -826,19 +826,22 @@ public:
 	void swap(rbtree & other)
 	{
 		Node*		save_end;
+		Node*		save_nil;
 		Node*		save_root;
 		size_type	save_size;
 
-		save_end = other._tree._end;
-		save_root = other._tree.getRoot();
+		save_end = other._end;
+		save_nil = other._NIL;
+		save_root = other.getRoot();
 		save_size = other.size();
 
 		other._end = _end;
-		other._tree._setRoot(getRoot());
+		other._NIL = _NIL;
+		other._setRoot(getRoot());
 		other._size = _size;
 
-		
 		_end = save_end;
+		_NIL = save_nil;
 		_setRoot(save_root);
 		_size = save_size;
 		
@@ -1039,41 +1042,48 @@ public:
 
 };
 
-template< class T, class Alloc >
-bool operator==( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>& rhs)
+template< class T, class Compare, class Alloc >
+bool operator==( const ft::rbtree<T, Compare, Alloc>& lhs, const ft::rbtree<T, Compare, Alloc>& rhs)
 {
 	if (lhs.size() != rhs.size())
 		return false;
 	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 }
 
-template< class T, class Alloc >
-bool operator!=( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>& rhs)
+template< class T, class Compare, class Alloc >
+bool operator!=( const ft::rbtree<T, Compare, Alloc>& lhs, const ft::rbtree<T, Compare, Alloc>& rhs)
 { return !(lhs == rhs); }
 
-template< class T, class Alloc >
-bool operator>( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>&rhs)
+template< class T, class Compare, class Alloc >
+bool operator>( const ft::rbtree<T, Compare, Alloc>& lhs, const ft::rbtree<T, Compare, Alloc>&rhs)
 { return !(lhs < rhs) && lhs != rhs; }
 
-template< class T, class Alloc >
-bool operator<( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>&rhs)
+template< class T, class Compare, class Alloc >
+bool operator<( const ft::rbtree<T, Compare, Alloc>& lhs, const ft::rbtree<T, Compare, Alloc>&rhs)
 { return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end())); }
 
-template< class T, class Alloc >
-bool operator>=( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>&rhs)
+template< class T, class Compare, class Alloc >
+bool operator>=( const ft::rbtree<T, Compare, Alloc>& lhs, const ft::rbtree<T, Compare, Alloc>&rhs)
 { return !(lhs < rhs); }
 
-template< class T, class Alloc >
-bool operator<=( const ft::rbtree<T, Alloc>& lhs, const ft::rbtree<T, Alloc>&rhs)
+template< class T, class Compare, class Alloc >
+bool operator<=( const ft::rbtree<T, Compare, Alloc>& lhs, const ft::rbtree<T, Compare, Alloc>&rhs)
 { return !(lhs > rhs); }
 
+template< class T, class Compare, class Alloc >
+void swap(ft::rbtree<T, Compare, Alloc> & lhs, ft::rbtree<T, Compare, Alloc> & rhs)
+	{
+		lhs.swap(rhs);
+	}
+
+}  
+
 // template< class T, class Alloc>
-// void swap(map<T, Alloc> & lhs, map<T, Alloc> & rhs)
+// void swap(vector<T, Alloc> & lhs, vector<T, Alloc> & rhs)
 // 	{
 // 		lhs.swap(rhs);
 // 	}
-
-}  
+// }  // std
 
 
 #endif

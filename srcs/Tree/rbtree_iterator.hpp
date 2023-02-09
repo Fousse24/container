@@ -126,17 +126,6 @@ public:
 	bool operator!=(const rbtree_iterator<T>& it) const { return (!operator==(it)); }
 	// end const
 
-protected:
-
-	// void _increment( void )
-	// {
-	// 	_node = _node->next();		
-	// }
-
-	// void _decrement( void )
-	// {
-	// 	_node = _node->prev();
-	// }
 };
 
 template <class N>

@@ -141,7 +141,7 @@ public:
 		insert(first, last);
 	}
 
-	~map() { clear(); }
+	~map() {  }
 
 	map& operator=(const map& rhs)
 	{
@@ -252,11 +252,11 @@ public:
 	
 	iterator erase(iterator pos)
 	{
-		iterator	next(pos);
+		key_type	key;
 
-		++next; 
+		key = (*pos).first;
 		erase((*pos).first);
-		return next;
+		return upper_bound(key);
 	}
 
 	size_type	erase(const key_type& key)
@@ -269,27 +269,31 @@ public:
 
 	iterator erase(iterator first, iterator last)
 	{
-		while (first != last)
+		key_type	save = (*last).first;
+		bool		isEnd = false;
+
+		if (last == end())
+		{
+			save = _tree.max(_tree.getRoot())->data->first;
+			isEnd = true;
+		}
+
+		while ((*first).first != save)
 		{
 			first = erase(first);
 		}
+
+		if (isEnd)
+			first = erase(first);
+
 		return first;
 	}
 
-	// void swap(map & other)
-	// {
-	// 	node_ptr		save;
-	// 	size_type	size_;
-
-	// 	save = other._tree.getRoot();
-	// 	size_ = other.size();
-
-	// 	other._size = _size;
-	// 	other._tree._setRoot(_tree.getRoot());
-
-	// 	_size = size_;
-	// 	_tree._setRoot(save);
-	// }
+	void swap(map & other)
+	{
+		
+		_tree.swap(other._tree);
+	}
 	
 	size_type count( const key_type& key )
 	{

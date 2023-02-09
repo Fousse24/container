@@ -1,5 +1,6 @@
  
 #pragma once
+#include <new>
 #ifndef RBNODE_HPP
 #define RBNODE_HPP
 
@@ -28,7 +29,7 @@ private:
 	allocator_type	_alloc;
 	key_compare comp_;
 public:
-	T* data;
+	T*		data;
 	RBNode* left;
 	RBNode* right;
 	RBNode* parent;
@@ -36,7 +37,7 @@ public:
 
 	RBNode()
 	{
-		data = _alloc.allocate(sizeof(data));
+		allocate_data();
 		_alloc.construct(data, T());
 		left = NULL;
 		right = NULL;
@@ -46,7 +47,7 @@ public:
 
 	RBNode(const T & value)
 	{
-		data = _alloc.allocate(sizeof(data));
+		allocate_data();
 		_alloc.construct(data, value);
 		left = NULL;
 		right = NULL;
@@ -56,20 +57,27 @@ public:
 
 	RBNode( const RBNode& rhs )
 	{
-		data = _alloc.allocate(sizeof(data));
+		allocate_data();
 		_alloc.construct(data, T());
 		*this = rhs;
 	}
 
 	~RBNode()
 	{
-		_alloc.destroy(data);
-		_alloc.deallocate(data, sizeof(data));
+		try
+		{
+			_alloc.destroy(data);
+			_alloc.deallocate(data, sizeof(data));
+		}
+		catch(std::bad_alloc e)
+		{
+			std::cout << e.what() << std::endl;
+		}
 	}
 
 	RBNode& operator=( const RBNode& rhs )
 	{
-		_alloc.destroy(data);
+		// _alloc.destroy(data);
 		_alloc.construct(data, rhs.data);
 		left = rhs.left;
 		right = rhs.right;
@@ -78,14 +86,25 @@ public:
 		return *this;
 	}
 
+private:
+	void	allocate_data()
+	{
+		try
+		{
+			data = _alloc.allocate(sizeof(data));
+		}
+		catch(std::bad_alloc e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+		
+	}
+
+public:
 	RBNode* next( void )
 	{
 		RBNode* save;
 
-		// if (this == this->sentinel->right) // sentinel's right is the max
-		// 	return this->sentinel->parent;
-		// else if (this == this->sentinel->parent) // sentinel's parent is the end
-		// 	return this;
 		// if you have a right child, return right child
 		if (this->right && this->right->parent == this)
 		{
@@ -113,7 +132,7 @@ public:
 		{
 			save = this->left;
 			while (save->right && save->right->parent == save)
-				save = save->left;
+				save = save->right;
 			return save;
 		}
 		else
@@ -134,10 +153,6 @@ template< class T, class Compare, class Alloc >
 bool operator==( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
 { return (!comp_(lhs.data, rhs.data) && !comp_(rhs.data, lhs.data)); }
 
-// template< class T, class Compare, class Alloc >
-// bool operator==( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
-// { return (lhs.data == rhs.data); }
-
 template< class T, class Compare, class Alloc >
 bool operator<( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
 { return (comp_(lhs.data, rhs.data)); }
@@ -151,11 +166,11 @@ bool operator>( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Co
 { return !(lhs < rhs) && lhs != rhs; }
 
 template< class T, class Compare, Compare, class Alloc >
-bool operator>=( const ft::RBNode<T, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
+bool operator>=( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
 { return !(lhs < rhs); }
 
 template< class T, class Compare, Compare, class Alloc >
-bool operator<=( const ft::RBNode<T, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
+bool operator<=( const ft::RBNode<T, Compare, Alloc>& lhs, const ft::RBNode<T, Compare, Alloc>& rhs )
 { return !(lhs > rhs); }
 
 template< class T >
