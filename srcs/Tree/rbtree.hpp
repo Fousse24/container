@@ -350,18 +350,17 @@ private:
 					replacement = node->left;
 				else if (isNil(node->left))
 					replacement = node->right;
-				node = _swapData(replacement, node);
-				return _delete(replacement);
+				_swapPos(replacement, node);
 				/**/
 			}
 			else
 			{ 
 				/* 2 children */
 				replacement = inorderSucc(node);				
-				node = _swapData(replacement, node);
-				return _delete(replacement);
+				_swapPos(replacement, node);
 				/**/
 			}
+			return _delete(node);
 		}
 
 		/* 0 child */
@@ -473,8 +472,69 @@ private:
 		return dst;
 	}
 
+	void _swapParent( Node* node1, Node* node2 )
+	{
+		Node* save;
+
+		save = node1->parent;
+		node1->parent = node2->parent;
+		if (!isNil(node1->parent))
+		{
+			if (node1->parent->left == node2)
+				node1->parent->left = node1;
+			else
+				node1->parent->right = node1;
+		}
+
+		node2->parent = save;
+		if (!isNil(node2->parent))
+		{
+			if (node2->parent->left == node1)
+				node2->parent->left = node2;
+			else
+				node2->parent->right = node2;
+		}
+	}
+
+	void _swapChildren( Node* node1, Node* node2 )
+	{
+		Node* save;
+
+		save = node1->left;
+		node1->left = node2->left;
+		if (!isNil(node1->left))
+			node1->left->parent = node1;
+
+		node2->left = save;
+		if (!isNil(node2->left))
+			node2->left->parent = node2;
+
+		save = node1->right;
+		node1->right = node2->right;
+		if (!isNil(node1->right))
+			node1->right->parent = node1;
+			
+		node2->right = save;
+		if (!isNil(node2->right))
+			node2->right->parent = node2;
+	}
+
+	void _swapPos( Node* src, Node* dst )
+	{
+		_swapColor(src, dst);
+		_swapParent(src, dst);
+		_swapChildren(src, dst);
+
+		if (dst == _root)
+			_setRoot(src);
+		else if (src == _root)
+			_setRoot(dst);
+		
+	}
+
 	Node* _swapData( Node* src, Node* dst )
 	{
+
 		// TODO delete dst->data somehow
 		T* save;
 
@@ -839,9 +899,10 @@ public:
 		{
 			save = begin_.get_node();
 			begin_++;
-			delete (save);
+			erase(save);
+			// delete (save);
 		}
-		_root = _end;
+		_setRoot(_end);
 		_size = 0;
 	}
 
@@ -865,6 +926,11 @@ public:
 	ft::pair<iterator, bool> erase( const T & data )
 	{
 		Node* node = findNode(_root, data);
+		return erase(node);
+	}
+
+	ft::pair<iterator, bool> erase( Node* node )
+	{
 		ft::pair<iterator, bool> result;
 		
 		if (isNil(node))
@@ -1065,7 +1131,7 @@ public:
 		// node = _sentinel->left;
 		// while (!isNil(node))
 		// {
-		// 	cout << node->data << endl;
+		// 	cout << *node->data << endl;
 		// 	node = inorderSucc(node);
 		// }
 

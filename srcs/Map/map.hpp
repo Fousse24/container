@@ -259,7 +259,7 @@ public:
 	{
 		ft::pair<iterator, bool> deleted;
 
-		deleted = _erase(ft::make_pair(key, mapped_type()));
+		deleted = _erase(key);
 		return deleted.second ? 1 : 0;
 	}
 
@@ -291,7 +291,7 @@ public:
 
 		// if (last == end())
 		// {
-		// 	save = _tree.max(_tree.getRoot())->data->first;
+		// 	save = _tree.max(_tree.getRoot())->data.first;
 		// 	isEnd = true;
 		// }
 
