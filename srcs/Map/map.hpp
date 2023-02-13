@@ -252,24 +252,20 @@ public:
 	
 	iterator erase(iterator pos)
 	{
-		key_type	key;
-
-		key = (*pos).first;
-		erase((*pos).first);
-		return upper_bound(key);
+		return _erase((*pos).first).first;
 	}
 
 	size_type	erase(const key_type& key)
 	{
-		bool	deleted;
+		ft::pair<iterator, bool> deleted;
 
-		deleted = _tree.erase(ft::make_pair(key, mapped_type()));
-		return deleted ? 1 : 0;
+		deleted = _erase(ft::make_pair(key, mapped_type()));
+		return deleted.second ? 1 : 0;
 	}
 
 	iterator erase(iterator first, iterator last)
 	{
-		key_type	save = (*last).first;
+		key_type	save;
 		bool		isEnd = false;
 
 		if (last == end())
@@ -277,8 +273,10 @@ public:
 			save = _tree.max(_tree.getRoot())->data->first;
 			isEnd = true;
 		}
+		else
+			save = (*last).first;
 
-		while ((*first).first != save)
+		while (_key_comp((*first).first, save) || _key_comp(save, (*first).first))
 		{
 			first = erase(first);
 		}
@@ -287,11 +285,29 @@ public:
 			first = erase(first);
 
 		return first;
+
+		// key_type	save = (*last).first;
+		// bool		isEnd = false;
+
+		// if (last == end())
+		// {
+		// 	save = _tree.max(_tree.getRoot())->data->first;
+		// 	isEnd = true;
+		// }
+
+		// while ((*first).first != save)
+		// {
+		// 	first = erase(first);
+		// }
+
+		// if (isEnd)
+		// 	first = erase(first);
+
+		// return first;
 	}
 
 	void swap(map & other)
 	{
-		
 		_tree.swap(other._tree);
 	}
 	
@@ -345,6 +361,11 @@ public:
 	value_compare	value_comp() const { return value_compare(); }
 
 private:
+
+	ft::pair<iterator, bool>	_erase(const key_type& key)
+	{
+		return _tree.erase(ft::make_pair(key, mapped_type()));
+	}
 
 	bool	_test_max_size(size_type n)
 	{

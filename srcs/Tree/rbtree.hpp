@@ -547,7 +547,58 @@ private:
 			return node->parent->left;
 		}
 		return node->parent->right;
+	}
 
+	Node* _getBoundBase( const T & data )
+	{
+		Node* 		node = _root;
+
+		while (!isNil(node))
+		{
+			if (value_comp()(data, *node->data))
+			{
+				if (isNil(node->left))
+					return node;
+				node = node->left;
+			}
+				
+			else if (value_comp()(*node->data, data))
+			{
+				if (isNil(node->right))
+					return node;
+				node = node->right;
+			}
+			else
+				return node;
+		}
+
+		return _end;
+	}
+
+	Node* _getBoundBase( const T & data ) const
+	{
+		Node* 		node = _root;
+
+		while (!isNil(node))
+		{
+			if (value_comp()(data, *node->data))
+			{
+				if (isNil(node->left))
+					return node;
+				node = node->left;
+			}
+				
+			else if (value_comp()(*node->data, data))
+			{
+				if (isNil(node->right))
+					return node;
+				node = node->right;
+			}
+			else
+				return node;
+		}
+
+		return _end;
 	}
 
 /*************************************************/
@@ -811,16 +862,18 @@ public:
 		return ft::make_pair(iterator(node), true);
 	}
 
-	bool erase( const T & data )
+	ft::pair<iterator, bool> erase( const T & data )
 	{
 		Node* node = findNode(_root, data);
+		ft::pair<iterator, bool> result;
 		
 		if (isNil(node))
-			return false;
+			return ft::make_pair(end(), false);
 
+		result = ft::make_pair(inorderSucc(node), true);
 		_delete(node);
 		_fixTree();
-		return true;
+		return result;
 	}
 
 	void swap(rbtree & other)
@@ -875,65 +928,92 @@ public:
 
 	ft::pair<iterator, iterator> equal_range( const T & data ) 
 	{
-		return ft::make_pair<iterator, iterator>(lower_bound(data), upper_bound(data));		
+		Node*		node;
+		iterator	lower;
+		iterator	upper;
+
+		node = _getBoundBase(data);
+
+		if (isNil(node))
+			return ft::make_pair<iterator, iterator>(end(), end());
+		else
+		{
+			if (!value_comp()(data, *node->data) && !value_comp()(data, *node->data))
+				upper = iterator(inorderSucc(node));
+			else
+				upper = iterator(node);
+
+			if (value_comp()(*node->data, data))
+				lower = iterator(inorderSucc(node));
+			else
+				lower = iterator(node);
+
+		}
+		return ft::make_pair<iterator, iterator>(lower, upper);		
 	}
 
-	ft::pair<const_iterator, const_iterator> equal_range( const T & data ) const 
+	ft::pair<const_iterator, const_iterator> equal_range( const T & data ) const
 	{
-		return ft::make_pair<const_iterator, const_iterator>(lower_bound(data), upper_bound(data));		
+		Node*		node;
+		const_iterator	lower;
+		const_iterator	upper;
+
+		node = _getBoundBase(data);
+
+		if (isNil(node))
+			return ft::make_pair<const_iterator, const_iterator>(end(), end());
+		else
+		{
+			if (!value_comp()(data, *node->data) && !value_comp()(data, *node->data))
+				upper = const_iterator(inorderSucc(node));
+			else
+				upper = const_iterator(node);
+
+			if (value_comp()(*node->data, data))
+				lower = const_iterator(inorderSucc(node));
+			else
+				lower = const_iterator(node);
+
+		}
+		return ft::make_pair<const_iterator, const_iterator>(lower, upper);		
 	}
 
 	iterator lower_bound( const T & data ) 
 	{
-		Node* 		node = min(_root);
+		Node* 		node = _getBoundBase(data);
 
-		while (!isNil(node))
-		{
-			if (!value_comp()(*node->data, data))
-				return iterator(node);
-			node = inorderSucc(node);
-		}
-		return iterator(end());
-			
+		if (value_comp()(*node->data, data))
+			return iterator(inorderSucc(node));
+		return iterator(_getBoundBase(data));			
 	}
 
 	const_iterator lower_bound( const T & data ) const 
 	{
-		Node* 		node = min(_root);
+		Node* 		node = _getBoundBase(data);
 
-		while (!isNil(node))
-		{
-			if (!value_comp()(*node->data, data))
-				return const_iterator(node);
-			node = inorderSucc(node);
-		}
-		return const_iterator(end());	
+		if (value_comp()(*node->data, data))
+			return const_iterator(inorderSucc(node));
+		return const_iterator(_getBoundBase(data));
 	}
 
 	iterator upper_bound( const T & data ) 
 	{
-		Node* 		node = min(_root);
-
-		while (!isNil(node))
-		{
-			if (value_comp()(data, *node->data))
-				return iterator(node);
-			node = inorderSucc(node);
-		}
-		return iterator(end());	
+		Node* 		node = _getBoundBase(data);
+		
+		// if it's equal, return successor
+		if (!value_comp()(data, *node->data) && !value_comp()(data, *node->data))
+			return iterator(inorderSucc(node));
+		return iterator(node);
 	}
 
 	const_iterator upper_bound( const T & data ) const 
 	{
-		Node* 		node = min(_root);
-
-		while (!isNil(node))
-		{
-			if (value_comp()(data, *node->data))
-				return const_iterator(node);
-			node = inorderSucc(node);
-		}
-		return const_iterator(end());	
+		Node* 		node = _getBoundBase(data);
+		
+		// if it's equal, return successor
+		if (!value_comp()(data, *node->data) && !value_comp()(data, *node->data))
+			return const_iterator(inorderSucc(node));
+		return const_iterator(node);		
 	}
 
 	// iterator insert( iterator, const value_type& value ) // WARNING
