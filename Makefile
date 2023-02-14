@@ -1,7 +1,7 @@
 
 # Compilation
 CC		= c++
-CFLAGS	=  -Werror -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++11 #-Werror
+CFLAGS	=  -Werror -Wall -Wextra -Wshadow -Wconversion -Wpedantic -std=c++98 #-Werror
 C_OBJ	= $(CC) $(CFLAGS) $(INC) -c $< -o $@
 C_MAIN	= $(CC) $(CFLAGS) $(INC) $(OBJ) $(MAIN) -o $(NAME)
 

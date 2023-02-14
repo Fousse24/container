@@ -4,7 +4,8 @@
       "-I/Users/sfournie/Projects/container/includes",
       "-I/Users/sfournie/Projects/container/srcs/Vector",
       "-I/Users/sfournie/Projects/container/srcs/Map",
-	  "-I/Users/sfournie/Projects/container/srcs/Tree"
+	  "-I/Users/sfournie/Projects/container/srcs/Tree",
+	  "-I/Users/sfournie/Projects/container/srcs/Stack"
     ]
   }
 }
