@@ -12,6 +12,8 @@
 #include <thread>
 #include <unistd.h>
 
+#include "timer.hpp"
+
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
 using std::chrono::milliseconds;
@@ -24,71 +26,41 @@ using std::endl;
 namespace ft
 {
 
-template <class FTC, class STDC>
+template <class Container>
 class tester
 {
 protected:	
-	typedef typename FTC::iterator	ft_iterator;
-	typedef typename STDC::iterator	std_iterator;
-	typedef time_point<high_resolution_clock, high_resolution_clock::duration>	time_p;
+	typedef typename Container::iterator	ft_iterator;
 
-	FTC		*_ftc;
-	STDC	*_stdc;
-	time_p	_start_time;
-	time_p	_end_time;
-	duration<double, std::milli>	exe_time;	
+	Container		*cont_;
+	ft::timer		timer_;
 
 public:
 	tester()
 	{
-		_ftc = NULL;
-		_stdc = NULL;
+		cont_ = NULL;
 	}
 
-	tester( FTC & ftc, STDC & stdc )
+	tester( const Container & cont )
 	{
-		_ftc = &ftc;
-		_stdc = &stdc;
+		cont_ = &cont;
 	}
 
-	tester( const tester & tester )
+	tester( const tester & other )
 	{
-		*this = tester;
+		*this = other;
 	}
 
 	~tester() { }
 
-	tester& operator=(const tester& v)
+	tester& operator=(const tester& rhs)
 	{
-		this->_ftc = v._ftc;
-		this->stdc = v._stdc;
+		this->cont_ = rhs.cont_;
 	}
 	
-	void	setFTC(FTC * ftc) { _ftc = ftc; }
-	void	setSTDC(STDC * stdc) { _stdc = stdc; }
+	void benchmark() {}
 
-	virtual void	benchmark() = 0;
-
-	void	printResult(string msg)
-	{
-		cout << msg << getExeTime() << endl;
-	}
-
-	void	startTime()
-	{
-		_start_time = high_resolution_clock::now();
-	}
-
-	void	endTime()
-	{
-		_end_time = high_resolution_clock::now();
-		exe_time = _end_time - _start_time;
-	}
-
-	double	getExeTime()
-	{
-		return (double)exe_time.count();
-	}
+	void	setCont(Container * cont) { cont_ = cont; }
 };
 
 }

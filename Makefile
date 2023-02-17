@@ -30,6 +30,8 @@ _HEAD	= $(D_INC)/iterator.hpp			\
 		  $(D_INC)/iterator_traits.hpp	\
 		  $(D_INC)/enable_if.hpp		\
 		  $(D_INC)/test.hpp				\
+		  $(D_INC)/pair.hpp				\
+		  $(D_INC)/ft_lib.hpp			\
 		  \
 		  $(D_VECT)/vector.hpp 			\
 		  $(D_VECT)/vector_iterator.hpp	\
@@ -42,13 +44,14 @@ _HEAD	= $(D_INC)/iterator.hpp			\
 		  \
 		  $(D_TEST)/tester.hpp			\
 		  $(D_TEST)/tester_map.hpp		\
+		  $(D_TEST)/timer.hpp		\
 
 
 
 
 HEAD	= $(_HEAD)
 
-_SRC	= 
+_SRC	= $(D_TEST)/timer.hpp
 SRC		= $(patsubst %.cpp, $(D_SRC)/%.cpp, $(_SRC))
 
 _OBJ	= $(_SRC:.cpp=.o)

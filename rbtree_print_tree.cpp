@@ -6,7 +6,7 @@
 /*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/20 17:47:33 by sfournie          #+#    #+#             */
-/*   Updated: 2023/02/03 14:10:53 by fousse           ###   ########.fr       */
+/*   Updated: 2023/02/16 16:51:30 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void insert( string input, ft::rbtree<int> & tree )
 		tree.insert(stoi(input.substr(2)));
 		tree.printTree();
 	}
-	catch (std::exception e)
+	catch (const std::exception& e)
 	{
 		cout << "Invalid number: " << e.what() << endl;
 	}
@@ -50,7 +50,7 @@ void deletion( string input, ft::rbtree<int> & tree )
 		tree.deleteNode(stoi(input.substr(2)));
 		tree.printTree();
 	}
-	catch (std::exception e)
+	catch (const std::exception& e)
 	{
 		cout << "Invalid number: " << e.what() << endl;
 	}
@@ -74,7 +74,7 @@ void print( string input, ft::rbtree<int> & tree )
 		else
 			tree.printTree();
 	}
-	catch (std::exception e)
+	catch (const std::exception& e)
 	{
 		cout << "Invalid: " << e.what() << endl;
 	}

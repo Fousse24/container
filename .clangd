@@ -5,7 +5,8 @@
       "-I/Users/sfournie/Projects/container/srcs/Vector",
       "-I/Users/sfournie/Projects/container/srcs/Map",
 	  "-I/Users/sfournie/Projects/container/srcs/Tree",
-	  "-I/Users/sfournie/Projects/container/srcs/Stack"
+	  "-I/Users/sfournie/Projects/container/srcs/Stack",
+	  "-I/Users/sfournie/Projects/container/srcs/Tester"
     ]
   }
 }

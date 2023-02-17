@@ -69,7 +69,7 @@ public:
 			_alloc.destroy(data);
 			_alloc.deallocate(data, sizeof(data));
 		}
-		catch(std::bad_alloc e)
+		catch(const std::bad_alloc & e)
 		{
 			std::cout << e.what() << std::endl;
 		}
@@ -93,7 +93,7 @@ private:
 		{
 			data = _alloc.allocate(sizeof(data));
 		}
-		catch(std::bad_alloc e)
+		catch(const std::bad_alloc & e)
 		{
 			std::cout << e.what() << std::endl;
 		}

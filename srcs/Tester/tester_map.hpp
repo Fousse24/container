@@ -10,115 +10,67 @@
 #include <unistd.h>
 #include <vector>
 #include <utility>
-#include "pair.hpp"
+#include <string>
 
+#include "pair.hpp"
 #include "tester.hpp"
 
-
+using std::string;
 using std::cout;
 using std::endl;
 
 namespace ft
 {
 
-template <class FTC, class STDC>
-class tester_map : public ft::tester<FTC, STDC>
+template <class Container, class Pair>
+class tester_map : public ft::tester<Container>
 {	
 protected:	
-	typedef ft::tester<FTC, STDC>		tester;
-	typedef typename STDC::key_type		key_type;
-	typedef typename STDC::mapped_type	mapped_type;
+	typedef ft::tester<Container>				tester;
+	typedef typename Container::key_type		key_type;
+	typedef typename Container::mapped_type		mapped_type;
+	typedef void (tester_map::*member_fn)(void);
 
 public:
-	tester_map() : tester()
-	{
-		this->_ftc = NULL;
-		this->_stdc = NULL;
-	}
+	string	name;
 
-	tester_map( FTC & ftc, STDC & stdc ) : tester(ftc, stdc)
-	{
-	}
-
-	tester_map( const tester_map & tester_map ) : tester(tester_map)
-	{
-		*this = tester_map;
-	}
-
+	tester_map() : tester()	{}
+	tester_map( Container & cont ) : tester(cont) {}
+	tester_map( const tester_map & other ) : tester(other) { *this = other; }
 	~tester_map() { }
 
-	tester_map& operator=(const tester_map& v)
-	{
-		this->_ftc = v._ftc;
-		this->_stdc = v._stdc;
-	}
+	tester_map& operator=(const tester_map& rhs) { this->cont_ = rhs.cont_;	}
 
-	void benchmark()
+	void benchmark(string fn_name, member_fn fn)
 	{
-		this->insert();
-		cout << endl;
-		this->erase();
-		cout << endl;
-		this->clear();
+		this->timer_.startTime();
+		(this->*fn)();
+		this->timer_.endTime();
+		cout << (name + " " + fn_name + " : ") << this->timer_.getExeTime() << "ms" << endl;
+
 	}
 
 	void insert()
 	{
-		this->startTime();
 		for (int i = 0; i < 1000000; i++)
 		{
-			this->_ftc->insert(ft::make_pair(i, mapped_type()));
+			this->cont_->insert(Pair(i, mapped_type()));
 		}
-		this->endTime();
-		this->printResult("FT insert 1million : ");
-
-		this->startTime();
-		for (int i = 0; i < 1000000; i++)
-		{
-			this->_stdc->insert(std::make_pair(i, mapped_type()));
-		}
-		this->endTime();
-		this->printResult("STD insert 1million: ");
-
 	}
 
 	void erase()
 	{
-		this->startTime();
 		for (int i = 0; i < 1000000; i++)
 		{
-			this->_ftc->erase(i);
+			this->cont_->erase(i);
 		}
-		this->endTime();
-		this->printResult("FT erase 1million : ");
-
-		this->startTime();
-		for (int i = 0; i < 1000000; i++)
-		{
-			this->_stdc->erase(i);
-		}
-		this->endTime();
-		this->printResult("STD erase 1million: ");
-
 	}
 
 	void clear()
 	{
-		for (int i = 0; i < 1000000; i++)
-		{
-			this->_ftc->insert(ft::make_pair(i, mapped_type()));
-			this->_stdc->insert(std::make_pair(i, mapped_type()));
-		}
+		insert();
 
-		this->startTime();
-		this->_ftc->clear();
-		this->endTime();
-		this->printResult("FT clear : ");
-
-		this->startTime();
-		this->_stdc->clear();
-		this->endTime();
-		this->printResult("STD clear : ");
+		this->cont_->clear();
 
 	}
 };

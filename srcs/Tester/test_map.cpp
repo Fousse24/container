@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <utility>
 
 #include "iterator.hpp"
 #include "ft_lib.hpp"
@@ -27,7 +28,11 @@ typedef std::map<int, int>	STDMap;
 typedef ft::pair<int, int>	FTPair;
 typedef std::pair<int, int>	STDPair;
 
-tester_map<FTMap, STDMap>	g_tester;	
+typedef tester_map<FTMap, FTPair>	FTTester;
+typedef tester_map<STDMap, STDPair>	STDTester;
+
+FTTester	ft_tester;
+STDTester	std_tester;
 
 
 void showCommands()
@@ -84,7 +89,7 @@ void insert( string input, FTMap & ft_m, STDMap & std_m )
 		ft_m.insert(FTPair(stoi(input.substr(2, pos - 2)), stoi(input.substr(pos + 1))));
 		std_m.insert(STDPair(stoi(input.substr(2, pos - 2)), stoi(input.substr(pos + 1))));
 	}
-	catch (std::exception e)
+	catch (const std::exception& e)
 	{
 		cout << "Invalid number: " << e.what() << endl;
 	}
@@ -92,14 +97,12 @@ void insert( string input, FTMap & ft_m, STDMap & std_m )
 
 void deletion( string input, FTMap & ft_m, STDMap & std_m )
 {
-	string::size_type pos;
-
 	try
 	{
 		ft_m.erase(stoi(input.substr(2)));
 		std_m.erase(stoi(input.substr(2)));
 	}
-	catch (std::exception e)
+	catch (const std::exception& e)
 	{
 		cout << "Invalid number: " << e.what() << endl;
 	}
@@ -113,7 +116,7 @@ void upperBound( string input, FTMap & ft_m, STDMap & std_m )
 		cout << "STD ub : " << (*(std_m.upper_bound(stoi(input.substr(3))))).first << endl;
 		
 	}
-	catch (std::exception e)
+	catch (const std::exception& e)
 	{
 		cout << "Invalid number: " << e.what() << endl;
 	}
@@ -127,7 +130,7 @@ void lowerBound( string input, FTMap & ft_m, STDMap & std_m )
 		cout << "STD lb : " << (*(std_m.lower_bound(stoi(input.substr(3))))).first << endl;
 		
 	}
-	catch (std::exception e)
+	catch (const std::exception& e)
 	{
 		cout << "Invalid number: " << e.what() << endl;
 	}
@@ -141,7 +144,7 @@ void equalRange( string input, FTMap & ft_m, STDMap & std_m )
 		cout << "STD er : " << (*(std_m.equal_range(stoi(input.substr(3)))).first).first << endl;
 		
 	}
-	catch (std::exception e)
+	catch (const std::exception& e)
 	{
 		cout << "Invalid number: " << e.what() << endl;
 	}
@@ -149,7 +152,17 @@ void equalRange( string input, FTMap & ft_m, STDMap & std_m )
 
 void	benchmark()
 {
-	g_tester.benchmark();
+	ft_tester.benchmark("insert", &FTTester::insert);
+	std_tester.benchmark("insert", &STDTester::insert);
+	cout << endl;
+
+	ft_tester.benchmark("erase", &FTTester::erase);
+	std_tester.benchmark("erase", &STDTester::erase);
+	cout << endl;
+
+	ft_tester.benchmark("clear", &FTTester::clear);
+	std_tester.benchmark("clear", &STDTester::clear);
+	cout << endl;
 }
 
 bool validateEntry( string input )
@@ -166,8 +179,11 @@ int main() {
 	STDMap	std_map;
 	string	input = "";
 	
-	g_tester.setFTC(&ft_map);
-	g_tester.setSTDC(&std_map);
+	ft_tester.setCont(&ft_map);
+	std_tester.setCont(&std_map);
+
+	ft_tester.name = "FTMap";
+	std_tester.name = "STDMap";
 
 	showCommands();
 	while (input[0] != 'q')
