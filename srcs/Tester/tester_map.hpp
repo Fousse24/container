@@ -29,6 +29,7 @@ protected:
 	typedef ft::tester<Container>				tester;
 	typedef typename Container::key_type		key_type;
 	typedef typename Container::mapped_type		mapped_type;
+	typedef typename Container::size_type		size_type;
 	typedef void (tester_map::*member_fn)(void);
 
 public:
@@ -52,18 +53,49 @@ public:
 
 	void insert()
 	{
-		for (int i = 0; i < 1000000; i++)
+		for (int i = 0; i < 5000000; i++)
 		{
 			this->cont_->insert(Pair(i, mapped_type()));
 		}
 	}
 
+	void insert_range()
+	{
+		Container	temp;
+
+		for (int i = 5000000; i < 6000000; i++)
+		{
+			temp.insert(Pair((key_type)i, i));
+		}
+
+		this->cont_->insert(temp.begin(), temp.end());
+	}
+
+	void at_index()
+	{
+		for (size_type i = 0; i < this->cont_->size(); i++)
+		{
+			this->cont_->at((key_type)i);
+			(*this->cont_)[(key_type)i];
+		}
+	}
+
+	void bounds()
+	{
+		for (size_type i = 0; i < this->cont_->size(); i++)
+		{
+			this->cont_->equal_range((key_type)i);
+		}
+	}
+
 	void erase()
 	{
-		for (int i = 0; i < 1000000; i++)
+		for (size_type i = 0; i < this->cont_->size() / 2; i++)
 		{
-			this->cont_->erase(i);
+			this->cont_->erase((key_type)i);
 		}
+
+		this->cont_->erase(this->cont_->begin(), this->cont_->end());
 	}
 
 	void clear()

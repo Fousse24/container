@@ -23,7 +23,7 @@ INC		= -I$(D_INC) -I$(D_VECT) -I$(D_MAP) -I$(D_TREE)
 
 
 # Files
-MAIN	= test_map.cpp
+MAIN	= official_main.cpp
 MAP_M	= $(D_TEST)/test_map.cpp
 
 _HEAD	= $(D_INC)/iterator.hpp			\

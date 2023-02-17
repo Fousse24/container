@@ -11,6 +11,8 @@
 #include <chrono>
 #include <thread>
 #include <unistd.h>
+#include <iostream>
+#include <fstream>
 
 #include "timer.hpp"
 
@@ -30,7 +32,7 @@ template <class Container>
 class tester
 {
 protected:	
-	typedef typename Container::iterator	ft_iterator;
+	typedef typename Container::iterator	iterator;
 
 	Container		*cont_;
 	ft::timer		timer_;
@@ -58,9 +60,38 @@ public:
 		this->cont_ = rhs.cont_;
 	}
 	
-	void benchmark() {}
+	virtual void	print_cont_to_file(string name)
+	{
+		iterator iter;
+		std::ofstream	file;
+
+  		file.open(name);
+		file << "Size " << cont_->size() << " : ";
+		for (iter = cont_->begin(); iter != cont_->end(); iter++)
+		{
+			file << (*iter).first << " ";
+		}
+
+  		file.close();
+	}
+
+	virtual void	print_cont() const
+	{
+		iterator iter;
+
+		cout << "Size " << cont_->size() << " : ";
+		for (iter = cont_->begin(); iter != cont_->end(); iter++)
+		{
+			cout << (*iter).first << " ";
+		}
+	}
+
+	void	benchmark() {}
 
 	void	setCont(Container * cont) { cont_ = cont; }
+	Container&	getCont() { return *cont_; }
+
+	virtual void	clear_cont() { cont_->clear(); }
 };
 
 }

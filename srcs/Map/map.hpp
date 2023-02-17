@@ -6,7 +6,7 @@
 /*   By: fousse <fousse@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 12:01:30 by sfournie          #+#    #+#             */
-/*   Updated: 2023/02/07 16:18:25 by fousse           ###   ########.fr       */
+/*   Updated: 2023/02/17 14:28:15 by fousse           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,18 +176,6 @@ public:
 		it = _tree.insert(ft::make_pair(key, mapped_type())).first;
 		return (*it).second;
 	};
-	
-	// const T&	operator[](const Key& key) const // Must not check bounds
-	// {
-	// 	value_type	pair = ft::make_pair(key, mapped_type());
-	// 	node_ptr	node = _tree.findNode(_tree.getRoot(), pair);
-
-	// 	if (_tree.isNil(node))
-	// 	{
-	// 		node = _tree.insert(pair);
-	// 	}
-	// 	return node->data->second;
-	// }
 
 	T&       at(const Key& key) // Should not check negative??
 	{
@@ -195,7 +183,7 @@ public:
 
 		node = _tree.findNode(_tree.getRoot(), key);
 		if (!node)
-			throw std::out_of_range("is not in map");
+			throw std::out_of_range("at: key value given is not in map");
 		return node->data->second;
 	}
 	
@@ -205,7 +193,7 @@ public:
 
 		node = _tree.findNode(_tree.getRoot(), key);
 		if (!node)
-			throw std::out_of_range("is not in map");
+			throw std::out_of_range("at: key value given is not in map");
 		return node->data->second;
 	}
 
@@ -285,25 +273,6 @@ public:
 			first = erase(first);
 
 		return first;
-
-		// key_type	save = (*last).first;
-		// bool		isEnd = false;
-
-		// if (last == end())
-		// {
-		// 	save = _tree.max(_tree.getRoot())->data.first;
-		// 	isEnd = true;
-		// }
-
-		// while ((*first).first != save)
-		// {
-		// 	first = erase(first);
-		// }
-
-		// if (isEnd)
-		// 	first = erase(first);
-
-		// return first;
 	}
 
 	void swap(map & other)
