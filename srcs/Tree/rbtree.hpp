@@ -82,6 +82,7 @@ public:
 	typedef typename allocator_type::difference_type	difference_type;
 
 	typedef ft::RBNode<T, key_compare, allocator_type>				Node;
+	typedef typename allocator_type::template rebind<Node>::other 	node_allocator;
 
 	typedef ft::rbtree_iterator<Node> 					iterator;
 	typedef ft::rbtree_const_iterator<Node>				const_iterator;
@@ -92,7 +93,7 @@ public:
 
 /* ATTRIBUTES */
 private:
-	allocator_type	_alloc;
+	node_allocator	_alloc;
 	Node*			_root;
 	Node*			_end;
 	Node*			_NIL;
@@ -107,7 +108,7 @@ public:
 	rbtree() : _comp(key_compare())
 	{
 		_size = 0;
-		_alloc = allocator_type();
+		_alloc = node_allocator();
 		_end = _createNode(false);
 		_NIL = _createNode(false);
 		_setRoot(_end);
@@ -116,8 +117,10 @@ public:
 	~rbtree()
 	{
 		_deleteTree(_root);
-		delete _end;
-		delete _NIL;
+		_destroyNode(_end);
+		_destroyNode(_NIL);
+		// delete _end;
+		// delete _NIL;
 	}
 
 /*************************************************/
@@ -127,7 +130,13 @@ public:
 private:
 	Node* _createNode(const T & data, bool red)
 	{
-		Node* node = new Node(data);
+		Node* node;
+		node = _alloc.allocate(1);
+		_alloc.construct(node, Node(data));
+		// node->change_data(data);
+		// _alloc.construct(node, Node(data));
+		// Node* node = new Node(data);
+		// node->data = 
 		node->left = _NIL;
 		node->right = _NIL;
 		node->red = red;
@@ -136,11 +145,27 @@ private:
 
 	Node* _createNode(bool red)
 	{
-		Node* node = new Node();
+		Node* node;
+		node = _alloc.allocate(1);
+		_alloc.construct(node, Node());
+		// Node* node = new Node();
 		node->left = _NIL;
 		node->right = _NIL;
 		node->red = red;
 		return node;
+	}
+
+	void _destroyNode(Node * node)
+	{
+		try
+		{
+			_alloc.destroy(node);
+			_alloc.deallocate(node, 1);
+		}
+		catch(const std::bad_alloc & e)
+		{
+			std::cout << e.what() << std::endl;
+		}
 	}
 
 	void _setRoot( Node* node )
@@ -156,7 +181,8 @@ private:
 
 	void _deleteRoot(  )
 	{
-		delete _root;
+		_destroyNode(_root);
+		// delete _root;
 		_end->left = _end;
 	}
 
@@ -168,7 +194,8 @@ private:
 			_deleteTree(root->right);
 		if (!isNil(root->left))
 			_deleteTree(root->left);
-		delete root;
+		_destroyNode(root);
+		// delete root;
 	}
 
 	void _insertRight( Node* parent, Node* child)
@@ -452,7 +479,8 @@ private:
 			_unlinkFromParent(leaf);
 			if (_root == leaf)
 				_root = _end;
-			delete leaf;
+			// delete leaf;
+			_destroyNode(leaf);
 		}
 		return wasRed;	
 	}
@@ -915,7 +943,8 @@ public:
 		node = _insert(_root, node);
 		if (save != node)
 		{
-			delete save;
+			// delete save;
+			_destroyNode(save);
 			return ft::make_pair(iterator(node), false);
 		}
 			

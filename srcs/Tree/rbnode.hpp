@@ -76,8 +76,8 @@ public:
 
 	RBNode& operator=( const RBNode& rhs )
 	{
-		// _alloc.destroy(data);
-		_alloc.construct(data, rhs.data);
+		_alloc.destroy(data);
+		_alloc.construct(data, *rhs.data);
 		left = rhs.left;
 		right = rhs.right;
 		parent = rhs.parent;
@@ -96,10 +96,22 @@ private:
 		{
 			std::cout << e.what() << std::endl;
 		}
-		
 	}
 
 public:
+	void	change_data(value_type value)
+	{
+		try
+		{
+			_alloc.destroy(this->data);
+			_alloc.construct(this->data, value);
+		}
+		catch(const std::bad_alloc & e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+	}
+
 	RBNode* next( void )
 	{
 		RBNode* save;
