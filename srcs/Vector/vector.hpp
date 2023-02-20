@@ -349,7 +349,7 @@ private:
 
 	bool	_is_in_bound(size_type n, bool ex = true) const
 	{
-		if (n < _size && n > 0)
+		if (n < _size && n >= 0)
 			return true;
 		if (ex)
 			throw std::out_of_range("out of bound");

@@ -56,7 +56,6 @@ public:
 
 	class value_compare : public std::binary_function<value_type, value_type, bool>
 	{   
-		friend class map;
 	public:
 		Compare comp_;
 		value_compare () {}

@@ -37,12 +37,12 @@ typedef tester_map<STDMap, STDPair>	STDTester;
 FTTester	ft_tester;
 STDTester	std_tester;
 
-
 void showCommands()
 {
 	cout << "Show commands: help " << endl;
 	cout << "Insert:        i <number> <number> " << endl;
 	cout << "Erase:         d <number> <number>" << endl;
+	cout << "Clear:         c" << endl;
 	cout << "[]:            [<number>]" << endl;
 	cout << "At:            at <number>" << endl;
 	cout << "Upper bound:   ub <number>" << endl;
@@ -50,8 +50,6 @@ void showCommands()
 	cout << "Equal range:   eq <number>" << endl;
 	cout << "Benchmark:     b" << endl;
 	cout << "Print maps:    p" << endl;
-	// cout << "Print pre:     ps <number>" << endl;
-	// cout << "Print succ:    pp <number>" << endl;
 	cout << "Quit:          q" << endl;
 }
 
@@ -90,6 +88,19 @@ void printMap()
 	cout << "STD ";
 	std_tester.print_cont();
 	cout << endl;
+}
+
+template <class M>
+void printMap(M & m)
+{
+	typedef typename M::iterator iterator;
+	iterator	iter;
+
+	cout << "Size " << m.size() << " : ";
+	for (iter = m.begin(); iter != m.end(); iter++)
+	{
+		cout << (*iter).first << " ";
+	}
 }
 
 void clearMap()
@@ -162,8 +173,8 @@ void equalRange( string input, FTMap & ft_m, STDMap & std_m )
 {
 	try
 	{
-		cout << "FT er  : " << (*(ft_m.equal_range(stoi(input))).first).first << endl;
-		cout << "STD er : " << (*(std_m.equal_range(stoi(input))).first).first << endl;
+		cout << "FT er  : " << (*(ft_m.equal_range(stoi(input))).first).first << " " << (*(ft_m.equal_range(stoi(input))).second).first << endl;
+		cout << "STD er : " << (*(std_m.equal_range(stoi(input))).first).first << " " << (*(std_m.equal_range(stoi(input))).second).first << endl;
 		
 	}
 	catch (const std::exception& e)
@@ -200,56 +211,74 @@ void at( string input )
 	}
 }
 
-void	benchmark()
+void swap()
+{
+	FTMap				first;
+	FTMap				second;
+	FTMap::iterator		it;
+	FTMap::pointer		ptr;
+
+	cout << endl << "Initializing 2 maps. First one with 1-2-3-4-5 and second with 6-7-8-9-10..." << endl;
+	first.insert(ft::make_pair(1, 0));
+	first.insert(ft::make_pair(2, 0));
+	first.insert(ft::make_pair(3, 0));
+	first.insert(ft::make_pair(4, 0));
+	first.insert(ft::make_pair(5, 0));
+
+	second.insert(ft::make_pair(6, 0));
+	second.insert(ft::make_pair(7, 0));
+	second.insert(ft::make_pair(8, 0));
+	second.insert(ft::make_pair(9, 0));
+	second.insert(ft::make_pair(10, 0));
+
+	
+	cout << endl << "Initializing:" << endl;
+	cout << "an iterator it = first.find(4)" << endl;
+	cout << "a reference ref = *(it)" << endl;
+	cout << "a pointer ptr = it.base() " << endl;
+	it = (first.find(4));
+	FTMap::reference	ref = *it;
+	ptr = it.base();
+	cout << endl << "Values of iterator - ref - *ptr: " << endl << (*it).first << " - " << ref.first << " - " << (*ptr).first << endl;
+
+	cout << endl << "Deleting key 2, 3 and 5 from first..." << endl;
+	first.erase(2);
+	first.erase(3);
+	first.erase(5);
+	// first.swap(second);
+	cout << endl << "Values of iterator - ref - *ptr: " << endl << (*it).first << " - " << ref.first << " - " << (*ptr).first << endl;
+
+	cout << endl << "Swapping first with second..." << endl;
+	first.swap(second);
+	cout << "Values of iterator - ref - *ptr: " << endl << (*it).first << " - " << ref.first << " - " << (*ptr).first << endl;
+	cout << endl << "first and second content: " << endl;
+	printMap(first);
+	cout << endl;
+	printMap(second);
+	
+}
+
+template <class FT_FN, class STD_FN>
+void	single_benchmark(string title, FT_FN ft_fn, STD_FN std_fn, string diffname )
 {
 	try {
-		ft_tester.benchmark("insert", &FTTester::insert);
-		std_tester.benchmark("insert", &STDTester::insert);
-		diff_print_files("ft.txt", "std.txt", "insert.diff");
+		ft_tester.benchmark(title, ft_fn);
+		std_tester.benchmark(title, std_fn);
+		diff_print_files("ft.txt", "std.txt", diffname + ".diff");
 		cout << endl;
 	}
 	catch (std::exception & e) { cout << e.what() << endl; }
-	
+}
 
-	try {
-		ft_tester.benchmark("insert_range", &FTTester::insert_range);
-	std_tester.benchmark("insert_range", &STDTester::insert_range);
-	diff_print_files("ft.txt", "std.txt", "insert_range.diff");
-	cout << endl;
-	}
-	catch (std::exception & e) { cout << e.what() << endl; }
 
-	try {
-		ft_tester.benchmark("at_index", &FTTester::at_index);
-	std_tester.benchmark("at_index", &STDTester::at_index);
-	diff_print_files("ft.txt", "std.txt", "at_index.diff");
-	cout << endl;
-	}
-	catch (std::exception & e) { cout << e.what() << endl; }
-
-	try {
-		ft_tester.benchmark("bounds", &FTTester::bounds);
-	std_tester.benchmark("bounds", &STDTester::bounds);
-	diff_print_files("ft.txt", "std.txt", "bounds.diff");
-	cout << endl;
-	}
-	catch (std::exception & e) { cout << e.what() << endl; }
-
-	try {
-		ft_tester.benchmark("erase", &FTTester::erase);
-	std_tester.benchmark("erase", &STDTester::erase);
-	diff_print_files("ft.txt", "std.txt", "erase.diff");
-	cout << endl;
-	}
-	catch (std::exception & e) { cout << e.what() << endl; }
-
-	try {
-		ft_tester.benchmark("clear", &FTTester::clear);
-	std_tester.benchmark("clear", &STDTester::clear);
-	diff_print_files("ft.txt", "std.txt", "clear.diff");
-	cout << endl;
-	}
-	catch (std::exception & e) { cout << e.what() << endl; }
+void	benchmark()
+{
+	single_benchmark("insert", &FTTester::insert, &STDTester::insert, "insert");
+	single_benchmark("insert_range", &FTTester::insert_range, &STDTester::insert_range, "insert_range");
+	single_benchmark("at_index", &FTTester::at_index, &STDTester::at_index, "at_index");
+	single_benchmark("bounds", &FTTester::bounds, &STDTester::bounds, "bounds");
+	single_benchmark("erase", &FTTester::erase, &STDTester::erase, "erase");
+	single_benchmark("clear", &FTTester::clear, &STDTester::clear, "clear");
 }
 
 bool validateEntry( string input )
@@ -276,7 +305,7 @@ int main() {
 	while (input[0] != 'q')
 	{
 		cout << endl << "Enter command: ";
-		std::getline(std::cin, input);
+		std::getline(cin, input);
 		if (!validateEntry(input))
 		{
 			cout << "Invalid entry" << endl;
@@ -288,6 +317,7 @@ int main() {
 		else if (input.find("ub ") == 0)					upperBound(input.substr(3), ft_map, std_map);
 		else if (input.find("lb ") == 0)					lowerBound(input.substr(3), ft_map, std_map);
 		else if (input.find("er ") == 0)					equalRange(input.substr(3), ft_map, std_map);
+		else if (input.find("s") == 0 && input.size() == 1)	swap();
 		else if (input.find("p") == 0 && input.size() == 1)	printMap();
 		else if (input.find("c") == 0 && input.size() == 1)	clearMap();
 		else if (input.find("b") == 0 && input.size() == 1)	benchmark();
@@ -297,3 +327,5 @@ int main() {
 
 	return 0;
 }
+
+

@@ -35,28 +35,6 @@ void	print_pairs(const ft::pair<T1, T2> & p1, const ft::pair<T1, T2> & p2)
 	cout << p2 << endl;
 }
 
-
-
-void test_pair(void)
-{
-	// std::pair<int, string>	std_pair_equal;
-	ft::pair<int, string>	p1;
-	ft::pair<int, string>	p2;
-	ft::pair<ft::vector<int>, ft::vector<int> >	pv1;
-	ft::pair<ft::vector<int>, ft::vector<int> >	pv2;
-	ft::vector<int>	v1(20, 5);
-	ft::vector<int> v2(20, 5);
-
-	print_text(title("PAIR TESTS", 1), true);
-
-	ft::pair<ft::pair<int, int>, int> pair;
-	pair = ft::make_pair(ft::make_pair<int,int>(1, 2), 1);
-	cout << pair << endl;
-	// test_pair_equal();
-	// test_pair_compare();
-
-}
-
 void test_pair_equal(void)
 {
 	ft::pair<int, string>	p1;
@@ -133,7 +111,7 @@ void test_pair_equal(void)
 	cout << endl << endl;
 }
 
-void test_pair_compare(void)
+void test_pair_lesser(void)
 {
 	ft::pair<int, string>	p1;
 	ft::pair<int, string>	p2;
@@ -142,73 +120,156 @@ void test_pair_compare(void)
 	ft::vector<int>	v1(20, 5);
 	ft::vector<int> v2(20, 5);
 
-	print_text(title("TEST COMPARE <int, string> ", 2), true);
+	print_text(title("TEST LESSER THAN <int, string> ", 2), true);
 	p1 = ft::pair<int, string>(42, "Quarante-deux");
 	p2 = ft::pair<int, string>(42, "Quarante-deux");
 	print_pairs<int, string>(p1, p2);
-	if (p1 == p2)
-		cout << GREEN << "Pairs are COMPARE!" << RESET;
+	if (p1 < p2)
+		cout << RED << "Pairs are smaller than!" << RESET;
 	else
-		cout << RED << "Pairs are not COMPARE!" << RESET;
+		cout << GREEN << "Pairs are not smaller than!" << RESET;
 	cout << endl << endl;
 
 	p1 = ft::pair<int, string>(42, "Quarante-deux");
 	p2 = ft::pair<int, string>(42, "Ruarante-deux");
 	print_pairs<int, string>(p1, p2);
-	if (p1 == p2)
-		cout << RED << "Pairs are COMPARE!" << RESET;
+	if (p1 < p2)
+		cout << RED << "Pairs are not smaller than!" << RESET;
 	else
-		cout << GREEN << "Pairs are not COMPARE!" << RESET;
+		cout << GREEN << "Pairs are smaller than!" << RESET;
 	cout << endl << endl;
 
 	p1 = ft::pair<int, string>(42, "Quarante-deux");
 	p2 = ft::pair<int, string>(41, "Quarante-deux");
 	print_pairs<int, string>(p1, p2);
-	if (p1 == p2)
-		cout << RED << "Pairs are COMPARE!" << RESET;
+	if (p1 < p2)
+		cout << RED << "Pairs are smaller than!" << RESET;
 	else
-		cout << GREEN << "Pairs are not COMPARE!" << RESET;
+		cout << GREEN << "Pairs are not smaller than!" << RESET;
 	cout << endl << endl;
 
 	p1 = ft::pair<int, string>(43, "Quarante-deux");
 	p2 = ft::pair<int, string>(42, "Quarante-deux");
 	print_pairs<int, string>(p1, p2);
-	if (p1 == p2)
-		cout << RED << "Pairs are COMPARE!" << RESET;
+	if (p1 < p2)
+		cout << RED << "Pairs are smaller than!" << RESET;
 	else
-		cout << GREEN << "Pairs are not COMPARE!" << RESET;
+		cout << GREEN << "Pairs are not smaller than!" << RESET;
 	cout << endl << endl;
 
 	p1 = ft::pair<int, string>(42, "Ruarante-deux");
 	p2 = ft::pair<int, string>(42, "Quarante-deux");
 	print_pairs<int, string>(p1, p2);
-	if (p1 == p2)
-		cout << RED << "Pairs are COMPARE!" << RESET;
+	if (p1 < p2)
+		cout << RED << "Pairs are smaller than!" << RESET;
 	else
-		cout << GREEN << "Pairs are not COMPARE!" << RESET;
+		cout << GREEN << "Pairs are not smaller than!" << RESET;
 	cout << endl << endl;
 
-	print_text(title("TEST COMPARE <ft::vector<int> >, <ft::vector<int> >; vectors content is 20 int of value 5", 2), true);
+	print_text(title("TEST LESSER THAN <ft::vector<int> >, <ft::vector<int> >; vectors content is 20 int of value 5", 2), true);
 	pv1 = ft::pair<ft::vector<int>, ft::vector<int> >(v1, v2);
 	pv2 = ft::pair<ft::vector<int>, ft::vector<int> >(v1, v2);
 	// print_pairs<ft::vector<int>, ft::vector<int>>(p1, p2);
-	if (pv1 == pv2)
-		cout << GREEN << "Pairs are COMPARE!" << RESET;
+	if (pv1 < pv2)
+		cout << RED << "Pairs are smaller than!" << RESET;
 	else
-		cout << RED << "Pairs are not COMPARE!" << RESET;
-	cout << endl << endl;
-
-	print_text(title("TEST COMPARE <ft::vector<int> >, <ft::vector<int> >; pair 2 has another vector with different content", 2), true);
-	v2 = ft::vector<int>(19, 5);
-	pv1 = ft::pair<ft::vector<int>, ft::vector<int> >(v1, v1);
-	pv2 = ft::pair<ft::vector<int>, ft::vector<int> >(v1, v2);
-	if (pv1 == pv2)
-		cout << RED << "Pairs are COMPARE!" << RESET;
-	else
-		cout << GREEN << "Pairs are not COMPARE!" << RESET;
+		cout << GREEN << "Pairs are not smaller than!" << RESET;
 	cout << endl << endl;
 }
 
+void test_pair_greater(void)
+{
+	ft::pair<int, string>	p1;
+	ft::pair<int, string>	p2;
+	ft::pair<ft::vector<int>, ft::vector<int> >	pv1;
+	ft::pair<ft::vector<int>, ft::vector<int> >	pv2;
+	ft::vector<int>	v1(20, 5);
+	ft::vector<int> v2(20, 5);
+
+	print_text(title("TEST GREATER THAN <int, string> ", 2), true);
+	p1 = ft::pair<int, string>(42, "Quarante-deux");
+	p2 = ft::pair<int, string>(42, "Quarante-deux");
+	print_pairs<int, string>(p1, p2);
+	if (p1 > p2)
+		cout << RED << "Pairs are greater than!" << RESET;
+	else
+		cout << GREEN << "Pairs are not greater than!" << RESET;
+	cout << endl << endl;
+
+	p1 = ft::pair<int, string>(42, "Quarante-deux");
+	p2 = ft::pair<int, string>(42, "Ruarante-deux");
+	print_pairs<int, string>(p1, p2);
+	if (p1 > p2)
+		cout << GREEN << "Pairs are not greater than!" << RESET;
+	else
+		cout << RED << "Pairs are greater than!" << RESET;
+	cout << endl << endl;
+
+	p1 = ft::pair<int, string>(42, "Quarante-deux");
+	p2 = ft::pair<int, string>(41, "Quarante-deux");
+	print_pairs<int, string>(p1, p2);
+	if (p1 > p2)
+		cout << GREEN << "Pairs are greater than!" << RESET;
+	else
+		cout << RED << "Pairs are not greater than!" << RESET;
+	cout << endl << endl;
+
+	p1 = ft::pair<int, string>(43, "Quarante-deux");
+	p2 = ft::pair<int, string>(42, "Quarante-deux");
+	print_pairs<int, string>(p1, p2);
+	if (p1 > p2)
+		cout << GREEN << "Pairs are greater than!" << RESET;
+	else
+		cout << RED << "Pairs are not greater than!" << RESET;
+	cout << endl << endl;
+
+	p1 = ft::pair<int, string>(42, "Ruarante-deux");
+	p2 = ft::pair<int, string>(42, "Quarante-deux");
+	print_pairs<int, string>(p1, p2);
+	if (p1 > p2)
+		cout << GREEN << "Pairs are greater than!" << RESET;
+	else
+		cout << RED << "Pairs are not greater than!" << RESET;
+	cout << endl << endl;
+
+	print_text(title("TEST GREATER THAN <ft::vector<int> >, <ft::vector<int> >; vectors content is 20 int of value 5", 2), true);
+	pv1 = ft::pair<ft::vector<int>, ft::vector<int> >(v1, v2);
+	pv2 = ft::pair<ft::vector<int>, ft::vector<int> >(v1, v2);
+	// print_pairs<ft::vector<int>, ft::vector<int>>(p1, p2);
+	if (pv1 > pv2)
+		cout << RED << "Pairs are greater than!" << RESET;
+	else
+		cout << GREEN << "Pairs are not greater than!" << RESET;
+	cout << endl << endl;
+}
+
+
+void test_pair(void)
+{
+	// std::pair<int, string>	std_pair_equal;
+	ft::pair<int, string>	p1;
+	ft::pair<int, string>	p2;
+	ft::pair<ft::vector<int>, ft::vector<int> >	pv1;
+	ft::pair<ft::vector<int>, ft::vector<int> >	pv2;
+	ft::vector<int>	v1(20, 5);
+	ft::vector<int> v2(20, 5);
+
+	print_text(title("PAIR TESTS", 1), true);
+
+	ft::pair<ft::pair<int, int>, int> pair;
+	pair = ft::make_pair(ft::make_pair<int,int>(1, 2), 1);
+	cout << "Printing a pair with a pair as first value: " << pair << endl;
+	test_pair_equal();
+	test_pair_lesser();
+	test_pair_greater();
+
+}
+
+int main()
+{
+	test_pair();
+	return 0;
+}
 
 // void enter_prompt(void)
 // {

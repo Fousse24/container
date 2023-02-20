@@ -30,6 +30,7 @@ protected:
 	typedef typename Container::key_type		key_type;
 	typedef typename Container::mapped_type		mapped_type;
 	typedef typename Container::size_type		size_type;
+	typedef typename Container::iterator		iterator;
 	typedef void (tester_map::*member_fn)(void);
 
 public:
@@ -41,6 +42,32 @@ public:
 	~tester_map() { }
 
 	tester_map& operator=(const tester_map& rhs) { this->cont_ = rhs.cont_;	}
+
+	virtual void	print_cont_to_file(string filename) const 
+	{
+		iterator iter;
+		std::ofstream	file;
+
+  		file.open(filename);
+		file << "Size " << this->cont_->size() << " : ";
+		for (iter = this->cont_->begin(); iter != this->cont_->end(); iter++)
+		{
+			file << (*iter).first << " ";
+		}
+
+  		file.close();
+	}
+
+	virtual void	print_cont() const
+	{
+		iterator iter;
+
+		cout << "Size " << this->cont_->size() << " : ";
+		for (iter = this->cont_->begin(); iter != this->cont_->end(); iter++)
+		{
+			cout << (*iter).first << " ";
+		}
+	}
 
 	void benchmark(string fn_name, member_fn fn)
 	{
@@ -107,7 +134,6 @@ public:
 	}
 };
 
-	
 }
 
 #endif

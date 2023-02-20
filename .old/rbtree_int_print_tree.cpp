@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <iostream>
-#include "rbtree_int/rbtree.hpp"
+#include "rbtree.hpp"
 
 using std::cout;
 using std::cin;

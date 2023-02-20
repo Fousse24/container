@@ -61,6 +61,7 @@ int main(int argc, char** argv) {
 	ft::vector<Buffer> vector_buffer;
 	ft::stack<Buffer, std::deque<Buffer> > stack_deq_buffer;
 	ft::map<int, int> map_int;
+	// std::map<int, int> map_int;
 
 	for (int i = 0; i < COUNT; i++)
 	{
@@ -73,9 +74,7 @@ int main(int argc, char** argv) {
 		vector_buffer[idx].idx = 5;
 	}
 	ft::vector<Buffer>().swap(vector_buffer);
-	std::vector<int> vect;
 
-	vect.assign(f);
 	try
 	{
 		for (int i = 0; i < COUNT; i++)
@@ -96,10 +95,14 @@ int main(int argc, char** argv) {
 	}
 
 	int sum = 0;
+	ft::map<int, int>::iterator it_map = map_int.begin();
+	// std::map<int, int>::iterator it_map = map_int.begin();
 	for (int i = 0; i < 10000; i++)
 	{
-		int access = rand();
-		sum += map_int[access];
+		
+		// int access = rand();
+		// sum += map_int[access];
+		sum += map_int[(*(it_map++)).first];
 	}
 	std::cout << "should be constant with the same seed: " << sum << std::endl;
 

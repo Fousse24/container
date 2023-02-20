@@ -47,7 +47,7 @@ void deletion( string input, ft::rbtree<int> & tree )
 {
 	try
 	{
-		tree.deleteNode(stoi(input.substr(2)));
+		tree.erase(stoi(input.substr(2)));
 		tree.printTree();
 	}
 	catch (const std::exception& e)

@@ -13,20 +13,23 @@
 #include <unistd.h>
 #include <iostream>
 #include <fstream>
-
 #include "timer.hpp"
 
 using std::chrono::high_resolution_clock;
-using std::chrono::duration;
 using std::chrono::milliseconds;
-using std::chrono::time_point;
 
 using std::string;
 using std::cout;
-using std::endl;
 
 namespace ft
 {
+
+template< class T1, class T2 >
+std::ostream & operator<<( std::ostream & os, const std::pair<T1, T2>& rhs ) 
+{ 
+	os << rhs.first << " | " << rhs.second;
+	return os;
+}
 
 template <class Container>
 class tester
@@ -60,16 +63,16 @@ public:
 		this->cont_ = rhs.cont_;
 	}
 	
-	virtual void	print_cont_to_file(string name)
+	virtual void	print_cont_to_file(string filename) const 
 	{
 		iterator iter;
 		std::ofstream	file;
 
-  		file.open(name);
+  		file.open(filename);
 		file << "Size " << cont_->size() << " : ";
 		for (iter = cont_->begin(); iter != cont_->end(); iter++)
 		{
-			file << (*iter).first << " ";
+			file << *iter << " ";
 		}
 
   		file.close();
@@ -82,7 +85,7 @@ public:
 		cout << "Size " << cont_->size() << " : ";
 		for (iter = cont_->begin(); iter != cont_->end(); iter++)
 		{
-			cout << (*iter).first << " ";
+			cout << *iter << " ";
 		}
 	}
 
@@ -92,7 +95,10 @@ public:
 	Container&	getCont() { return *cont_; }
 
 	virtual void	clear_cont() { cont_->clear(); }
+
 };
 
 }
+
+
 #endif
