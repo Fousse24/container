@@ -47,7 +47,7 @@ public:
 	typedef typename container_type::size_type      		size_type;
 	typedef typename container_type::difference_type		difference_type;
 
-private:
+protected:
 	container_type	_stack;
 
 public:

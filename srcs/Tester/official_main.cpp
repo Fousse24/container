@@ -61,6 +61,11 @@ int main(int argc, char** argv) {
 	ft::vector<Buffer> vector_buffer;
 	ft::stack<Buffer, std::deque<Buffer> > stack_deq_buffer;
 	ft::map<int, int> map_int;
+	// std::vector<std::string> vector_str;
+	// std::vector<int> vector_int;
+	// std::stack<int> stack_int;
+	// std::vector<Buffer> vector_buffer;
+	// std::stack<Buffer, std::deque<Buffer> > stack_deq_buffer;
 	// std::map<int, int> map_int;
 
 	for (int i = 0; i < COUNT; i++)
